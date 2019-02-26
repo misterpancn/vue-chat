@@ -1,7 +1,7 @@
 {
   "name": "vue-chat",
   "version": "1.0.0",
-  "author": "",
+  "author": "misterpancn@gmail.com",
   "description": "An electron-vue project",
   "license": null,
   "main": "./dist/electron/main.js",
@@ -58,7 +58,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "iview": "^3.2.2",
-    "vue": "^2.5.16",
+    "vue": "^2.6.6",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
@@ -122,7 +122,7 @@
     "vue-html-loader": "^1.2.4",
     "vue-loader": "^15.2.4",
     "vue-style-loader": "^4.1.0",
-    "vue-template-compiler": "^2.5.16",
+    "vue-template-compiler": "^2.6.6",
     "webpack": "^4.15.1",
     "webpack-cli": "^3.0.8",
     "webpack-dev-server": "^3.1.4",

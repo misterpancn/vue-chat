@@ -1,9 +1,10 @@
 <script>
   export default {
-    props: ['user', 'search'],
+    props: ['search'],
     data () {
       return {
-        searchs: this.search
+        searchs: this.search,
+        user: this.$store.getters.getUser
       }
     },
     methods: {

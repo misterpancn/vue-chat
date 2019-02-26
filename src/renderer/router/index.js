@@ -16,6 +16,11 @@ export default new Router({
       component: require('@/components/Chat/app').default
     },
     {
+      path: '/register',
+      name: 'register',
+      component: require('@/components/Login/register').default
+    },
+    {
       path: '*',
       redirect: '/'
     }
