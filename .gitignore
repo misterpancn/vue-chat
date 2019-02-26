@@ -9,4 +9,6 @@ npm-debug.log
 npm-debug.log.*
 thumbs.db
 !.gitkeep
-src/renderer/store/config/*
+src/renderer/store/config/*.js
+.git
+.idea

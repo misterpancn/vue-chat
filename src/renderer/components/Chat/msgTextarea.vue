@@ -1,5 +1,5 @@
 <script>
-  import chat from './../../store/modules/chat'
+  import chat from '@/request/websocket'
   export default {
     props: ['session', 'selectUserId'],
     data () {
