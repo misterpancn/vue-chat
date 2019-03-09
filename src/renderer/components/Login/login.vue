@@ -40,6 +40,7 @@
 </template>
 
 <script>
+  import ws from '@/request/websocket'
   export default {
     data () {
       return {
@@ -74,20 +75,17 @@
               is_app: true
             }).then((response) => {
               console.log(response)
-              if (response.status === 200 && response.data.mess === 'success') {
-                this.$Notice.success({
-                  title: '登录成功',
-                  desc: ''
-                })
-                this.$router.push('/chat')
+              if (response.status === 200 && response.data.status_code === 200) {
+                ws.tryConnect(this.connectCallback)
               } else {
                 this.$Notice.error({
                   title: '验证失败',
-                  desc: response.data.mess
+                  desc: response.data.message
                 })
                 this.loading = false;
               }
-            }).catch(() => {
+            }).catch((error) => {
+              console.log(error)
               this.loading = false;
               this.$Notice.error({
                 title: '错误提醒',
@@ -110,6 +108,18 @@
         } else {
           this.formInline.is_eye = false
           this.passwordType = 'password'
+        }
+      },
+      connectCallback (res) {
+        if (res.type === 'error') {
+          this.loading = false;
+          this.$Notice.error({
+            title: '错误提醒',
+            desc: '身份验证失败！'
+          })
+          ws.closeConnect()
+        } else {
+          this.$router.push('/chat')
         }
       }
     }

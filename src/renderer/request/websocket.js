@@ -3,47 +3,67 @@ import store from '@/store'
 var chat = {
   Server: config.serviceAddress,
   url: 'https://' + config.serviceAddress,
-  token: config.token,
   // 限制socket链接次数
   overflow: false,
-  connectTotal: 0
+  connectTotal: 0,
+  timer: null,
+  pingTimer: null,
+  callBack: () => {}
 }
 var socket
-var transport = config.transport === null ? 'ws://' : 'wss://'
-chat.connectWS = function (exception) {
+var transport = config.openssl === false ? 'ws://' : 'wss://'
+chat.connectWS = function () {
   socket = new WebSocket(transport + config.serviceAddress + ':' + config.websocketPort)
+  console.log('connect')
   socket.onopen = onopensocket
   socket.onmessage = onmessage
   socket.onerror = socketError
   socket.onclose = socketClose
-  chat.exception = exception
   chat.connectTotal += 1
   if (chat.connectTotal > config.connectLimit) {
     chat.overflow = true
+    chat.clearTimer()
+    chat.callBack({
+      type: 'error',
+      mess: '连接服务器失败，请重新登录',
+      code: 500
+    })
   }
 }
 function onopensocket () {
-  var send = '{"type":"login","uid":"' + store.getters.getUser.userId + '","token":"' + chat.token + '"}'
+  var send = {
+    type: 'login',
+    uid: store.getters.getUser.userId,
+    token: store.getters.getToken
+  }
   console.log('连接服务器成功')
-  socket.send(send)
+  socket.send(JSON.stringify(send))
 }
 function onmessage (mes) {
   if (mes.data.length === 0 || mes.data === '') {
     return false
   }
   var res = chat.evil(mes.data)
-  if (typeof res.all_user === 'object' && res.all_user.length > 0) {
+  if (res.type === 'error') {
+    chat.callBack(res)
+    return false
+  }
+  if (res.type === 'login') {
+    chat.callBack(res)
+  }
+  if (res.all_user !== null && res.all_user.length > 0) {
     let user = [];
     let groupList = [];
     for (var i = 0; i < res.all_user.length; i++) {
+      let json = JSON.parse(res.all_user[i])
       let c = {
-        userId: parseInt(res.all_user[i].id),
-        name: res.all_user[i].user_name,
+        userId: parseInt(json.id),
+        name: json.name,
         img: './../../../../static/img/2.png'
       }
       user.push(c)
     }
-    if (typeof res.all_group === 'object' && res.all_group.length > 0) {
+    if (res.all_group !== null && res.all_group.length > 0) {
       groupList = res.all_group;
     }
     store.dispatch('pushMessage', {
@@ -56,27 +76,32 @@ function onmessage (mes) {
   }
 }
 function socketError () {
-  console.log('服务器连接出错，定时重连......')
-  if (chat.overflow === false) { // 防止过多请求导致内存消耗
-    setTimeout(chat.connectWS, 5000)
-  } else {
-    chat.exception({
-      type: 'error',
-      mess: '连接服务器失败，请重新登录',
-      code: 500
-    })
+  if (store.getters.getIsOnline) {
+    console.log('服务器连接已断开，定时重连......')
   }
 }
 function socketClose () {
-  console.log('服务器连接已断开，定时重连......')
-  if (chat.overflow === false) {
-    setTimeout(chat.connectWS, 5000)
-  } else {
-    chat.exception({
-      type: 'error',
-      mess: '连接服务器失败，请重新登录',
-      code: 500
-    })
+  if (store.getters.getIsOnline) {
+    console.log('服务器连接已断开，定时重连......')
+  }
+  chat.timerFn()
+}
+chat.timerFn = () => {
+  if (chat.overflow === false && chat.timer === null && store.getters.getIsOnline) {
+    chat.timer = setInterval(chat.connectWS, 3000)
+  }
+}
+chat.ping = () => {
+  if (chat.pingTimer === null) {
+    chat.pingTimer = setInterval(() => {
+      if (socket === undefined) {
+        chat.clearTimer()
+      } else {
+        socket.send(JSON.stringify({
+          type: 'ping'
+        }))
+      }
+    }, 1000 * 30)
   }
 }
 chat.evil = function (fn) {
@@ -88,8 +113,21 @@ chat.sendMessage = function (mes, uid, group) {
   if (mes) {
     mes = mes.replace(/[\r\n]/i, '<br>')
     mes = mes.replace(/"/g, '\\"')
-    var data = '{"type":"message","content":"' + mes + '","group":"' + group + '","send_to_uid":"' + uid + '","uid":"' + store.getters.getUser.userId + '"}'
-    socket.send(data)
+    let data = {
+      type: 'message',
+      content: mes,
+      group: group,
+      send_to_uid: uid,
+      uid: store.getters.getUser.userId
+    }
+    if (socket === undefined) {
+      chat.callBack({
+        type: 'error',
+        content: 'WebSocket is already in closed state.'
+      })
+    } else {
+      socket.send(JSON.stringify(data))
+    }
   }
 }
 chat.messagesTimeShow = function (now, lastTime) {
@@ -100,6 +138,23 @@ chat.messagesTimeShow = function (now, lastTime) {
     bool = true
   }
   return bool
+}
+chat.tryConnect = (callback) => {
+  chat.callBack = callback;
+  chat.connectWS()
+}
+chat.init = (callback) => {
+  chat.callBack = callback
+}
+chat.closeConnect = () => {
+  socket.close()
+  chat.clearTimer()
+}
+chat.clearTimer = () => {
+  clearInterval(chat.pingTimer)
+  chat.pingTimer = null
+  clearInterval(chat.timer)
+  chat.timer = null
 }
 chat.socket = socket
 export default chat

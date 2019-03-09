@@ -4,12 +4,16 @@ import request from '@/request'
 const state = {
   user: localStorage.getItem('user') !== null ? JSON.parse(localStorage.getItem('user')) : {},
   userList: localStorage.getItem('userList') !== null ? JSON.parse(localStorage.getItem('userList')) : {},
-  groupList: localStorage.getItem('groupList') !== null ? JSON.parse(localStorage.getItem('groupList')) : {}
+  groupList: localStorage.getItem('groupList') !== null ? JSON.parse(localStorage.getItem('groupList')) : {},
+  token: localStorage.getItem('token') !== null ? localStorage.getItem('token') : '',
+  tokenType: localStorage.getItem('tokenType') !== null ? localStorage.getItem('tokenType') : '',
+  isOnline: false
 }
 
 const mutations = {
   SET_USER (state, user) {
     state.user = user;
+    state.isOnline = true;
     localStorage.setItem('user', JSON.stringify(state.user))
   },
   SET_USER_LIST (state, userList) {
@@ -19,6 +23,23 @@ const mutations = {
   SET_GROUP_LIST (state, groupList) {
     state.groupList = groupList;
     localStorage.setItem('groupList', JSON.stringify(state.groupList))
+  },
+  SET_TOKEN (state, token) {
+    state.token = token.token;
+    state.tokenType = token.type;
+    localStorage.setItem('token', state.token)
+    localStorage.setItem('tokenType', state.tokenType)
+  },
+  LOGOUT (state) {
+    state.userList = {};
+    state.userList = {};
+    state.groupList = {};
+    state.token = '';
+    state.tokenType = '';
+    state.isOnline = false;
+    localStorage.clear()
+    ws.closeConnect()
+    ws.overflow = true
   }
 }
 
@@ -35,12 +56,37 @@ const actions = {
   login ({ commit }, data) {
     return new Promise((resolve, reject) => {
       request.login(data).then((response) => {
-        if (response.status === 200 && response.data.mess === 'success') {
+        if (response.data.status_code === 200) {
           commit('SET_USER', {
-            userId: parseInt(response.data.user_id),
-            name: response.data.name,
-            img: response.data.img
+            userId: parseInt(response.data.users.id),
+            name: response.data.users.name,
+            img: ''
           })
+          commit('SET_TOKEN', {
+            token: response.data.access_token,
+            type: response.data.token_type
+          })
+        }
+        resolve(response)
+      }).catch((error) => {
+        reject(error)
+      })
+    })
+  },
+  register ({ commit }, data) {
+    return new Promise((resolve, reject) => {
+      request.register(data).then((response) => {
+        resolve(response)
+      }).catch((error) => {
+        reject(error)
+      })
+    })
+  },
+  logout ({ commit }, data) {
+    return new Promise((resolve, reject) => {
+      request.logout(data).then((response) => {
+        if (response.data.status_code === 200) {
+          commit('LOGOUT')
         }
         resolve(response)
       }).catch((error) => {
@@ -60,6 +106,9 @@ const getters = {
   },
   getGroupList: state => {
     return state.groupList
+  },
+  getIsOnline: state => {
+    return state.isOnline
   },
   searchUser: (state) => (sear) => {
     let res = []
@@ -105,6 +154,9 @@ const getters = {
       }
     }
     return res
+  },
+  getToken: (state) => {
+    return state.tokenType + ' ' + state.token
   }
 }
 
