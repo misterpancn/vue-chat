@@ -48,8 +48,6 @@
     </div>
 </template>
 <script>
-  import axios from 'axios'
-  import Qs from 'qs'
   import config from './../../store/config/config'
   export default {
     data () {
@@ -116,13 +114,13 @@
           if (valid) {
             this.loading = true;
             // qs 方法将json对象转成 x-www-form格式 以便后台接收
-            axios.post('http://' + config.serviceAddress + '/api/register', Qs.stringify({
+            this.$store.dispatch('register', {
               email: this.formInline.mail,
               password: this.formInline.password,
               name: this.formInline.name,
               phone: this.formInline.phone,
               mb_prefix: this.formInline.mbPrefix
-            })).then((response) => {
+            }).then((response) => {
               console.log(response)
               if (response.data.status_code === 200) {
                 this.$Notice.success({

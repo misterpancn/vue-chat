@@ -1,8 +1,4 @@
 <script>
-  import store from '@/store'
-  import config from '@/store/config/config'
-  import axios from 'axios'
-  import Qs from 'qs'
   export default {
     methods: {
       logout () {
@@ -10,9 +6,9 @@
           title: '您真的要退出登录吗？',
           loading: true,
           onOk: () => {
-            axios.post('https://' + config.serviceAddress + '/login.php?action=logout', Qs.stringify({uid: store.getters.getUser.userId}))
+            this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
               .then((response) => {
-                if (response.data === 'success') {
+                if (response.data.status_code === 200) {
                   this.$Message.success('退出成功')
                   this.$Modal.remove()
                   this.$router.push('/login')
@@ -22,7 +18,6 @@
                     desc: '退出失败，请稍后重试'
                   })
                   this.$Modal.remove()
-                  this.$router.push('/login')
                 }
               }).catch((error) => {
                 this.$Notice.error({
@@ -30,6 +25,7 @@
                   desc: error
                 })
                 this.$Modal.remove()
+                this.$router.push('/login')
               })
           }
         })

@@ -13,7 +13,7 @@
         // 搜索key
         search: '',
         // 选中的会话userID
-        selectUserId: 'allUsers'
+        selectUserId: 'all'
       }
     },
     computed: {
@@ -23,7 +23,7 @@
       }
     },
     created () {
-      ws.connectWS(this.exception)
+      ws.init(this.callbackWsError, this.exception)
     },
     methods: {
       callbackFromCard (res) {
@@ -32,6 +32,48 @@
       callbackFromList (res) {
         console.log(res)
         this.selectUserId = res.selectUserId
+      },
+      callbackWsError (res) {
+        console.log(res)
+        if (res.type === 'login') {
+          return false;
+        }
+        if (res.type === 'error') {
+          this.$Modal.confirm({
+            title: '服务器出现异常，正在帮您退出登录',
+            loading: true,
+            onOk: () => {
+              this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
+                .then((response) => {
+                  if (response.data.status_code === 200) {
+                    this.$Message.success('退出成功')
+                    this.$Modal.remove()
+                    this.$router.push('/login')
+                  } else {
+                    this.$Notice.warning({
+                      title: '提醒',
+                      desc: '退出失败，请稍后重试'
+                    })
+                    this.$Modal.remove()
+                  }
+                }).catch((error) => {
+                  console.log(error)
+                  this.$Notice.error({
+                    title: '提醒',
+                    desc: error
+                  })
+                  this.$Modal.remove()
+                })
+            }
+          })
+        } else {
+          this.$Notice.error({
+            title: '提醒',
+            desc: res.content
+          })
+          this.$Modal.remove()
+        }
+        // this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
       },
       exception (response) {
         if (response.code >= 500) {
