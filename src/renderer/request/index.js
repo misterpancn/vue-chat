@@ -9,5 +9,8 @@ export default {
   },
   logout (data) {
     return axios.post('auth/logout', Qs.stringify(data))
+  },
+  getExpression () {
+    return axios.get('lib/getExpression')
   }
 }

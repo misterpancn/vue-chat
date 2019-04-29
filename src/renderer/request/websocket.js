@@ -2,7 +2,7 @@ import config from '@/store/config/config'
 import store from '@/store'
 var chat = {
   Server: config.serviceAddress,
-  url: 'https://' + config.serviceAddress,
+  url: (config.openssl === false ? 'http://' : 'https://') + config.serviceAddress,
   // 限制socket链接次数
   overflow: false,
   connectTotal: 0,
@@ -13,13 +13,6 @@ var chat = {
 var socket
 var transport = config.openssl === false ? 'ws://' : 'wss://'
 chat.connectWS = function () {
-  socket = new WebSocket(transport + config.serviceAddress + ':' + config.websocketPort)
-  console.log('connect')
-  socket.onopen = onopensocket
-  socket.onmessage = onmessage
-  socket.onerror = socketError
-  socket.onclose = socketClose
-  chat.connectTotal += 1
   if (chat.connectTotal > config.connectLimit) {
     chat.overflow = true
     chat.clearTimer()
@@ -28,7 +21,14 @@ chat.connectWS = function () {
       mess: '连接服务器失败，请重新登录',
       code: 500
     })
+    return false
   }
+  socket = new WebSocket(transport + config.serviceAddress + ':' + config.websocketPort)
+  socket.onopen = onopensocket
+  socket.onmessage = onmessage
+  socket.onerror = socketError
+  socket.onclose = socketClose
+  chat.connectTotal += 1
 }
 function onopensocket () {
   var send = {
@@ -38,6 +38,7 @@ function onopensocket () {
   }
   console.log('连接服务器成功')
   socket.send(JSON.stringify(send))
+  chat.ping()
 }
 function onmessage (mes) {
   if (mes.data.length === 0 || mes.data === '') {
@@ -50,6 +51,10 @@ function onmessage (mes) {
   }
   if (res.type === 'login') {
     chat.callBack(res)
+  }
+  if (res.type === 'refresh_token') {
+    chat.callBack(res)
+    return false;
   }
   if (res.all_user !== null && res.all_user.length > 0) {
     let user = [];
@@ -77,8 +82,9 @@ function onmessage (mes) {
 }
 function socketError () {
   if (store.getters.getIsOnline) {
-    console.log('服务器连接已断开，定时重连......')
+    console.log('服务器连接错误，定时重连......')
   }
+  chat.timerFn()
 }
 function socketClose () {
   if (store.getters.getIsOnline) {
@@ -98,7 +104,8 @@ chat.ping = () => {
         chat.clearTimer()
       } else {
         socket.send(JSON.stringify({
-          type: 'ping'
+          type: 'ping',
+          token: store.getters.getToken
         }))
       }
     }, 1000 * 30)
@@ -147,7 +154,9 @@ chat.init = (callback) => {
   chat.callBack = callback
 }
 chat.closeConnect = () => {
-  socket.close()
+  if (socket !== undefined) {
+    socket.close()
+  }
   chat.clearTimer()
 }
 chat.clearTimer = () => {

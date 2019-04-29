@@ -34,7 +34,7 @@
     list-style: none;
   }
   #app {
-    margin: 20px auto;
+    margin: auto;
     max-width: 800px;
   }
 </style>

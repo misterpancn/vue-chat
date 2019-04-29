@@ -66,10 +66,11 @@
                 })
             }
           })
-        } else {
-          this.$Notice.error({
-            title: '提醒',
-            desc: res.content
+        } else if (res.type === 'refresh_token') {
+          // token 过期自动刷新
+          this.$store.dispatch('setToken', {
+            type: res.token_type,
+            token: res.content
           })
           this.$Modal.remove()
         }
