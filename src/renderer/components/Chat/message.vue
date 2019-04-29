@@ -19,8 +19,12 @@
     filters: {
       // 将日期过滤为 hour:minutes
       time (date) {
+        let d = date
         if (typeof date === 'string') {
           date = new Date(date)
+        }
+        if (date.getDay() !== new Date().getDay()) {
+          return d
         }
         return date.getHours() + ':' + date.getMinutes()
       }
@@ -43,7 +47,7 @@
                 <p v-if="item.showTime" class="time"><span>{{item.date | time}}</span></p>
                 <div class="main" :class="{ self: item.self }">
                     <img class="avatar" width="30" height="30" :src="avatar(item)"/>
-                    <div class="text">{{item.text}}</div>
+                    <div class="text" v-html="item.text"></div>
                 </div>
             </li>
         </ul>
