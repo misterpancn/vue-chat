@@ -7,6 +7,7 @@ import store from './store'
 
 import iview from 'iview'
 import 'iview/dist/styles/iview.css'
+import i18n from './lang'
 
 Vue.use(iview)
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
@@ -18,5 +19,6 @@ new Vue({
   components: { App },
   router,
   store,
+  i18n,
   template: '<App/>'
 }).$mount('#app')
