@@ -8,16 +8,16 @@
     <div class="row justify-content-center c-center">
         <Card :bordered="false" :xs="8" :sm="4" :md="6" :lg="8">
             <p slot="title">Login</p>
-            <a slot="extra"><router-link to="/register">Register</router-link></a>
+            <a slot="extra"><router-link to="/register">{{ $t('register') }}</router-link></a>
             <div class="card-body">
                 <Form ref="formInline" :model="formInline" :rules="ruleInline">
                     <FormItem prop="mail">
-                        <Input v-model="formInline.mail" placeholder="Enter your e-mail" size="large">
+                        <Input v-model="formInline.mail" :placeholder="$t('email')" size="large">
                         <Icon type="ios-mail-outline" slot="prefix" style="font-size: 18px;"></Icon>
                         </Input>
                     </FormItem>
                     <FormItem prop="password">
-                        <Input v-bind:type="passwordType" v-model="formInline.password" placeholder="Password"
+                        <Input v-bind:type="passwordType" v-model="formInline.password" :placeholder="$t('password')"
                                size="large">
                         <Icon type="ios-lock-outline" slot="prefix" style="font-size: 18px;"></Icon>
                         <Icon v-if="!formInline.is_eye" type="ios-eye-off-outline" slot="suffix"
