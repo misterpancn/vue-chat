@@ -7,19 +7,25 @@
 <template>
     <div class="row justify-content-center c-center">
         <Card :bordered="false" :xs="8" :sm="4" :md="6" :lg="8">
-            <p slot="title">Login</p>
-            <a slot="extra"><router-link to="/register">{{ $t('register') }}</router-link></a>
+            <p slot="title">{{ $t('account.login') }}</p>
+            <a slot="extra"><router-link to="/register">{{ $t('account.register') }}</router-link></a>
             <div class="card-body">
                 <Form ref="formInline" :model="formInline" :rules="ruleInline">
+                    <FormItem>
+                        <Select v-model="language" style="float: right" size="large">
+                            <Icon type="md-globe" slot="prefix" style="font-size: 18px;"></Icon>
+                            <Option v-for="item in languages" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                        </Select>
+                    </FormItem>
                     <FormItem prop="mail">
-                        <Input v-model="formInline.mail" :placeholder="$t('email')" size="large">
-                        <Icon type="ios-mail-outline" slot="prefix" style="font-size: 18px;"></Icon>
+                        <Input v-model="formInline.mail" :placeholder="$t('account.email')" size="large">
+                        <Icon type="md-mail" slot="prefix" style="font-size: 18px;"></Icon>
                         </Input>
                     </FormItem>
                     <FormItem prop="password">
-                        <Input v-bind:type="passwordType" v-model="formInline.password" :placeholder="$t('password')"
+                        <Input v-bind:type="passwordType" v-model="formInline.password" :placeholder="$t('account.password')"
                                size="large">
-                        <Icon type="ios-lock-outline" slot="prefix" style="font-size: 18px;"></Icon>
+                        <Icon type="md-lock" slot="prefix" style="font-size: 18px;"></Icon>
                         <Icon v-if="!formInline.is_eye" type="ios-eye-off-outline" slot="suffix"
                               style="font-size: 18px;cursor: pointer;" @click="funcShow"></Icon>
                         <Icon v-else type="ios-eye-outline" slot="suffix" style="font-size: 18px;cursor: pointer;"
@@ -28,13 +34,12 @@
                     </FormItem>
                     <FormItem>
                         <Button type="primary" :loading="loading" @click="handleSubmit('formInline')" long>
-                            <span v-if="!loading">Sign in</span>
-                            <span v-else>Loading...</span>
+                            <span v-if="!loading">{{ $t('account.signIn') }}</span>
+                            <span v-else>{{ $t('notify.loading') }}</span>
                         </Button>
                     </FormItem>
                 </Form>
             </div>
-            <slot></slot>
         </Card>
     </div>
 </template>
@@ -49,18 +54,35 @@
           mail: '',
           is_eye: false
         },
-        ruleInline: {
+        loading: false,
+        passwordType: 'password',
+        language: this.$store.getters.getLanguage
+      }
+    },
+    computed: {
+      languages () {
+        return [
+          {value: 'en', label: this.$t('system.language.en')},
+          {value: 'zh', label: this.$t('system.language.zh')}
+        ]
+      },
+      ruleInline () {
+        return {
           password: [
-            {required: true, message: 'Please fill in the password.', trigger: 'blur'},
-            {type: 'string', min: 6, message: 'The password length cannot be less than 6 bits', trigger: 'blur'}
+            {required: true, message: this.$t('account.rules.passwordRequire'), trigger: 'blur'},
+            {type: 'string', min: 6, message: this.$t('account.rules.passwordMinLimit', {min: 6}), trigger: 'blur'}
           ],
           mail: [
-            {required: true, message: 'Mailbox cannot be empty', trigger: 'blur'},
-            {type: 'email', message: 'Incorrect email format', trigger: 'blur'}
+            {required: true, message: this.$t('account.rules.emailRequire'), trigger: 'blur'},
+            {type: 'email', message: this.$t('account.rules.emailCheck'), trigger: 'blur'}
           ]
-        },
-        loading: false,
-        passwordType: 'password'
+        }
+      }
+    },
+    watch: {
+      language () {
+        this.$i18n.locale = this.language
+        this.$store.dispatch('setLanguage', this.language)
       }
     },
     methods: {
@@ -79,7 +101,7 @@
                 ws.tryConnect(this.connectCallback)
               } else {
                 this.$Notice.error({
-                  title: '验证失败',
+                  title: this.$t('notifyTitle.validationFailed'),
                   desc: response.data.message
                 })
                 this.loading = false;
@@ -88,14 +110,14 @@
               console.log(error)
               this.loading = false;
               this.$Notice.error({
-                title: '错误提醒',
-                desc: '请求服务器失败！'
+                title: this.$t('notifyTitle.errorReminding'),
+                desc: this.$t('account.notify.requestFailed')
               })
             })
           } else {
             this.$Notice.error({
-              title: '错误提醒',
-              desc: '填写有误！'
+              title: this.$t('notifyTitle.errorReminding'),
+              desc: this.$t('account.notify.fillInIncorrect')
             })
           }
         })
@@ -114,8 +136,8 @@
         if (res.type === 'error') {
           this.loading = false;
           this.$Notice.error({
-            title: '错误提醒',
-            desc: '身份验证失败！'
+            title: this.$t('notifyTitle.errorReminding'),
+            desc: this.$t('account.notify.authenticationFail')
           })
           ws.closeConnect()
         } else {
