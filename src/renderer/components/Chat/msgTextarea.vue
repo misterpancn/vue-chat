@@ -42,13 +42,14 @@
       activeImg (expId) {
         let exp = this.$store.getters.getExpressionById(expId)
         let expHtml = "<img width='21px' height='21px' src='" + exp.path + "'>";
-        this.editor.txt.cmd.do('insertHTML', expHtml)
+        this.editor.cmd.do('insertHtml', expHtml)
         this.visible = false
       }
     },
     mounted () {
-      this.editor = new WangEdit('menus', '#textarea')
+      this.editor = new WangEdit('#menus', '#textarea')
       this.editor.customConfig.menus = []
+      this.editor.customConfig.zIndex = 1
       this.editor.create()
     }
   }
@@ -62,7 +63,7 @@
                 <div slot="content">
                     <Spin fix v-if="spinShow">
                         <Icon type="ios-loading" size=20 class="demo-spin-icon-load"></Icon>
-                        <div>Loading</div>
+                        <div>{{ $t('notify.loading') }}</div>
                     </Spin>
                     <img v-for="exp in expression" :src="exp.path" width="21px" height="21px" style="padding: 2px;cursor: pointer"
                     @click="activeImg(exp.id)">
@@ -76,7 +77,7 @@
         </div>
         <div class="m-input-box">
             <div class="menus" id="menus"></div>
-            <div class="textarea" id="textarea" @keyup="inputing" title="按 Ctrl + Enter 发送"></div>
+            <div class="textarea" id="textarea" @keyup="inputing" :title="$t('chat.notify.sendByCtrlEnter')"></div>
             <!--<textarea placeholder="按 Ctrl + Enter 发送" v-model="text" @keyup="inputing" title="按 Ctrl + Enter 发送"></textarea>-->
         </div>
     </div>

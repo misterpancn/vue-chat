@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "iview": "^3.2.2",
+    "iview": "^3.4.1",
     "vue": "^2.6.6",
     "vue-electron": "^1.0.6",
     "vue-i18n": "^8.11.2",
