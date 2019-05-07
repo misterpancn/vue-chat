@@ -56,6 +56,9 @@ function onmessage (mes) {
     chat.callBack(res)
     return false;
   }
+  if (res.type === 'pong') {
+    return false;
+  }
   if (res.all_user !== null && res.all_user.length > 0) {
     let user = [];
     let groupList = [];
