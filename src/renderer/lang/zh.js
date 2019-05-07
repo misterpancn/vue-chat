@@ -54,6 +54,7 @@ export default {
     exitSuccess: '退出成功'
   },
   chat: {
+    voice: '语音',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',

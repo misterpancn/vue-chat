@@ -25,7 +25,6 @@
                   desc: error
                 })
                 this.$Modal.remove()
-                this.$router.push('/login')
               })
           }
         })
