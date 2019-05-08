@@ -55,6 +55,8 @@ export default {
   },
   chat: {
     voice: '语音',
+    inRecording: '录制中...',
+    deviceNotSupport: '您的设备不支持',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',
