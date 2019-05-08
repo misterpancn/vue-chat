@@ -48,8 +48,15 @@
         this.visible = false
       },
       recorderStart () {
-        this.showRecorder = true;
-        console.log('star...')
+        if (rec.isSupport) {
+          this.showRecorder = true;
+          console.log('star...')
+        } else {
+          this.$Message.warning({
+            content: this.$t('chat.deviceNotSupport'),
+            duration: 3
+          });
+        }
       },
       recorderStop () {
         this.showRecorder = false
@@ -61,7 +68,9 @@
       this.editor.customConfig.menus = []
       this.editor.customConfig.zIndex = 1
       this.editor.create()
-      rec.init()
+      rec.init((e) => {
+        console.log(e)
+      })
     }
   }
 </script>
@@ -86,11 +95,11 @@
             <a href="javascript:;"></a>
             <a href="javascript:;"></a>
             <Modal v-model="showRecorder" width="150" :zIndex="0"  :closable="false" :mask="false">
-                <p slot="header" style="text-align: center;">语音</p>
+                <p slot="header" style="text-align: center;">{{ $t('chat.voice') }}</p>
                 <p style="text-align: center">
                     <Icon type="md-microphone" style="font-size: 30px;" />
                 </p>
-                <p slot="footer" style="text-align: center">录制中...</p>
+                <p slot="footer" style="text-align: center">{{ $t('chat.inRecording') }}</p>
             </Modal>
         </div>
         <div class="m-input-box">
