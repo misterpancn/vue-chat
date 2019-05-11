@@ -54,6 +54,9 @@ export default {
     exitSuccess: 'Exit successfully'
   },
   chat: {
+    voice: 'Voice',
+    inRecording: 'In recording...',
+    deviceNotSupport: 'Your device does not support it',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',

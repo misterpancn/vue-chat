@@ -85,7 +85,7 @@ const actions = {
   logout ({ commit }, data) {
     return new Promise((resolve, reject) => {
       request.logout(data).then((response) => {
-        if (response.data.status_code === 200) {
+        if (response.data.status_code === 200 || response.data.status_code === 401) {
           commit('LOGOUT')
         }
         resolve(response)

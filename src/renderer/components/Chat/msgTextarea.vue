@@ -1,13 +1,15 @@
 <script>
   import chat from '@/request/websocket'
   import WangEdit from 'wangeditor'
+  import rec from '@/media/recorder'
   export default {
     props: ['session', 'selectUserId'],
     data () {
       return {
         text: '',
         visible: false,
-        editor: {}
+        editor: {},
+        showRecorder: false
       }
     },
     computed: {
@@ -44,6 +46,21 @@
         let expHtml = "<img width='21px' height='21px' src='" + exp.path + "'>";
         this.editor.cmd.do('insertHtml', expHtml)
         this.visible = false
+      },
+      recorderStart () {
+        if (rec.isSupport) {
+          this.showRecorder = true;
+          console.log('star...')
+        } else {
+          this.$Message.warning({
+            content: this.$t('chat.deviceNotSupport'),
+            duration: 3
+          });
+        }
+      },
+      recorderStop () {
+        this.showRecorder = false
+        console.log('stop...')
       }
     },
     mounted () {
@@ -51,6 +68,9 @@
       this.editor.customConfig.menus = []
       this.editor.customConfig.zIndex = 1
       this.editor.create()
+      rec.init((e) => {
+        console.log(e)
+      })
     }
   }
 </script>
@@ -71,9 +91,16 @@
             </Poptip>
             <a href="javascript:;"></a>
             <a href="javascript:;"></a>
+            <a href="javascript:;" :title="$t('chat.voice')" @mousedown="recorderStart" @mouseup="recorderStop"></a>
             <a href="javascript:;"></a>
             <a href="javascript:;"></a>
-            <a href="javascript:;"></a>
+            <Modal v-model="showRecorder" width="150" :zIndex="0"  :closable="false" :mask="false">
+                <p slot="header" style="text-align: center;">{{ $t('chat.voice') }}</p>
+                <p style="text-align: center">
+                    <Icon type="md-microphone" style="font-size: 30px;" />
+                </p>
+                <p slot="footer" style="text-align: center">{{ $t('chat.inRecording') }}</p>
+            </Modal>
         </div>
         <div class="m-input-box">
             <div class="menus" id="menus"></div>
