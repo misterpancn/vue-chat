@@ -1,10 +1,11 @@
 <script>
   export default {
-    props: ['search', 'selectUserId'],
+    props: ['search', 'selectId', 'isGroup'],
     methods: {
       select (value) {
         this.$emit('listenToChildEvent', {
-          selectUserId: value.userId > 0 ? value.userId : value.name
+          selectId: value.chat_id > 0 ? value.chat_id : value.group_id,
+          isGroup: value.group_id > 0
         })
       }
     },
@@ -19,9 +20,9 @@
 <template>
     <div v-if="users" class="m-list">
         <ul>
-            <li v-for="item in users" :class="{ active: (selectUserId === item.userId || selectUserId === item.name) }" @click="select(item)">
+            <li v-for="item in users" :class="{ active: ((selectId === item.chat_id && !isGroup) || (selectId === item.group_id && isGroup)) }" @click="select(item)">
                 <img class="avatar" width="30" height="30" :alt="item.name" :src="item.img">
-                <p class="name">{{item.name}}</p>
+                <p class="name">{{item.group_id > 0 ? item.group_name : item.name}}</p>
             </li>
         </ul>
     </div>
