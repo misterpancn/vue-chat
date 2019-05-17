@@ -44,8 +44,6 @@
           } else {
             chat.sendMessage(this.editor.txt.html(), this.selectId, 0)
           }
-          console.log(this.session)
-          console.log(this.session.length)
           this.text = ''
           this.editor.txt.clear()
         }

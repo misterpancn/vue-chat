@@ -21,7 +21,6 @@
     computed: {
       session () {
         var res = this.$store.getters.getMessageLocation(this.selectId, this.isGroup);
-        console.log(res.length)
         return res
       }
     },
@@ -73,7 +72,7 @@
           // token 过期自动刷新
           this.$store.dispatch('setToken', {
             type: res.token_type,
-            token: res.content
+            token: res.data
           })
           this.$Modal.remove()
         }

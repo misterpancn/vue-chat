@@ -133,7 +133,7 @@
         }
       },
       connectCallback (res) {
-        if (res.type === 5) {
+        if (res.type === ws.messageType.error) {
           this.loading = false;
           this.$Notice.error({
             title: this.$t('notifyTitle.errorReminding'),
