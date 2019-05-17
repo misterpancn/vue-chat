@@ -3,7 +3,7 @@
   import WangEdit from 'wangeditor'
   import rec from '@/media/recorder'
   export default {
-    props: ['session', 'selectUserId'],
+    props: ['session', 'selectId', 'isGroup'],
     data () {
       return {
         text: '',
@@ -22,15 +22,27 @@
         } else {
           return true;
         }
+      },
+      editorDisable () {
+        if (this.selectId > 0) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    },
+    watch: {
+      editorDisable: function (val) {
+        this.editor.$textElem.attr('contenteditable', val)
       }
     },
     methods: {
       inputing (e) {
         if (e.ctrlKey && e.keyCode === 13 && this.editor.txt.text().length) {
-          if (isNaN(this.selectUserId)) {
-            chat.sendMessage(this.editor.txt.html(), 0, this.selectUserId)
+          if (this.isGroup) {
+            chat.sendMessage(this.editor.txt.html(), 0, this.selectId)
           } else {
-            chat.sendMessage(this.editor.txt.html(), this.selectUserId, 0)
+            chat.sendMessage(this.editor.txt.html(), this.selectId, 0)
           }
           this.text = ''
           this.editor.txt.clear()
@@ -65,6 +77,9 @@
     },
     mounted () {
       this.editor = new WangEdit('#menus', '#textarea')
+      this.$nextTick(() => {
+        this.editor.$textElem.attr('contenteditable', this.editorDisable)
+      })
       this.editor.customConfig.menus = []
       this.editor.customConfig.zIndex = 1
       this.editor.create()

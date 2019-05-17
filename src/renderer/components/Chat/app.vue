@@ -13,12 +13,14 @@
         // 搜索key
         search: '',
         // 选中的会话userID
-        selectUserId: 'all'
+        selectId: 0,
+        isGroup: false,
+        isLoad: false
       }
     },
     computed: {
       session () {
-        var res = this.$store.getters.getMessageLocation(this.selectUserId);
+        var res = this.$store.getters.getMessageLocation(this.selectId, this.isGroup);
         return res
       }
     },
@@ -30,8 +32,8 @@
         this.search = res
       },
       callbackFromList (res) {
-        console.log(res)
-        this.selectUserId = res.selectUserId
+        this.selectId = res.selectId
+        this.isGroup = res.isGroup
       },
       callbackWsError (res) {
         console.log(res)
@@ -70,7 +72,7 @@
           // token 过期自动刷新
           this.$store.dispatch('setToken', {
             type: res.token_type,
-            token: res.content
+            token: res.data
           })
           this.$Modal.remove()
         }
@@ -95,13 +97,13 @@
     <div style="height: 600px;">
         <div class="sidebar">
             <card :search.sync="search" v-on:listenToChildEvent="callbackFromCard"></card>
-            <list :search="search" v-on:listenToChildEvent="callbackFromList" :select-user-id.sync="selectUserId"></list>
+            <list :search="search" v-on:listenToChildEvent="callbackFromList" :select-id.sync="selectId" :is-group.sync="isGroup"></list>
             <menus></menus>
         </div>
         <div class="main">
-            <name :select-user-id.sync="selectUserId"></name>
-            <message :session="session" ></message>
-            <msgTextarea :session="session" :select-user-id.sync="selectUserId"></msgTextarea>
+            <name :select-id.sync="selectId" :is-group.sync="isGroup"></name>
+            <message :session="session" :select-id.sync="selectId" :is-group.sync="isGroup"></message>
+            <msgTextarea :session="session" :select-id.sync="selectId" :is-group.sync="isGroup"></msgTextarea>
         </div>
     </div>
 </template>
