@@ -48,7 +48,11 @@
         this.visible = false
       },
       recorderStart () {
+        rec.init((e) => {
+          console.log(e)
+        })
         if (rec.isSupport) {
+          rec.startRecording()
           this.showRecorder = true;
           console.log('star...')
         } else {
@@ -59,7 +63,8 @@
         }
       },
       recorderStop () {
-        this.showRecorder = false
+        this.showRecorder = false;
+        rec.stopRecording();
         console.log('stop...')
       }
     },
@@ -68,9 +73,6 @@
       this.editor.customConfig.menus = []
       this.editor.customConfig.zIndex = 1
       this.editor.create()
-      rec.init((e) => {
-        console.log(e)
-      })
     }
   }
 </script>
@@ -91,15 +93,18 @@
             </Poptip>
             <a href="javascript:;"></a>
             <a href="javascript:;"></a>
-            <a href="javascript:;" :title="$t('chat.voice')" @mousedown="recorderStart" @mouseup="recorderStop"></a>
+            <a href="javascript:;" :title="$t('chat.voice')" @click="recorderStart"></a>
             <a href="javascript:;"></a>
             <a href="javascript:;"></a>
-            <Modal v-model="showRecorder" width="150" :zIndex="0"  :closable="false" :mask="false">
+            <Modal v-model="showRecorder" width="150" :mask-closable="false" @on-cancel="recorderStop">
                 <p slot="header" style="text-align: center;">{{ $t('chat.voice') }}</p>
                 <p style="text-align: center">
-                    <Icon type="md-microphone" style="font-size: 30px;" />
+                    <Icon type="md-microphone" style="font-size: 30px;" /><br>
+                    {{ $t('chat.inRecording') }}
                 </p>
-                <p slot="footer" style="text-align: center">{{ $t('chat.inRecording') }}</p>
+                <p slot="footer" style="text-align: center">
+                    <Button type="info" size="large" long>{{ $t('chat.sendOut') }}</Button>
+                </p>
             </Modal>
         </div>
         <div class="m-input-box">
