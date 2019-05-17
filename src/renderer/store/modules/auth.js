@@ -66,6 +66,8 @@ const actions = {
             token: response.data.access_token,
             type: response.data.token_type
           })
+          commit('SET_USER_LIST', response.data.friend_list)
+          commit('SET_GROUP_LIST', response.data.group_list)
         }
         resolve(response)
       }).catch((error) => {
@@ -126,31 +128,22 @@ const getters = {
     }
     let allUser = []
     res.map(function (v) {
-      if (v.group_name) {
-        allUser.push({
-          userId: 0,
-          name: v.group_name,
-          img: ws.url + v.img,
-          isGroup: true
-        })
-      } else if (v.userId !== state.user.userId) {
-        allUser.push(v)
-      }
+      allUser.push(v)
     })
     return allUser
   },
-  getSelectUser: (state) => (id) => {
+  getSelectUser: (state) => (id, isGroup) => {
     var res = {}
-    if (!isNaN(id)) {
+    if (!isGroup) {
       for (let i = 0; i < state.userList.length; i++) {
-        if (state.userList[i].userId === id) {
+        if (state.userList[i].chat_id === id) {
           res = state.userList[i]
           break
         }
       }
     } else {
       for (let i = 0; i < state.groupList.length; i++) {
-        if (state.groupList[i].group_name === id) {
+        if (state.groupList[i].group_id === id) {
           res = state.groupList[i]
           break
         }

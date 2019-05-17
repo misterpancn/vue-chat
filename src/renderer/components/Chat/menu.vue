@@ -9,6 +9,7 @@
             this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
               .then((response) => {
                 if (response.data.status_code === 200) {
+                  this.$store.dispatch('deleteMessage')
                   this.$Message.success(this.$t('notify.exitSuccess'))
                   this.$Modal.remove()
                   this.$router.push('/login')

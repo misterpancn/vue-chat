@@ -8,7 +8,14 @@ var chat = {
   connectTotal: 0,
   timer: null,
   pingTimer: null,
-  callBack: () => {}
+  callBack: () => {},
+  messageType: {
+    message: 0,
+    notify: 1,
+    pong: 2,
+    error: 5,
+    refresh_token: 6
+  }
 }
 var socket
 var transport = config.openssl === false ? 'ws://' : 'wss://'
@@ -45,41 +52,25 @@ function onmessage (mes) {
     return false
   }
   var res = chat.evil(mes.data)
-  if (res.type === 'error') {
+  if (res.type === chat.messageType.error) {
     chat.callBack(res)
     return false
   }
-  if (res.type === 'login') {
+  if (res.type === chat.messageType.notify) {
     chat.callBack(res)
   }
-  if (res.type === 'refresh_token') {
+  if (res.type === chat.messageType.refresh_token) {
     chat.callBack(res)
     return false;
   }
-  if (res.type === 'pong') {
+  if (res.type === chat.messageType.pong) {
     return false;
   }
-  if (res.all_user !== null && res.all_user.length > 0) {
-    let user = [];
-    let groupList = [];
-    for (var i = 0; i < res.all_user.length; i++) {
-      let json = JSON.parse(res.all_user[i])
-      let c = {
-        userId: parseInt(json.id),
-        name: json.name,
-        img: './../../../../static/img/2.png'
-      }
-      user.push(c)
-    }
-    if (res.all_group !== null && res.all_group.length > 0) {
-      groupList = res.all_group;
-    }
+  if (res.type === chat.messageType.message) {
     store.dispatch('pushMessage', {
       response: res,
       thisUser: store.getters.getUser
     })
-    store.dispatch('setUserList', user)
-    store.dispatch('setGroupList', groupList)
     console.log(res)
   }
 }
@@ -119,16 +110,19 @@ chat.evil = function (fn) {
   let Fn = Function
   return new Fn('return ' + fn)()
 }
-chat.sendMessage = function (mes, uid, group) {
+chat.sendMessage = function (mes, chatId, groupId) {
   if (mes) {
     mes = mes.replace(/[\r\n]/i, '<br>')
     mes = mes.replace(/"/g, '\\"')
+    let chatData = store.getters.getSelectUser(chatId, false)
     let data = {
       type: 'message',
       content: mes,
-      group: group,
-      send_to_uid: uid,
-      uid: store.getters.getUser.userId
+      group_id: groupId,
+      chat_id: chatId,
+      send_to_uid: chatData.id,
+      uid: store.getters.getUser.userId,
+      user_name: store.getters.getUser.name
     }
     if (socket === undefined) {
       chat.callBack({
@@ -141,10 +135,9 @@ chat.sendMessage = function (mes, uid, group) {
   }
 }
 chat.messagesTimeShow = function (now, lastTime) {
-  let time = new Date(now).getTime()
   let bool = false
   // 每隔3分钟显示消息的时间
-  if (time - lastTime > 1000 * 60 * 3) {
+  if (now - lastTime > 60 * 3) {
     bool = true
   }
   return bool
