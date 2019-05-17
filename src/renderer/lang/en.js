@@ -57,6 +57,7 @@ export default {
     voice: 'Voice',
     inRecording: 'In recording...',
     deviceNotSupport: 'Your device does not support it',
+    sendOut: 'Send out',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',
