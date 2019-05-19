@@ -12,3 +12,4 @@ thumbs.db
 src/renderer/store/config/*.js
 .git
 .idea
+static/audio/*

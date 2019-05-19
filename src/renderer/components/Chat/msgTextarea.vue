@@ -60,9 +60,6 @@
         this.visible = false
       },
       recorderStart () {
-        rec.init((e) => {
-          console.log(e)
-        })
         if (rec.isSupport) {
           rec.startRecording()
           this.showRecorder = true;
@@ -88,6 +85,9 @@
       this.editor.customConfig.menus = []
       this.editor.customConfig.zIndex = 1
       this.editor.create()
+      rec.init((e) => {
+        console.log(e)
+      })
     }
   }
 </script>

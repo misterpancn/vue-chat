@@ -51,13 +51,15 @@ export default {
   },
   notify: {
     loading: '加载中...',
-    exitSuccess: '退出成功'
+    exitSuccess: '退出成功',
+    noDataQueried: '未查询到数据'
   },
   chat: {
     voice: '语音',
     inRecording: '录制中...',
     deviceNotSupport: '您的设备不支持',
     sendOut: '发送',
+    loadingHistory: '加载历史',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',
