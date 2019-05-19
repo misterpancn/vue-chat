@@ -25,7 +25,7 @@
       }
     },
     created () {
-      ws.init(this.callbackWsError, this.exception)
+      ws.init(this.callbackWs)
     },
     methods: {
       callbackFromCard (res) {
@@ -35,12 +35,12 @@
         this.selectId = res.selectId
         this.isGroup = res.isGroup
       },
-      callbackWsError (res) {
+      callbackWs (res) {
         console.log(res)
-        if (res.type === 'login') {
+        if (res.type === ws.messageType.notify) {
           return false;
         }
-        if (res.type === 'error') {
+        if (res.type === ws.messageType.error) {
           this.$Modal.confirm({
             title: this.$t('chat.notify.serverErrorLogout'), // 服务器出现异常，正在帮您退出登录
             loading: true,
@@ -68,7 +68,7 @@
                 })
             }
           })
-        } else if (res.type === 'refresh_token') {
+        } else if (res.type === ws.messageType.refresh_token) {
           // token 过期自动刷新
           this.$store.dispatch('setToken', {
             type: res.token_type,
@@ -77,14 +77,6 @@
           this.$Modal.remove()
         }
         // this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
-      },
-      exception (response) {
-        if (response.code >= 500) {
-          this.$Notice.error({
-            title: this.$t('notifyTitle.serverException'),
-            desc: response.mess
-          })
-        }
       }
     },
     components: {

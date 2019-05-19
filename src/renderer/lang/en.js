@@ -51,13 +51,15 @@ export default {
   },
   notify: {
     loading: 'Loading...',
-    exitSuccess: 'Exit successfully'
+    exitSuccess: 'Exit successfully',
+    noDataQueried: 'No data queried'
   },
   chat: {
     voice: 'Voice',
     inRecording: 'In recording...',
     deviceNotSupport: 'Your device does not support it',
     sendOut: 'Send out',
+    loadingHistory: 'Loading history',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',

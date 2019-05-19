@@ -4,7 +4,8 @@
     props: ['session', 'selectId', 'isGroup'],
     data () {
       return {
-        loading: true
+        loading: true,
+        haveData: true
       }
     },
     computed: {
@@ -33,6 +34,13 @@
           users: this.$store.getters.getUser
         }).then((res) => {
           console.log(res)
+          if (res.data.data && res.data.data.length === 0) {
+            this.haveData = false;
+            this.$Message.warning({
+              content: this.$t('notify.noDataQueried'),
+              duration: 3
+            });
+          }
           this.loading = true;
         }).catch((e) => {
           console.log(e);
@@ -74,10 +82,13 @@
             </li>
         </ul>
     </div>
-    <div v-else-if="session.length === 0 && selectId > 0" class="m-message">
+    <div v-else-if="session.length === 0 && selectId > 0 && haveData" class="m-message">
         <ul>
             <li>
-                <p class="time"><a v-if="loading" @click="loadingData">加载历史</a><span v-else>加载中</span></p>
+                <p class="time">
+                    <a v-if="loading" @click="loadingData">{{$t('chat.loadingHistory')}}</a>
+                    <span v-else>{{$t('notify.loading')}}</span>
+                </p>
             </li>
         </ul>
     </div>

@@ -64,7 +64,7 @@ rec.createDownloadLink = function () {
     console.log(blob)
     blobToBase64(blob, function (base64) {
       var buf = Buffer.from(base64, 'base64'); // decode
-      fs.writeFile(`${__dirname}/` + 'audio/aaa.wav', buf, 'binary', (err) => {
+      fs.writeFile(`${__dirname}/` + '../../../static/audio/aaa.wav', buf, 'binary', (err) => {
         console.log(err)
       })
     })
