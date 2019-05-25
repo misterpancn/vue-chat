@@ -60,7 +60,7 @@ const actions = {
           commit('SET_USER', {
             userId: parseInt(response.data.users.id),
             name: response.data.users.name,
-            img: ''
+            photo: response.data.users.photo
           })
           commit('SET_TOKEN', {
             token: response.data.access_token,

@@ -14,6 +14,9 @@ export default {
     mobileNumber: '手机号',
     enterEmail: '请填写邮箱',
     name: '用户名',
+    logout: '退出',
+    username: '昵称',
+    information: '资料',
     rules: {
       passwordRequire: '请填写密码',
       emailRequire: '请填写邮箱',
@@ -60,6 +63,8 @@ export default {
     deviceNotSupport: '您的设备不支持',
     sendOut: '发送',
     loadingHistory: '加载历史',
+    rightClickMenu: '右键菜单',
+    chatId: 'Chat ID',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',

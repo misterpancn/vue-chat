@@ -30,7 +30,8 @@ const mutations = {
             self: parseInt(res.uid) === thisUser.userId,
             uid: res.uid,
             user_name: res.user_name,
-            showTime: show
+            showTime: show,
+            photo: res.photo
           })
           isSave = true
         }
@@ -50,7 +51,8 @@ const mutations = {
             self: parseInt(res.uid) === thisUser.userId,
             uid: res.uid,
             user_name: res.user_name,
-            showTime: show
+            showTime: show,
+            photo: res.photo
           })
           isSave = true
         }
@@ -67,7 +69,8 @@ const mutations = {
               self: parseInt(res.uid) === thisUser.userId,
               uid: res.uid,
               user_name: res.user_name,
-              showTime: true
+              showTime: true,
+              photo: res.photo
             }
           ]
         })
@@ -85,7 +88,8 @@ const mutations = {
               self: parseInt(res.uid) === thisUser.userId,
               uid: res.uid,
               user_name: res.user_name,
-              showTime: true
+              showTime: true,
+              photo: res.photo
             }
           ]
         }
@@ -116,7 +120,8 @@ const mutations = {
           self: parseInt(v.uid) === users.userId,
           uid: v.uid,
           user_name: v.user_name,
-          showTime: true
+          showTime: true,
+          photo: v.photo
         })
         lastTime = v.time;
       })
@@ -155,14 +160,14 @@ const actions = {
     return new Promise((resolve, reject) => {
       if (obj.selectId > 0 && typeof obj.users === 'object') {
         if (obj.isGroup) {
-          request.getGroupMessage({group_id: obj.selectId}).then((response) => {
+          request.getGroupMessage(obj.selectId, 50).then((response) => {
             if (response.data.data && response.data.data.length > 0) {
               commit('SET_MESSAGE', {response: response.data.data, obj: obj})
             }
             resolve(response)
           }).catch((e) => { reject(e) })
         } else {
-          request.getChatMessage({chat_id: obj.selectId}).then((response) => {
+          request.getUserChatMessage({chat_id: obj.selectId}).then((response) => {
             if (response.data.data && response.data.data.length > 0) {
               commit('SET_MESSAGE', {response: response.data.data, obj: obj})
             }

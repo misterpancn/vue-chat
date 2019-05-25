@@ -23,8 +23,14 @@
 <template>
     <div class="m-card">
         <header>
-            <img class="avatar" width="40" height="40" :alt="user.name" :src="user.img">
-            <p class="name">{{user.name}}</p>
+            <img class="avatar" width="40" height="40" :alt="user.name" :src="user.photo">
+            <Dropdown trigger="contextMenu">
+                <p class="name" :title="$t('chat.rightClickMenu')" style="cursor: default">{{user.name}}</p>
+                <DropdownMenu slot="list">
+                    <DropdownItem>返回</DropdownItem>
+                    <DropdownItem>删除</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
         </header>
         <footer>
             <input class="search" type="text" placeholder="search user..." v-model="searchs">

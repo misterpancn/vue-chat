@@ -26,16 +26,28 @@
                   desc: error
                 })
                 this.$Modal.remove()
+                this.$router.push('/login')
               })
           }
         })
+      },
+      setting (name) {
+        if (name === 'logout') {
+          this.logout()
+        }
       }
     }
   }
 </script>
 <template>
     <div class="m-menu">
-        <Icon type="md-power" slot="prefix" class="exit" @click="logout"></Icon>
+        <Dropdown trigger="hover" placement="top-start" transfer @on-click="setting">
+            <span><Icon type="ios-settings" slot="prefix" class="setting"></Icon></span>
+            <DropdownMenu slot="list">
+                <DropdownItem name="exit">返回</DropdownItem>
+                <DropdownItem name="logout">{{$t('account.logout')}}</DropdownItem>
+            </DropdownMenu>
+        </Dropdown>
     </div>
 </template>
 <style lang="less">
@@ -43,7 +55,7 @@
         max-height: 55px;
         position: absolute;
         bottom: 0;
-        .exit {
+        .setting {
             font-size: 20px;
             padding: 10px;
             cursor: pointer;

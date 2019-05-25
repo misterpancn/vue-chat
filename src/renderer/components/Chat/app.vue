@@ -6,6 +6,7 @@
   import name from './name'
   import menus from './menu'
   import ws from '@/request/websocket'
+  import userInfoModal from './Modal/userInformation'
 
   export default {
     data () {
@@ -15,7 +16,8 @@
         // 选中的会话userID
         selectId: 0,
         isGroup: false,
-        isLoad: false
+        isLoad: false,
+        show: true
       }
     },
     computed: {
@@ -80,7 +82,7 @@
       }
     },
     components: {
-      card, list, msgTextarea, message, name, menus
+      card, list, msgTextarea, message, name, menus, userInfoModal
     }
   }
 </script>
@@ -97,6 +99,7 @@
             <message :session="session" :select-id.sync="selectId" :is-group.sync="isGroup"></message>
             <msgTextarea :session="session" :select-id.sync="selectId" :is-group.sync="isGroup"></msgTextarea>
         </div>
+        <userInfoModal :userInfoShow="show"></userInfoModal>
     </div>
 </template>
 
