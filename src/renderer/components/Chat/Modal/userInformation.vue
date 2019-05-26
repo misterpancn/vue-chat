@@ -15,7 +15,7 @@
     <Modal v-model="show" :mask-closable="false" footer-hide>
         <p slot="header" style="text-align: center;">{{ $t('account.information') }}</p>
         <div class="m-ui-content">
-            <Layout>
+            <Layout style="background: none">
                 <Sider class="left-content">
                     <img height="120" width="120" :src="photo" style="margin: 10px 30px" />
                     <Divider orientation="left">{{$t('chat.chatId')}}：</Divider>

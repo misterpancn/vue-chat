@@ -118,9 +118,9 @@ chat.sendMessage = function (mes, chatId, groupId) {
     mes = mes.replace(/"/g, '\\"')
     let chatData = store.getters.getSelectUser(chatId, false)
     var blob = null;
-    var buf = fs.readFileSync(`${__dirname}/../../../static/audio/1.jpg`);
+    var buf = fs.readFileSync(`${__dirname}/../../../static/audio/aaa.wav`);
     let base64 = Buffer.from(buf, 'binary').toString('base64');
-    console.log(typeof base64)
+    console.log(base64)
     let data = {
       type: 'message',
       content: mes,

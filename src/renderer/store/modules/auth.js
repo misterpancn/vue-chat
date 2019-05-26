@@ -1,5 +1,6 @@
 import ws from '@/request/websocket'
 import request from '@/request'
+import rec from '@/media/recorder'
 
 const state = {
   user: localStorage.getItem('user') !== null ? JSON.parse(localStorage.getItem('user')) : {},
@@ -40,6 +41,7 @@ const mutations = {
     localStorage.clear()
     ws.closeConnect()
     ws.overflow = true
+    rec.closeAudio()
   }
 }
 

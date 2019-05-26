@@ -3,16 +3,22 @@ import fs from 'fs'
 const rec = {
   isSupport: true,
   audioContent: null,
-  recorder: null
+  recorder: null,
+  callback: {}
 }
 rec.init = function (call) {
   try {
+    // webkit shim
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia || navigator.mediaDevices.getUserMedia;
     window.URL = window.URL || window.webkitURL;
-    rec.audioContent = new (window.AudioContext || window.webkitAudioContext)()
+
+    rec.audioContent = new AudioContext();
   } catch (e) {
     console.log(e.message)
   }
-  this.getUserMedia({audio: true}, this.startUserMedia, function (e) {
+  rec.callback = call
+  navigator.getUserMedia({audio: true}, this.startUserMedia, function (e) {
     rec.isSupport = false
     rec.audioContent.close();
     if (rec.recorder !== null) {
@@ -40,7 +46,7 @@ rec.startUserMedia = function (stream) {
   if (rec.audioContent !== undefined) {
     var input = rec.audioContent.createMediaStreamSource(stream);
 
-    input.connect(rec.audioContent.destination);
+    // input.connect(rec.audioContent.destination);
 
     rec.recorder = new Recorder(input);
   }
@@ -49,7 +55,7 @@ rec.startRecording = function () {
   rec.audioContent.resume().then(() => {
     console.log('playback resumed successfully')
   }).catch((err) => {
-    console.log(err)
+    rec.callback(err)
   })
   rec.recorder && rec.recorder.record()
 }
@@ -57,9 +63,6 @@ rec.stopRecording = function () {
   rec.recorder && rec.recorder.stop();
   rec.createDownloadLink();
   rec.recorder.clear();
-  rec.audioContent.close();
-  rec.recorder = null;
-  rec.audioContent = null;
 }
 rec.createDownloadLink = function () {
   rec.recorder && rec.recorder.exportWAV(function (blob) {
@@ -67,7 +70,7 @@ rec.createDownloadLink = function () {
     rec.blobToBase64(blob, function (base64) {
       var buf = Buffer.from(base64, 'base64'); // decode
       fs.writeFile(`${__dirname}/` + '../../../static/audio/aaa.wav', buf, 'binary', (err) => {
-        console.log(err)
+        rec.callback(err)
       })
     })
     var url = URL.createObjectURL(blob);
@@ -91,4 +94,9 @@ rec.blobToBase64 = function (blob, cb) {
   };
   reader.readAsDataURL(blob);
 };
+rec.closeAudio = function () {
+  if (rec.audioContent) {
+    rec.audioContent.close()
+  }
+}
 export default rec
