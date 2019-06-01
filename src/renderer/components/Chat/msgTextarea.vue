@@ -3,7 +3,6 @@
   import WangEdit from 'wangeditor'
   import rec from '@/media/recorder'
   export default {
-    props: ['session', 'selectId', 'isGroup'],
     data () {
       return {
         text: '',
@@ -29,6 +28,16 @@
         } else {
           return false;
         }
+      },
+      session () {
+        var res = this.$store.getters.getMessageLocation(this.selectId, this.isGroup);
+        return res
+      },
+      selectId () {
+        return this.$store.getters.selectId
+      },
+      isGroup () {
+        return this.$store.getters.isGroup
       }
     },
     watch: {
@@ -38,11 +47,48 @@
     },
     methods: {
       inputing (e) {
-        if (e.ctrlKey && e.keyCode === 13 && this.editor.txt.text().length) {
+        let html = this.editor.txt.html()
+        let empty = true;
+        if (this.editor.txt.text().length || html.search(/(img)+/i) > 0) {
+          empty = false
+        }
+        if (e.ctrlKey && e.keyCode === 13 && !empty) {
           if (this.isGroup) {
-            chat.sendMessage(this.editor.txt.html(), 0, this.selectId)
+            this.$store.dispatch('sendGroupMes', {
+              group_id: this.selectId,
+              content: this.editor.txt.html()
+            }).then((res) => {
+              if (res.data.status_code !== 200) {
+                this.$Message.warning({
+                  content: this.$t('chat.messageSendFailed'),
+                  duration: 2
+                });
+              }
+            }).catch((e) => {
+              this.$Message.warning({
+                content: this.$t('chat.messageSendFailed'),
+                duration: 2
+              });
+            })
+            chat.localPush(this.editor.txt.html(), 0, this.selectId)
           } else {
-            chat.sendMessage(this.editor.txt.html(), this.selectId, 0)
+            this.$store.dispatch('sendChatMes', {
+              chat_id: this.selectId,
+              content: this.editor.txt.html()
+            }).then((res) => {
+              if (res.data.status_code !== 200) {
+                this.$Message.warning({
+                  content: this.$t('chat.messageSendFailed'),
+                  duration: 2
+                });
+              }
+            }).catch((e) => {
+              this.$Message.warning({
+                content: this.$t('chat.messageSendFailed'),
+                duration: 2
+              });
+            })
+            chat.localPush(this.editor.txt.html(), this.selectId, 0)
           }
           this.text = ''
           this.editor.txt.clear()

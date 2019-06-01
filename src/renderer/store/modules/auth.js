@@ -42,6 +42,14 @@ const mutations = {
     ws.closeConnect()
     ws.overflow = true
     rec.closeAudio()
+  },
+  SET_USER_STATUS (state, data) {
+    state.userList.map((item) => {
+      if (item.id === data.uid) {
+        item.is_online = data.online
+      }
+    })
+    localStorage.setItem('userList', JSON.stringify(state.userList))
   }
 }
 
@@ -60,16 +68,16 @@ const actions = {
       request.login(data).then((response) => {
         if (response.data.status_code === 200) {
           commit('SET_USER', {
-            userId: parseInt(response.data.users.id),
-            name: response.data.users.name,
-            photo: response.data.users.photo
+            userId: parseInt(response.data.data.users.id),
+            name: response.data.data.users.name,
+            photo: response.data.data.users.photo
           })
           commit('SET_TOKEN', {
-            token: response.data.access_token,
-            type: response.data.token_type
+            token: response.data.data.access_token,
+            type: response.data.data.token_type
           })
-          commit('SET_USER_LIST', response.data.friend_list)
-          commit('SET_GROUP_LIST', response.data.group_list)
+          commit('SET_USER_LIST', response.data.data.friend_list)
+          commit('SET_GROUP_LIST', response.data.data.group_list)
         }
         resolve(response)
       }).catch((error) => {
@@ -100,6 +108,9 @@ const actions = {
   },
   setToken ({ commit }, data) {
     commit('SET_TOKEN', data)
+  },
+  setUserStatus ({commit}, data) {
+    commit('SET_USER_STATUS', data)
   }
 }
 

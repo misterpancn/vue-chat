@@ -1,16 +1,25 @@
 <script>
   import Vue from 'vue'
   export default {
-    props: ['session', 'selectId', 'isGroup'],
     data () {
       return {
         loading: true
       }
     },
     computed: {
+      session () {
+        var res = this.$store.getters.getMessageLocation(this.selectId, this.isGroup);
+        return res
+      },
       sessionUser () {
         let users = this.$store.getters.getUserList.filter(item => item.chat_id === this.session.sendTo)
         return users[0]
+      },
+      selectId () {
+        return this.$store.getters.selectId
+      },
+      isGroup () {
+        return this.$store.getters.isGroup
       }
     },
     methods: {
@@ -44,6 +53,12 @@
           console.log(e);
           this.loading = true;
         })
+      },
+      getUserInfo (item) {
+        if (!item.self) {
+          this.$Spin.show();
+          this.$store.dispatch('setUserInfo', item.uid)
+        }
       }
     },
     filters: {
@@ -63,6 +78,14 @@
           el.scrollTop = el.scrollHeight - el.clientHeight
         })
       }
+    },
+    watch: {
+      session (val) {
+        // 监听消息列表  当选择的聊天vuex中无消息记录  发送请求
+        if (val.length === 0) {
+          this.loadingData()
+        }
+      }
     }
   }
 </script>
@@ -74,7 +97,7 @@
                 <p v-if="item.showTime" class="time"><span>{{item.date | time}}</span></p>
                 <div class="main" :class="{ self: item.self }">
                     <p v-if="isGroup" class="name"><span>{{item.user_name}}</span></p>
-                    <img class="avatar" width="30" height="30" :src="item.photo" style="cursor: pointer"/>
+                    <img class="avatar" width="30" height="30" :src="item.photo" style="cursor: pointer" @click="getUserInfo(item)"/>
                     <div class="text" v-html="html(item.text)"></div>
                 </div>
             </li>

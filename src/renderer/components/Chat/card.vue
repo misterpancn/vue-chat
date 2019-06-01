@@ -1,20 +1,18 @@
 <script>
   export default {
-    props: ['search'],
     data () {
       return {
-        searchs: this.search,
         user: this.$store.getters.getUser
       }
     },
-    methods: {
-      sendMesToParent (mes) {
-        this.$emit('listenToChildEvent', mes)
-      }
-    },
-    watch: {
-      searchs: function (val) {
-        this.sendMesToParent(val)
+    computed: {
+      search: {
+        get: function () {
+          return this.$store.getters.search
+        },
+        set: function (val) {
+          this.$store.dispatch('setSearch', val)
+        }
       }
     }
   }
@@ -33,7 +31,7 @@
             </Dropdown>
         </header>
         <footer>
-            <input class="search" type="text" placeholder="search user..." v-model="searchs">
+            <input class="search" type="text" placeholder="search user..." v-model="search">
         </footer>
     </div>
 </template>

@@ -17,6 +17,8 @@ export default {
     logout: 'logout',
     username: 'User Name',
     information: 'Information',
+    personalInformation: 'Personal information',
+    registerTime: 'Registration time',
     rules: {
       passwordRequire: 'Please fill in the password.',
       emailRequire: 'Mailbox cannot be empty',
@@ -65,6 +67,7 @@ export default {
     loadingHistory: 'Loading history',
     rightClickMenu: 'Right click menu',
     chatId: 'Chat ID',
+    messageSendFailed: 'Message Send Failure',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',

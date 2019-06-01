@@ -140,11 +140,11 @@
                 this.loading = false;
               }
             }).catch((error) => {
-              console.log(error)
+              console.log(error.response)
               this.loading = false;
               this.$Notice.error({
                 title: this.$t('notifyTitle.errorOccurred'),
-                desc: this.$t('account.notify.requestFailed')
+                desc: error.response.data.data ? error.response.data.data : this.$t('account.notify.requestFailed')
               })
             })
           } else {
