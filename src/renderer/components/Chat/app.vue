@@ -51,6 +51,7 @@
             this.$Modal.remove()
             break;
           case ws.messageType.message:
+          case ws.messageType.audio:
             this.$store.dispatch('pushMessage', {
               response: res,
               thisUser: this.$store.getters.getUser
