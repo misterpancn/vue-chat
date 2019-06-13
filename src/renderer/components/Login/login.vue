@@ -98,7 +98,7 @@
             }).then((response) => {
               console.log(response)
               if (response.status === 200 && response.data.status_code === 200) {
-                ws.tryConnect(this.connectCallback)
+                this.$router.push('/chat')
               } else {
                 this.$Notice.error({
                   title: this.$t('notifyTitle.validationFailed'),
@@ -107,11 +107,11 @@
                 this.loading = false;
               }
             }).catch((error) => {
-              console.log(error)
+              console.log(error.response)
               this.loading = false;
               this.$Notice.error({
                 title: this.$t('notifyTitle.errorReminding'),
-                desc: this.$t('account.notify.requestFailed')
+                desc: error.response.data.data ? error.response.data.data : this.$t('account.notify.requestFailed')
               })
             })
           } else {

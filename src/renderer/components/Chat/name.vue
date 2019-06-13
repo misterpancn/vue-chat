@@ -1,11 +1,16 @@
 <script>
   export default {
-    props: ['selectId', 'isGroup'],
     computed: {
       selectUser () {
         // let info = chat.getUserInfo(this.selectUserId, this.userList, this.groupList)
         let info = this.$store.getters.getSelectUser(this.selectId, this.isGroup)
         return info.name === undefined ? (info.group_name === undefined ? '' : info.group_name) : info.name
+      },
+      selectId () {
+        return this.$store.getters.selectId
+      },
+      isGroup () {
+        return this.$store.getters.isGroup
       }
     },
     filters: {

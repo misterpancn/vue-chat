@@ -14,6 +14,11 @@ export default {
     mobileNumber: '手机号',
     enterEmail: '请填写邮箱',
     name: '用户名',
+    logout: '退出',
+    username: '昵称',
+    information: '资料',
+    personalInformation: '个人信息',
+    registerTime: '注册时间',
     rules: {
       passwordRequire: '请填写密码',
       emailRequire: '请填写邮箱',
@@ -51,12 +56,26 @@ export default {
   },
   notify: {
     loading: '加载中...',
-    exitSuccess: '退出成功'
+    exitSuccess: '退出成功',
+    noDataQueried: '未查询到数据',
+    applicationHasBeenSent: '申请已发送'
   },
   chat: {
     voice: '语音',
     inRecording: '录制中...',
     deviceNotSupport: '您的设备不支持',
+    sendOut: '发送',
+    loadingHistory: '加载历史',
+    rightClickMenu: '右键菜单',
+    chatId: 'Chat ID',
+    messageSendFailed: '消息发送失败',
+    operation: '操作',
+    addFriends: '加好友',
+    addTo: '添加',
+    FindGroupOrUser: '查找群或用户',
+    groupName: '群名称',
+    hasBeenFriend: '已是好友',
+    alreadyInTheGroup: '你已经在群组中',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',

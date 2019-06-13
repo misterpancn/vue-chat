@@ -3,7 +3,6 @@
   import WangEdit from 'wangeditor'
   import rec from '@/media/recorder'
   export default {
-    props: ['session', 'selectId', 'isGroup'],
     data () {
       return {
         text: '',
@@ -29,6 +28,16 @@
         } else {
           return false;
         }
+      },
+      session () {
+        var res = this.$store.getters.getMessageLocation(this.selectId, this.isGroup);
+        return res
+      },
+      selectId () {
+        return this.$store.getters.selectId
+      },
+      isGroup () {
+        return this.$store.getters.isGroup
       }
     },
     watch: {
@@ -38,11 +47,48 @@
     },
     methods: {
       inputing (e) {
-        if (e.ctrlKey && e.keyCode === 13 && this.editor.txt.text().length) {
+        let html = this.editor.txt.html()
+        let empty = true;
+        if (this.editor.txt.text().length || html.search(/(img)+/i) > 0) {
+          empty = false
+        }
+        if (e.ctrlKey && e.keyCode === 13 && !empty) {
           if (this.isGroup) {
-            chat.sendMessage(this.editor.txt.html(), 0, this.selectId)
+            this.$store.dispatch('sendGroupMes', {
+              group_id: this.selectId,
+              content: this.editor.txt.html()
+            }).then((res) => {
+              if (res.data.status_code !== 200) {
+                this.$Message.warning({
+                  content: this.$t('chat.messageSendFailed'),
+                  duration: 2
+                });
+              }
+            }).catch((e) => {
+              this.$Message.warning({
+                content: this.$t('chat.messageSendFailed'),
+                duration: 2
+              });
+            })
+            chat.localPush(this.editor.txt.html(), 0, this.selectId)
           } else {
-            chat.sendMessage(this.editor.txt.html(), this.selectId, 0)
+            this.$store.dispatch('sendChatMes', {
+              chat_id: this.selectId,
+              content: this.editor.txt.html()
+            }).then((res) => {
+              if (res.data.status_code !== 200) {
+                this.$Message.warning({
+                  content: this.$t('chat.messageSendFailed'),
+                  duration: 2
+                });
+              }
+            }).catch((e) => {
+              this.$Message.warning({
+                content: this.$t('chat.messageSendFailed'),
+                duration: 2
+              });
+            })
+            chat.localPush(this.editor.txt.html(), this.selectId, 0)
           }
           this.text = ''
           this.editor.txt.clear()
@@ -61,6 +107,7 @@
       },
       recorderStart () {
         if (rec.isSupport) {
+          rec.startRecording()
           this.showRecorder = true;
           console.log('star...')
         } else {
@@ -71,8 +118,14 @@
         }
       },
       recorderStop () {
-        this.showRecorder = false
+        this.showRecorder = false;
+        rec.stopRecording(false, {isGroup: this.isGroup, selectId: this.selectId});
         console.log('stop...')
+      },
+      sendRecorder () {
+        this.showRecorder = false;
+        rec.stopRecording(true, {isGroup: this.isGroup, selectId: this.selectId});
+        console.log('send...')
       }
     },
     mounted () {
@@ -82,6 +135,9 @@
       })
       this.editor.customConfig.menus = []
       this.editor.customConfig.zIndex = 1
+      this.editor.customConfig.pasteFilterStyle = true
+      this.editor.customConfig.pasteUrl = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
+      this.editor.customConfig.uploadImgServer = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
       this.editor.create()
       rec.init((e) => {
         console.log(e)
@@ -106,15 +162,18 @@
             </Poptip>
             <a href="javascript:;"></a>
             <a href="javascript:;"></a>
-            <a href="javascript:;" :title="$t('chat.voice')" @mousedown="recorderStart" @mouseup="recorderStop"></a>
+            <a href="javascript:;" :title="$t('chat.voice')" @click="recorderStart"></a>
             <a href="javascript:;"></a>
             <a href="javascript:;"></a>
-            <Modal v-model="showRecorder" width="150" :zIndex="0"  :closable="false" :mask="false">
+            <Modal v-model="showRecorder" width="150" :mask-closable="false" @on-cancel="recorderStop">
                 <p slot="header" style="text-align: center;">{{ $t('chat.voice') }}</p>
                 <p style="text-align: center">
-                    <Icon type="md-microphone" style="font-size: 30px;" />
+                    <Icon type="md-microphone" style="font-size: 30px;" /><br>
+                    {{ $t('chat.inRecording') }}
                 </p>
-                <p slot="footer" style="text-align: center">{{ $t('chat.inRecording') }}</p>
+                <p slot="footer" style="text-align: center">
+                    <Button @click="sendRecorder" type="info" size="large" long>{{ $t('chat.sendOut') }}</Button>
+                </p>
             </Modal>
         </div>
         <div class="m-input-box">

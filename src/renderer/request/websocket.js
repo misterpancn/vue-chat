@@ -9,12 +9,15 @@ var chat = {
   timer: null,
   pingTimer: null,
   callBack: () => {},
+  httpCallBack: () => {},
   messageType: {
     message: 0,
     notify: 1,
     pong: 2,
+    connect: 3,
     error: 5,
-    refresh_token: 6
+    refresh_token: 6,
+    audio: 7
   }
 }
 var socket
@@ -38,13 +41,13 @@ chat.connectWS = function () {
   chat.connectTotal += 1
 }
 function onopensocket () {
-  var send = {
+  /* var send = {
     type: 'login',
     uid: store.getters.getUser.userId,
     token: store.getters.getToken
-  }
+  } */
   console.log('连接服务器成功')
-  socket.send(JSON.stringify(send))
+  // socket.send(JSON.stringify(send))
   chat.ping()
 }
 function onmessage (mes) {
@@ -52,39 +55,24 @@ function onmessage (mes) {
     return false
   }
   var res = chat.evil(mes.data)
-  if (res.type === chat.messageType.error) {
-    chat.callBack(res)
-    return false
-  }
-  if (res.type === chat.messageType.notify) {
-    chat.callBack(res)
-  }
-  if (res.type === chat.messageType.refresh_token) {
-    chat.callBack(res)
+  if (res.type === chat.messageType.connect) {
+    chat.connectInit(res)
     return false;
   }
   if (res.type === chat.messageType.pong) {
     return false;
   }
-  if (res.type === chat.messageType.message) {
-    store.dispatch('pushMessage', {
-      response: res,
-      thisUser: store.getters.getUser
-    })
-    console.log(res)
-  }
+  chat.callBack(res)
 }
 function socketError () {
+  store.dispatch('chatConnectClose')
   if (store.getters.getIsOnline) {
     console.log('服务器连接错误，定时重连......')
   }
   chat.timerFn()
 }
 function socketClose () {
-  if (store.getters.getIsOnline) {
-    console.log('服务器连接已断开，定时重连......')
-  }
-  chat.timerFn()
+  // store.dispatch('chatConnectClose')
 }
 chat.timerFn = () => {
   if (chat.overflow === false && chat.timer === null && store.getters.getIsOnline) {
@@ -94,7 +82,7 @@ chat.timerFn = () => {
 chat.ping = () => {
   if (chat.pingTimer === null) {
     chat.pingTimer = setInterval(() => {
-      if (socket === undefined) {
+      if (chat.isClose()) {
         chat.clearTimer()
       } else {
         socket.send(JSON.stringify({
@@ -110,30 +98,6 @@ chat.evil = function (fn) {
   let Fn = Function
   return new Fn('return ' + fn)()
 }
-chat.sendMessage = function (mes, chatId, groupId) {
-  if (mes) {
-    mes = mes.replace(/[\r\n]/i, '<br>')
-    mes = mes.replace(/"/g, '\\"')
-    let chatData = store.getters.getSelectUser(chatId, false)
-    let data = {
-      type: 'message',
-      content: mes,
-      group_id: groupId,
-      chat_id: chatId,
-      send_to_uid: chatData.id,
-      uid: store.getters.getUser.userId,
-      user_name: store.getters.getUser.name
-    }
-    if (socket === undefined) {
-      chat.callBack({
-        type: 'error',
-        content: 'WebSocket is already in closed state.'
-      })
-    } else {
-      socket.send(JSON.stringify(data))
-    }
-  }
-}
 chat.messagesTimeShow = function (now, lastTime) {
   let bool = false
   // 每隔3分钟显示消息的时间
@@ -142,15 +106,22 @@ chat.messagesTimeShow = function (now, lastTime) {
   }
   return bool
 }
-chat.tryConnect = (callback) => {
-  chat.callBack = callback;
-  chat.connectWS()
+chat.connectInit = (res) => {
+  store.dispatch('setConnectId', res.data)
+  store.dispatch('initChat', {
+    'connect_id': res.data
+  }).then((r) => {
+    chat.httpCallBack(r)
+  }).catch((e) => {
+    chat.httpCallBack(e)
+  })
 }
-chat.init = (callback) => {
+chat.init = (callback, httpCallback) => {
   chat.callBack = callback
+  chat.httpCallBack = httpCallback
 }
 chat.closeConnect = () => {
-  if (socket !== undefined) {
+  if (!chat.isClose()) {
     socket.close()
   }
   chat.clearTimer()
@@ -160,6 +131,35 @@ chat.clearTimer = () => {
   chat.pingTimer = null
   clearInterval(chat.timer)
   chat.timer = null
+}
+chat.localPush = function (con, chatId, groupId) {
+  if (!chat.isClose()) {
+    store.dispatch('pushMessage', {
+      thisUser: store.getters.getUser,
+      response: {
+        type: chat.messageType.message,
+        data: con,
+        time: parseInt((new Date()) / 1000),
+        chat_id: chatId,
+        group_id: groupId,
+        uid: store.getters.getUser.userId,
+        user_name: store.getters.getUser.name,
+        photo: store.getters.getUser.photo
+      }
+    })
+  } else {
+    chat.callBack({
+      type: chat.messageType.error,
+      content: 'WebSocket is already in closed state.'
+    })
+  }
+}
+chat.isClose = function () {
+  if (socket.readyState === socket.CLOSED || socket.readyState === socket.CLOSING) {
+    return true;
+  } else {
+    return false;
+  }
 }
 chat.socket = socket
 export default chat
