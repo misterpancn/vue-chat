@@ -77,8 +77,8 @@
         // console.log(e.currentTarget.nextElementSibling.paused)
         var className = e.currentTarget.nextElementSibling.nextElementSibling.firstElementChild.className
         if (e.currentTarget.nextElementSibling.paused === false) {
-          e.currentTarget.nextElementSibling.pause()
           if (className === 'ivu-icon ivu-icon-ios-barcode-outline') {
+            e.currentTarget.nextElementSibling.pause()
             e.currentTarget.nextElementSibling.nextElementSibling.firstElementChild.className = 'ivu-icon ivu-icon-ios-volume-up'
           }
           return false;
