@@ -1,7 +1,10 @@
 import axios from '@/request'
 const state = {
+  // user info modal status
   modalStatus: false,
+  // user info modal
   userInfo: {},
+  addToModal: false,
   // 搜索key
   search: '',
   // chat_id or group id
@@ -14,6 +17,9 @@ const state = {
 const mutations = {
   SET_MODAL_STATUS (state, data) {
     state.modalStatus = data
+  },
+  SET_ADD_TO_MODAL (state, data) {
+    state.addToModal = data
   },
   SET_USER_INFO (state, data) {
     state.userInfo = data
@@ -38,6 +44,7 @@ const mutations = {
     state.selectId = 0;
     state.isGroup = false;
     state.connectId = '';
+    state.addToModal = false;
   },
   SET_BADGE (state, data) {
     if (state.badge.length === 0) {
@@ -87,6 +94,9 @@ const actions = {
   setModalStatus ({commit}, status) {
     commit('SET_MODAL_STATUS', status)
   },
+  setAddToModal ({commit}, status) {
+    commit('SET_ADD_TO_MODAL', status)
+  },
   setSearch ({commit}, search) {
     commit('SET_SEARCH', search)
   },
@@ -135,6 +145,9 @@ const actions = {
 const getters = {
   getModalStatus: state => {
     return state.modalStatus
+  },
+  getAddToModal: state => {
+    return state.addToModal
   },
   getUserInfo: state => {
     return state.userInfo

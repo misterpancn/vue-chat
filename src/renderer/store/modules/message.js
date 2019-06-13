@@ -31,7 +31,8 @@ const mutations = {
             uid: res.uid,
             user_name: res.user_name,
             showTime: show,
-            photo: res.photo
+            photo: res.photo,
+            type: res.type
           })
           isSave = true
         }
@@ -52,7 +53,8 @@ const mutations = {
             uid: res.uid,
             user_name: res.user_name,
             showTime: show,
-            photo: res.photo
+            photo: res.photo,
+            type: res.type
           })
           isSave = true
         }
@@ -70,7 +72,8 @@ const mutations = {
               uid: res.uid,
               user_name: res.user_name,
               showTime: true,
-              photo: res.photo
+              photo: res.photo,
+              type: res.type
             }
           ]
         })
@@ -89,7 +92,8 @@ const mutations = {
               uid: res.uid,
               user_name: res.user_name,
               showTime: true,
-              photo: res.photo
+              photo: res.photo,
+              type: res.type
             }
           ]
         }
@@ -121,7 +125,8 @@ const mutations = {
           uid: v.uid,
           user_name: v.user_name,
           showTime: true,
-          photo: v.photo
+          photo: v.photo,
+          type: v.type
         })
         lastTime = v.time;
       })
@@ -189,6 +194,20 @@ const actions = {
       request.sendGroupMessage(data).then((res) => {
         resolve(res)
       }).catch((e) => { reject(e) })
+    })
+  },
+  chatSendRecorder ({commit}, data) {
+    return new Promise((resolve, reject) => {
+      request.uploadRecorderByChat(data.id, data.form_data, {
+        headers: {'Content-Type': 'multipart/form-data'}
+      }).then((r) => { resolve(r) }).catch((e) => { reject(e) })
+    })
+  },
+  groupSendRecorder ({commit}, data) {
+    return new Promise((resolve, reject) => {
+      request.uploadRecorderByGroup(data.id, data.form_data, {
+        headers: {'Content-Type': 'multipart/form-data'}
+      }).then((r) => { resolve(r) }).catch((e) => { reject(e) })
     })
   }
 }

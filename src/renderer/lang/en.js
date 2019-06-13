@@ -57,7 +57,8 @@ export default {
   notify: {
     loading: 'Loading...',
     exitSuccess: 'Exit successfully',
-    noDataQueried: 'No data queried'
+    noDataQueried: 'No data queried',
+    applicationHasBeenSent: 'The application has been sent'
   },
   chat: {
     voice: 'Voice',
@@ -68,6 +69,13 @@ export default {
     rightClickMenu: 'Right click menu',
     chatId: 'Chat ID',
     messageSendFailed: 'Message Send Failure',
+    operation: 'operation',
+    addFriends: 'Add friends',
+    addTo: 'Add to',
+    FindGroupOrUser: 'Find a group or user',
+    groupName: 'Group Name',
+    hasBeenFriend: 'Has been a friend',
+    alreadyInTheGroup: 'You\'re already in the group.',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',

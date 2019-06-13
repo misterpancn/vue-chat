@@ -1,5 +1,5 @@
 import Recorder from '@/media/recorderjs/recorder.js'
-import fs from 'fs'
+import store from '@/store'
 const rec = {
   isSupport: true,
   audioContent: null,
@@ -44,30 +44,35 @@ rec.startRecording = function () {
   })
   rec.recorder && rec.recorder.record()
 }
-rec.stopRecording = function () {
+rec.stopRecording = function (isSend, obj) {
   rec.recorder && rec.recorder.stop();
-  rec.createDownloadLink();
+  rec.createDownloadLink(isSend, obj);
   rec.recorder.clear();
 }
-rec.createDownloadLink = function () {
+rec.createDownloadLink = function (isSend, obj) {
   rec.recorder && rec.recorder.exportWAV(function (blob) {
     console.log(blob)
-    rec.blobToBase64(blob, function (base64) {
+    /* rec.blobToBase64(blob, function (base64) {
       var buf = Buffer.from(base64, 'base64'); // decode
       fs.writeFile(`${__dirname}/` + '../../../static/audio/aaa.wav', buf, 'binary', (err) => {
         rec.callback(err)
       })
-    })
-    var url = URL.createObjectURL(blob);
-    console.log(url);
-    var au = document.createElement('audio');
-    var hf = document.createElement('a');
-
-    au.controls = true;
-    au.src = url;
-    hf.href = url;
-    hf.download = new Date().toISOString() + '.wav';
-    URL.revokeObjectURL(url)
+    }) */
+    if (isSend) {
+      let formData = new FormData();
+      formData.append('media', blob)
+      if (!obj.isGroup) {
+        store.dispatch('chatSendRecorder', {
+          id: obj.selectId,
+          form_data: formData
+        })
+      } else {
+        store.dispatch('groupSendRecorder', {
+          id: obj.selectId,
+          form_data: formData
+        })
+      }
+    }
   });
 }
 rec.blobToBase64 = function (blob, cb) {

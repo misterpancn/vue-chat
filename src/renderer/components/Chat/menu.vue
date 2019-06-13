@@ -1,5 +1,7 @@
 <script>
+  import addToModal from '@/components/Chat/Modal/addTo.vue'
   export default {
+    components: {addToModal},
     methods: {
       logout () {
         this.$Modal.confirm({
@@ -37,6 +39,12 @@
         if (name === 'logout') {
           this.logout()
         }
+        if (name === 'addTo') {
+          this.addTo()
+        }
+      },
+      addTo () {
+        this.$store.dispatch('setAddToModal', true)
       }
     }
   }
@@ -46,10 +54,11 @@
         <Dropdown trigger="hover" placement="top-start" transfer @on-click="setting">
             <span><Icon type="ios-settings" slot="prefix" class="setting"></Icon></span>
             <DropdownMenu slot="list">
-                <DropdownItem name="exit">返回</DropdownItem>
+                <DropdownItem name="addTo">{{$t('chat.addTo')}}</DropdownItem>
                 <DropdownItem name="logout">{{$t('account.logout')}}</DropdownItem>
             </DropdownMenu>
         </Dropdown>
+        <add-to-modal></add-to-modal>
     </div>
 </template>
 <style lang="less">

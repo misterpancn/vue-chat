@@ -45,5 +45,21 @@ export default {
   // 重置消息提醒 param:chat_id or group id & is_group
   resetBadge (data) {
     return axios.post('chat/resetBadge', Qs.stringify(data))
+  },
+  // 对话发送语音
+  uploadRecorderByChat (chatId, data, config) {
+    return axios.post('media/upload/recorder/chat/' + chatId, data, config)
+  },
+  // 群组发送语音
+  uploadRecorderByGroup (groupId, data, config) {
+    return axios.post('media/upload/recorder/group/' + groupId, data, config)
+  },
+  // 添加群或好友 param: friend_id | group_id & remarks
+  addFriends (data) {
+    return axios.post('chat/addFriends', Qs.stringify(data))
+  },
+  // 搜索好友和群 param: chat_number
+  searchNo (data) {
+    return axios.post('chat/searchNo', Qs.stringify(data))
   }
 }
