@@ -13,3 +13,4 @@ src/renderer/store/config/*.js
 .git
 .idea
 static/audio/*
+package-lock.json
