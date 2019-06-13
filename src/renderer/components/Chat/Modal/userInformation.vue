@@ -1,9 +1,10 @@
 <script>
+    import axios from '@/request'
     export default {
       data () {
         return {
           photo: this.$store.getters.getUser.photo,
-          value2: '1'
+          panel: ['1', '2']
         }
       },
       computed: {
@@ -21,6 +22,24 @@
         userInfo () {
           return this.$store.getters.getUserInfo.user_info
         }
+      },
+      methods: {
+        addFriends () {
+          let uid = this.userInfo.id
+          if (uid > 0) {
+            axios.addFriends({friend_id: uid}).then((r) => {
+              this.$Message.warning({
+                content: this.$t('notify.applicationHasBeenSent'),
+                duration: 3
+              });
+            }).catch((e) => {
+              this.$Message.warning({
+                content: e.response.data.data,
+                duration: 3
+              });
+            })
+          }
+        }
       }
     }
 </script>
@@ -35,7 +54,7 @@
                     <Divider orientation="right" size="small">{{userInfo.chat_number}}</Divider>
                 </Sider>
                 <Layout style="background: none; margin-left: 10px">
-                    <Collapse v-model="value2" simple>
+                    <Collapse v-model="panel" simple>
                         <Panel name="1">
                             {{$t('account.personalInformation')}}
                             <div slot="content">
@@ -52,12 +71,19 @@
                                     <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.mb_prefix + userInfo.phone }}</Col>
                                 </Row>
                                 <Row>
-                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">{{$t('account.mobileNumber')}}</Col>
-                                    <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.mb_prefix + userInfo.phone }}</Col>
-                                </Row>
-                                <Row>
                                     <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">{{$t('account.registerTime')}}</Col>
                                     <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.created_at }}</Col>
+                                </Row>
+                            </div>
+                        </Panel>
+                        <Panel name="2">
+                            {{$t('chat.operation')}}
+                            <div slot="content">
+                                <Row>
+                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">
+                                    <Button shape="circle" size="small" icon="ios-add-circle" style="font-size: 1.2em" :title="$t('chat.addFriends')"
+                                    @click="addFriends"></Button>
+                                    </Col>
                                 </Row>
                             </div>
                         </Panel>

@@ -119,8 +119,13 @@
       },
       recorderStop () {
         this.showRecorder = false;
-        rec.stopRecording();
+        rec.stopRecording(false, {isGroup: this.isGroup, selectId: this.selectId});
         console.log('stop...')
+      },
+      sendRecorder () {
+        this.showRecorder = false;
+        rec.stopRecording(true, {isGroup: this.isGroup, selectId: this.selectId});
+        console.log('send...')
       }
     },
     mounted () {
@@ -130,6 +135,9 @@
       })
       this.editor.customConfig.menus = []
       this.editor.customConfig.zIndex = 1
+      this.editor.customConfig.pasteFilterStyle = true
+      this.editor.customConfig.pasteUrl = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
+      this.editor.customConfig.uploadImgServer = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
       this.editor.create()
       rec.init((e) => {
         console.log(e)
@@ -164,7 +172,7 @@
                     {{ $t('chat.inRecording') }}
                 </p>
                 <p slot="footer" style="text-align: center">
-                    <Button type="info" size="large" long>{{ $t('chat.sendOut') }}</Button>
+                    <Button @click="sendRecorder" type="info" size="large" long>{{ $t('chat.sendOut') }}</Button>
                 </p>
             </Modal>
         </div>

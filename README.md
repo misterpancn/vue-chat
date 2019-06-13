@@ -2,10 +2,16 @@
 
 > An electron-vue project
 
+#### Operating environment
+package|version
+---|---
+npm|6.9.0
+nodejs|10.16.0
+
 #### Build Setup
 
 ``` bash
-# install dependencies
+# install dependencies run root/administrator
 npm install
 
 # serve with hot reload at localhost:9080
