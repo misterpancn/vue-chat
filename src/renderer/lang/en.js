@@ -76,6 +76,7 @@ export default {
     groupName: 'Group Name',
     hasBeenFriend: 'Has been a friend',
     alreadyInTheGroup: 'You\'re already in the group.',
+    selectSendObject: 'Please select the sending object first.',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',

@@ -76,6 +76,7 @@ export default {
     groupName: '群名称',
     hasBeenFriend: '已是好友',
     alreadyInTheGroup: '你已经在群组中',
+    selectSendObject: '请先选择发送对象',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',

@@ -1,4 +1,4 @@
-import Recorder from '@/media/recorderjs/recorder.js'
+import Recorder from '@/media/recorderjs/recordmp3.js'
 import store from '@/store'
 const rec = {
   isSupport: true,
@@ -50,7 +50,7 @@ rec.stopRecording = function (isSend, obj) {
   rec.recorder.clear();
 }
 rec.createDownloadLink = function (isSend, obj) {
-  rec.recorder && rec.recorder.exportWAV(function (blob) {
+  rec.recorder && rec.recorder.exportMP3(function (blob) {
     console.log(blob)
     /* rec.blobToBase64(blob, function (base64) {
       var buf = Buffer.from(base64, 'base64'); // decode
