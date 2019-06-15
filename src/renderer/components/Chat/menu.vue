@@ -1,5 +1,6 @@
 <script>
   import addToModal from '@/components/Chat/Modal/addTo.vue'
+  import {ipcRenderer} from 'electron'
   export default {
     components: {addToModal},
     methods: {
@@ -17,6 +18,7 @@
                   this.$Message.success(this.$t('notify.exitSuccess'))
                   this.$Modal.remove()
                   this.$router.push('/login')
+                  ipcRenderer.send('change-win-size', {width: 540, height: 480})
                 } else {
                   this.$Notice.warning({
                     title: this.$t('notifyTitle.reminding'),
@@ -31,6 +33,7 @@
                 })
                 this.$Modal.remove()
                 this.$router.push('/login')
+                ipcRenderer.send('change-win-size', {width: 540, height: 480})
               })
           }
         })
@@ -46,6 +49,11 @@
       addTo () {
         this.$store.dispatch('setAddToModal', true)
       }
+    },
+    mounted () {
+      ipcRenderer.on('close-window', () => {
+        this.logout()
+      })
     }
   }
 </script>

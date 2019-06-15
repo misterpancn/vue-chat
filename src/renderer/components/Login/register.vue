@@ -2,11 +2,12 @@
     .c-center {
         height: -webkit-fill-available;
         width: 100%;
+        position: absolute;
     }
 </style>
 <template>
     <div class="row justify-content-center c-center">
-        <Card :bordered="false" :xs="8" :sm="4" :md="6" :lg="8">
+        <Card :bordered="false" :xs="8" :sm="4" :md="6" :lg="8" style="height: 100%">
             <p slot="title">{{ $t('account.register') }}</p>
             <a slot="extra"><router-link to="/login">{{ $t('account.login') }}</router-link></a>
             <div class="card-body">

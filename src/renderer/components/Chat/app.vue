@@ -7,6 +7,7 @@
   import menus from './menu'
   import ws from '@/request/websocket'
   import userInfoModal from './Modal/userInformation'
+  import {ipcRenderer} from 'electron'
 
   export default {
     data () {
@@ -70,9 +71,13 @@
       },
       logoutHttpStatus (response) {
         if (response.data.status_code === 200 || response.data.status_code === 401) {
+          this.$store.dispatch('deleteMessage')
+          this.$store.dispatch('chatDataDestroy')
+          this.$store.dispatch('initBadge', {})
           this.$Message.success(this.$t('notify.exitSuccess'))
           this.$Modal.remove()
           this.$router.push('/login')
+          ipcRenderer.send('change-win-size', {width: 540, height: 480})
         } else {
           this.$Notice.warning({
             title: this.$t('notifyTitle.reminding'),
@@ -112,7 +117,7 @@
 </script>
 
 <template>
-    <div style="height: 600px;">
+    <div style="height: 100%;">
         <div class="sidebar">
             <card></card>
             <list></list>
@@ -130,7 +135,6 @@
 <style lang="less">
     #app {
         overflow: hidden;
-        border-radius: 3px;
 
         .sidebar, .main {
             height: 100%;
@@ -150,11 +154,12 @@
         .m-text {
             position: absolute;
             width: 100%;
-            bottom: 0;
             left: 0;
+            min-height: 160px;
+            height: 30%;
         }
         .m-message {
-            height: ~'calc(100% - 190px)';
+            height: ~'calc(70% - 30px)';
         }
     }
 </style>

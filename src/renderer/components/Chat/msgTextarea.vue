@@ -106,6 +106,13 @@
         this.visible = false
       },
       recorderStart () {
+        if (this.selectId === 0) {
+          this.$Message.warning({
+            content: this.$t('chat.selectSendObject'),
+            duration: 3
+          });
+          return false;
+        }
         if (rec.isSupport) {
           rec.startRecording()
           this.showRecorder = true;
@@ -126,6 +133,15 @@
         this.showRecorder = false;
         rec.stopRecording(true, {isGroup: this.isGroup, selectId: this.selectId});
         console.log('send...')
+      },
+      poptip () {
+        if (this.selectId === 0) {
+          this.visible = false
+          this.$Message.warning({
+            content: this.$t('chat.selectSendObject'),
+            duration: 3
+          });
+        }
       }
     },
     mounted () {
@@ -149,7 +165,7 @@
 <template>
     <div class="m-text">
         <div class="m-input-icon">
-            <Poptip word-wrap width="400" placement="top-start" v-model="visible">
+            <Poptip word-wrap width="400" placement="top-start" v-model="visible" @on-popper-show="poptip">
                 <a href="javascript:;" @click="getExpression"></a>
                 <div slot="content">
                     <Spin fix v-if="spinShow">
@@ -231,53 +247,53 @@
                 }
             }
             a:nth-child(1){
-                background: url(/static/img/icon/icon13.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon13.png) no-repeat center center;
             }
 
             a:nth-child(1):hover{
-                background: url(/static/img/icon/icon13_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon13_1.png) no-repeat center center;
             }
 
             a:nth-child(2){
-                background: url(/static/img/icon/icon14.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon14.png) no-repeat center center;
             }
 
             a:nth-child(2):hover{
-                background: url(/static/img/icon/icon14_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon14_1.png) no-repeat center center;
             }
 
             a:nth-child(3){
-                background: url(/static/img/icon/icon15.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon15.png) no-repeat center center;
             }
 
             a:nth-child(3):hover{
-                background: url(/static/img/icon/icon15_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon15_1.png) no-repeat center center;
             }
 
             a:nth-child(4){
-                background: url(/static/img/icon/icon16.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon16.png) no-repeat center center;
             }
 
             a:nth-child(4):hover{
-                background: url(/static/img/icon/icon16_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon16_1.png) no-repeat center center;
             }
 
             a:nth-child(6){
-                background: url(/static/img/icon/icon17.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon17.png) no-repeat center center;
                 float: right;
             }
 
             a:nth-child(6):hover{
-                background: url(/static/img/icon/icon17_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon17_1.png) no-repeat center center;
             }
 
             a:nth-child(5){
-                background: url(/static/img/icon/icon18.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon18.png) no-repeat center center;
                 float: right;
             }
 
             a:nth-child(5):hover{
-                background: url(/static/img/icon/icon18_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon18_1.png) no-repeat center center;
             }
 
         }
