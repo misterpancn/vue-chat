@@ -116,7 +116,6 @@
         if (rec.isSupport) {
           rec.startRecording()
           this.showRecorder = true;
-          console.log('star...')
         } else {
           this.$Message.warning({
             content: this.$t('chat.deviceNotSupport'),
@@ -127,12 +126,10 @@
       recorderStop () {
         this.showRecorder = false;
         rec.stopRecording(false, {isGroup: this.isGroup, selectId: this.selectId});
-        console.log('stop...')
       },
       sendRecorder () {
         this.showRecorder = false;
         rec.stopRecording(true, {isGroup: this.isGroup, selectId: this.selectId});
-        console.log('send...')
       },
       poptip () {
         if (this.selectId === 0) {
@@ -152,8 +149,8 @@
       this.editor.customConfig.menus = []
       this.editor.customConfig.zIndex = 1
       this.editor.customConfig.pasteFilterStyle = true
-      this.editor.customConfig.pasteUrl = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
-      this.editor.customConfig.uploadImgServer = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
+      // this.editor.customConfig.pasteUrl = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
+      // this.editor.customConfig.uploadImgServer = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
       this.editor.create()
       rec.init((e) => {
         console.log(e)
