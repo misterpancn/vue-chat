@@ -10,13 +10,13 @@ var Recorder = function (source, cfg) {
   var worker = new Worker(WORKER_PATH);
   worker.onmessage = function (e) {
     var blob = e.data;
-    currCallback(blob);
+    if (currCallback) currCallback(blob);
   }
 
   worker.postMessage({
-    command: 'init',
+    cmd: 'init',
     config: {
-      sampleRate: config.sampleRate || 44100, // 采样率
+      sampleRate: this.context.sampleRate || 44100, // 采样率
       bitRate: config.bitRate || 128 // 比特率 mp3 128kbps
     }
   });
@@ -50,23 +50,22 @@ var Recorder = function (source, cfg) {
     recording = false;
     if (source) source.disconnect()
     if (this.node) this.node.disconnect()
-    if (worker) worker.stop()
   }
 
   this.clear = function () {
-    worker.postMessage({command: 'clear'});
+    worker.postMessage({cmd: 'clear'});
   }
 
   this.getBuffer = function (cb) {
     currCallback = cb || config.callback;
-    worker.postMessage({command: 'getBuffer'})
+    worker.postMessage({cmd: 'getBuffer'})
   }
 
   this.exportMP3 = function (cb) {
     currCallback = cb || config.callback;
     if (!currCallback) throw new Error('Callback not set');
     worker.postMessage({
-      command: 'finish'
+      cmd: 'finish'
     });
   }
 

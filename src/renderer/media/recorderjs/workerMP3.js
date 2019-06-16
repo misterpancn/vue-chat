@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const lamejs = require('lamejs');
+  importScripts('lame.min.js');
 
   var mp3Encoder, maxSamples = 1152, lame, config, dataBuffer;
   var clearBuffer = function () {
@@ -18,6 +18,9 @@
     lame = new lamejs();
     mp3Encoder = new lame.Mp3Encoder(2, config.sampleRate || 44100, config.bitRate || 128);
     clearBuffer();
+    self.postMessage({
+      cmd: 'init'
+    });
   };
 
   var floatTo16BitPCM = function floatTo16BitPCM (input, output) {
@@ -49,7 +52,7 @@
 
   var finish = function () {
     appendToBuffer(mp3Encoder.flush());
-    self.postMessage(dataBuffer);
+    self.postMessage(new Blob(dataBuffer, { type: 'audio/mp3' }));
     clearBuffer();
   };
 
