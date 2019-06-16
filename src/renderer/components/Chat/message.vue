@@ -23,12 +23,6 @@
       }
     },
     methods: {
-      // 筛选出用户头像
-      avatar (item) {
-        // 如果是自己发的消息显示登录用户的头像
-        let user = item.self ? this.$store.getters.getUser : this.sessionUser
-        return user && user.photo
-      },
       html (str) {
         if (str !== undefined) {
           return str.replace(/\\/g, '')
@@ -158,16 +152,18 @@
       },
       audioSrc (src) {
         return src + '?t=' + localStorage.getItem('token')
-      }
-    },
-    filters: {
-      // 将日期过滤为 hour:minutes
+      },
+      timeType (date) {
+        date = new Date(parseInt(date) * 1000)
+        if (new Date().getTime() - date.getTime() > 5 * 1000) {
+          return 'datetime'
+        } else {
+          return 'relative'
+        }
+      },
       time (date) {
         date = new Date(parseInt(date) * 1000)
-        if (date.getDay() !== new Date().getDay()) {
-          return date.toLocaleDateString() + ' ' + date.toLocaleTimeString('en-US', {hour12: false})
-        }
-        return date.getHours() + ':' + date.getMinutes()
+        return date.getTime()
       }
     },
     directives: {
@@ -193,7 +189,7 @@
     <div v-if="session && session.messages !== undefined" class="m-message" v-scroll-bottom="session.messages">
         <ul>
             <li v-for="item in session.messages">
-                <p v-if="item.showTime" class="time"><span>{{item.date | time}}</span></p>
+                <p v-if="item.showTime" class="time"><span><Time :time="time(item.date)" :type="timeType(item.date)" /></span></p>
                 <div class="main" :class="{ self: item.self }">
                     <p v-if="isGroup" class="name"><span>{{item.user_name}}</span></p>
                     <img class="avatar" width="30" height="30" :src="item.photo" style="cursor: pointer" @click="getUserInfo(item)"/>

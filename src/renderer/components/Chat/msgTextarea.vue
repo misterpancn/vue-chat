@@ -8,7 +8,8 @@
         text: '',
         visible: false,
         editor: {},
-        showRecorder: false
+        showRecorder: false,
+        recorderTime: new Date()
       }
     },
     computed: {
@@ -43,6 +44,9 @@
     watch: {
       editorDisable: function (val) {
         this.editor.$textElem.attr('contenteditable', val)
+      },
+      recorderTime: function (val) {
+        console.log(val)
       }
     },
     methods: {
@@ -114,7 +118,8 @@
           return false;
         }
         if (rec.isSupport) {
-          rec.startRecording()
+          // rec.startRecording()
+          this.recorderTime = new Date()
           this.showRecorder = true;
         } else {
           this.$Message.warning({
@@ -125,7 +130,7 @@
       },
       recorderStop () {
         this.showRecorder = false;
-        rec.stopRecording(false, {isGroup: this.isGroup, selectId: this.selectId});
+        // rec.stopRecording(false, {isGroup: this.isGroup, selectId: this.selectId});
       },
       sendRecorder () {
         this.showRecorder = false;
@@ -180,6 +185,7 @@
             <a href="javascript:;"></a>
             <Modal v-model="showRecorder" width="150" :mask-closable="false" @on-cancel="recorderStop">
                 <p slot="header" style="text-align: center;">{{ $t('chat.voice') }}</p>
+                <p style="text-align: center"><Time :time="recorderTime" :interval="1" /></p>
                 <p style="text-align: center">
                     <Icon type="md-microphone" style="font-size: 30px;" /><br>
                     {{ $t('chat.inRecording') }}
