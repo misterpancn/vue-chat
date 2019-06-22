@@ -17,7 +17,9 @@ var chat = {
     connect: 3,
     error: 5,
     refresh_token: 6,
-    audio: 7
+    audio: 7,
+    apply_notify: 8,
+    release_friend_list: 9
   }
 }
 var socket

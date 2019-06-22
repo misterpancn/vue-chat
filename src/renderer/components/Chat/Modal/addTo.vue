@@ -10,13 +10,13 @@
     computed: {
       show: {
         get: function () {
-          if (this.$store.getters.getAddToModal) {
+          if (this.$store.getters.getAddToShow) {
             this.$Spin.hide();
           }
-          return this.$store.getters.getAddToModal
+          return this.$store.getters.getAddToShow
         },
         set: function (val) {
-          this.$store.dispatch('setAddToModal', val)
+          this.$store.dispatch('upAddToShow', val)
         }
       }
     },

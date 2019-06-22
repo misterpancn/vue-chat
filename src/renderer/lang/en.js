@@ -19,6 +19,7 @@ export default {
     information: 'Information',
     personalInformation: 'Personal information',
     registerTime: 'Registration time',
+    joinDefaultGroup: 'Join the default group',
     rules: {
       passwordRequire: 'Please fill in the password.',
       emailRequire: 'Mailbox cannot be empty',
@@ -30,7 +31,8 @@ export default {
       passwordMinLimit: 'The password length cannot be less than {min} bits',
       nameRequire: 'Please fill in the name',
       nameMinLimit: 'The name name cannot be less than {min} bits',
-      mobileNumberMinLimit: 'The mobile number length cannot be less than {min} bits'
+      mobileNumberMinLimit: 'The mobile number length cannot be less than {min} bits',
+      maxLimit: 'The maximum length of this field is {max}'
     },
     notify: {
       loginSuccess: 'Login success!',
@@ -77,6 +79,14 @@ export default {
     hasBeenFriend: 'Has been a friend',
     alreadyInTheGroup: 'You\'re already in the group.',
     selectSendObject: 'Please select the sending object first.',
+    applyTime: 'Application time',
+    remarks: 'Remarks',
+    agree: 'Agree',
+    refuse: 'Refuse',
+    groupApply: 'Group application',
+    friendApply: 'Friends Application',
+    passed: 'Passed',
+    rejected: 'Rejected',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',

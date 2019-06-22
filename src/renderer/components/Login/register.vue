@@ -9,7 +9,7 @@
     <div class="row justify-content-center c-center">
         <Card :bordered="false" :xs="8" :sm="4" :md="6" :lg="8" style="height: 100%">
             <p slot="title">{{ $t('account.register') }}</p>
-            <a slot="extra"><router-link to="/login">{{ $t('account.login') }}</router-link></a>
+            <a slot="extra" @click="toLogin"><router-link to="/login">{{ $t('account.login') }}</router-link></a>
             <div class="card-body">
                 <Form ref="formInline" :model="formInline" :rules="ruleInline" :label-width="80">
                     <FormItem :label="$t('account.name')" prop="name">
@@ -37,6 +37,12 @@
                         <Input v-bind:type="passwordType" v-model="formInline.confirmPass" :placeholder="$t('account.rules.passwordRequire')">
                         </Input>
                     </FormItem>
+                    <FormItem :label="$t('account.joinDefaultGroup')">
+                        <i-switch v-model="formInline.joinGroup" size="large">
+                            <span slot="open">On</span>
+                            <span slot="close">Off</span>
+                        </i-switch>
+                    </FormItem>
                     <FormItem>
                         <Button type="primary" :loading="loading" @click="handleSubmit('formInline')">
                             <span v-if="!loading">{{ $t('account.register') }}</span>
@@ -49,7 +55,8 @@
     </div>
 </template>
 <script>
-  import config from './../../store/config/config'
+  import config from '@/store/config/config'
+  import {ipcRenderer} from 'electron'
   export default {
     data () {
       return {
@@ -60,7 +67,8 @@
           confirmPass: '',
           mbPrefix: '+86',
           phone: '',
-          is_eye: false
+          is_eye: false,
+          joinGroup: true
         },
         allMbPrefix: config.allMbPrefix,
         loading: false,
@@ -98,7 +106,8 @@
           ],
           name: [
             {required: true, message: this.$t('account.rules.nameRequire'), trigger: 'blur'},
-            {type: 'string', min: 2, message: this.$t('account.rules.nameMinLimit', {min: 2}), trigger: 'blur'}
+            {type: 'string', min: 2, message: this.$t('account.rules.nameMinLimit', {min: 2}), trigger: 'blur'},
+            {type: 'string', max: 12, message: this.$t('account.rules.maxLimit', {max: 12}), trigger: 'blur'}
           ],
           confirmPass: [
             {required: true, message: this.$t('account.rules.passwordRequire'), trigger: 'blur'},
@@ -124,7 +133,8 @@
               password: this.formInline.password,
               name: this.formInline.name,
               phone: this.formInline.phone,
-              mb_prefix: this.formInline.mbPrefix
+              mb_prefix: this.formInline.mbPrefix,
+              join_group: this.formInline.joinGroup
             }).then((response) => {
               console.log(response)
               if (response.data.status_code === 200) {
@@ -133,10 +143,11 @@
                   desc: ''
                 })
                 this.$router.push('/login')
+                this.toLogin()
               } else {
                 this.$Notice.error({
                   title: this.$t('notifyTitle.validationFailed'),
-                  desc: response.data.message
+                  desc: response.data.data
                 })
                 this.loading = false;
               }
@@ -165,6 +176,9 @@
           this.formInline.is_eye = false
           this.passwordType = 'password'
         }
+      },
+      toLogin () {
+        ipcRenderer.send('change-win-size', config.windowSize.login)
       }
     }
   }

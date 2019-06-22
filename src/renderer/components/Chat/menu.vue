@@ -1,6 +1,7 @@
 <script>
   import addToModal from '@/components/Chat/Modal/addTo.vue'
   import {ipcRenderer} from 'electron'
+  import config from '@/store/config/config'
   export default {
     components: {addToModal},
     methods: {
@@ -9,16 +10,17 @@
           title: this.$t('chat.notify.confirmLogout'),
           loading: true,
           onOk: () => {
-            this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
+            this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId, badge: this.$store.getters.getBadgeList})
               .then((response) => {
                 if (response.data.status_code === 200) {
                   this.$store.dispatch('deleteMessage')
                   this.$store.dispatch('chatDataDestroy')
-                  this.$store.dispatch('initBadge', {})
+                  this.$store.dispatch('destroyNotify')
+                  this.$store.dispatch('destroyModalStatus')
                   this.$Message.success(this.$t('notify.exitSuccess'))
                   this.$Modal.remove()
                   this.$router.push('/login')
-                  ipcRenderer.send('change-win-size', {width: 540, height: 480})
+                  ipcRenderer.send('change-win-size', config.windowSize.login)
                 } else {
                   this.$Notice.warning({
                     title: this.$t('notifyTitle.reminding'),
@@ -33,7 +35,7 @@
                 })
                 this.$Modal.remove()
                 this.$router.push('/login')
-                ipcRenderer.send('change-win-size', {width: 540, height: 480})
+                ipcRenderer.send('change-win-size', config.windowSize.login)
               })
           }
         })
@@ -47,7 +49,7 @@
         }
       },
       addTo () {
-        this.$store.dispatch('setAddToModal', true)
+        this.$store.dispatch('upAddToShow', true)
       }
     },
     mounted () {

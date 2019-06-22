@@ -4,6 +4,12 @@ const config = {
   connectLimit: 10,
   openssl: false,
   apiVersion: 'prs.dingo.v1',
+  clientKey: 'client key',
+  windowSize: {
+    login: {width: 540, height: 480},
+    register: {width: 540, height: 550},
+    chat: {width: 940, height: 700}
+  },
   allMbPrefix: ['+86', '+93', '+355', '+213', '+376', '+244', '+1264',
     '+247', '+1268', '+54', '+374', '+297', '+61', '+43', '+994',
     '+1242', '+973', '+880', '+1246', '+375', '+32', '+501', '+229',

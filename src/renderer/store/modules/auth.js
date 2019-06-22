@@ -111,6 +111,21 @@ const actions = {
   },
   setUserStatus ({commit}, data) {
     commit('SET_USER_STATUS', data)
+  },
+  getFriendsList ({commit}, isGroup) {
+    if (isGroup) {
+      request.getGroupList().then((r) => {
+        if (r.data.data) {
+          commit('SET_GROUP_LIST', r.data.data)
+        }
+      })
+    } else {
+      request.getFriendList().then((r) => {
+        if (r.data.data) {
+          commit('SET_USER_LIST', r.data.data)
+        }
+      })
+    }
   }
 }
 

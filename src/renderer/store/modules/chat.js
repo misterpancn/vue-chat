@@ -1,10 +1,7 @@
 import axios from '@/request'
 const state = {
-  // user info modal status
-  modalStatus: false,
   // user info modal
   userInfo: {},
-  addToModal: false,
   // 搜索key
   search: '',
   // chat_id or group id
@@ -15,12 +12,6 @@ const state = {
 }
 
 const mutations = {
-  SET_MODAL_STATUS (state, data) {
-    state.modalStatus = data
-  },
-  SET_ADD_TO_MODAL (state, data) {
-    state.addToModal = data
-  },
   SET_USER_INFO (state, data) {
     state.userInfo = data
   },
@@ -38,13 +29,12 @@ const mutations = {
     localStorage.setItem('connect_id', data)
   },
   DESTROY (state) {
-    state.modalStatus = false;
     state.userInfo = {};
     state.search = '';
     state.selectId = 0;
     state.isGroup = false;
     state.connectId = '';
-    state.addToModal = false;
+    state.badge = []
   },
   SET_BADGE (state, data) {
     if (state.badge.length === 0) {
@@ -54,17 +44,20 @@ const mutations = {
         count: 1
       })
     } else {
+      let isSave = false
       state.badge.map((item) => {
         if (item.id === data.id && item.is_group === data.is_group) {
-          item.count = item.count + 1;
-        } else {
-          state.badge.push({
-            id: data.id,
-            is_group: data.is_group,
-            count: 1
-          })
+          item.count += 1;
+          isSave = true
         }
       })
+      if (!isSave) {
+        state.badge.push({
+          id: data.id,
+          is_group: data.is_group,
+          count: 1
+        })
+      }
     }
   },
   RESET_BADGE (state, data) {
@@ -83,19 +76,14 @@ const mutations = {
 
 const actions = {
   setUserInfo ({commit}, uid) {
-    axios.getUserInfo(uid).then((response) => {
-      console.log(response)
-      if (response.status === 200) {
-        commit('SET_MODAL_STATUS', true)
-        commit('SET_USER_INFO', response.data.data)
-      }
+    return new Promise((resolve, reject) => {
+      axios.getUserInfo(uid).then((response) => {
+        if (response.status === 200) {
+          commit('SET_USER_INFO', response.data.data)
+        }
+        resolve(response)
+      }).catch((e) => { reject(e) })
     })
-  },
-  setModalStatus ({commit}, status) {
-    commit('SET_MODAL_STATUS', status)
-  },
-  setAddToModal ({commit}, status) {
-    commit('SET_ADD_TO_MODAL', status)
   },
   setSearch ({commit}, search) {
     commit('SET_SEARCH', search)
@@ -174,7 +162,8 @@ const getters = {
       })
     }
     return count
-  }
+  },
+  getBadgeList: state => state.badge
 }
 
 export default {
