@@ -6,7 +6,8 @@ var instance = axios.create({
   baseURL: transport + config.serviceAddress + '/api/',
   timeout: 1000 * 60,
   headers: {
-    'Accept': 'application/' + config.apiVersion + '+json'
+    'Accept': 'application/' + config.apiVersion + '+json',
+    'Custom-Token': config.clientKey
   }
 })
 // 添加请求拦截器

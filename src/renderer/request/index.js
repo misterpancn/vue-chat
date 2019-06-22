@@ -61,5 +61,25 @@ export default {
   // 搜索好友和群 param: chat_number
   searchNo (data) {
     return axios.post('chat/searchNo', Qs.stringify(data))
+  },
+  // 加群加好友审核 param: audit
+  audit (applyId, data) {
+    return axios.post('chat/apply/audit/' + applyId, Qs.stringify(data))
+  },
+  // 获取好友和群申请列表 无参数
+  getApplyList () {
+    return axios.get('chat/apply/get')
+  },
+  // 重置申请的消息提醒  无参数
+  resetNotifyBadge () {
+    return axios.get('chat/apply/notify/reset')
+  },
+  // 获取好友列表  无参数
+  getFriendList () {
+    return axios.get('chat/friendsList/get')
+  },
+  // 获取登录用户的群列表  无参数
+  getGroupList () {
+    return axios.get('chat/groupList/get')
   }
 }

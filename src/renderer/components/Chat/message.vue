@@ -52,7 +52,11 @@
       getUserInfo (item) {
         if (!item.self) {
           this.$Spin.show();
-          this.$store.dispatch('setUserInfo', item.uid)
+          this.$store.dispatch('setUserInfo', item.uid).then((r) => {
+            if (r.status === 200) {
+              this.$store.dispatch('upUserInfoShow', true)
+            }
+          })
         }
       },
       // 获取音频的长度并显示
@@ -181,6 +185,12 @@
           this.loadingData()
         }
       }
+    },
+    mounted () {
+      // 当从系统消息切换到聊天消息时，不能触发session的watch事件  因为两次返回数据都是空数组  因此在钩子函数内进行初始化加载消息
+      if (this.selectId > 0 && !this.$store.getters.getSelectNotify && this.session.length === 0) {
+        this.loadingData()
+      }
     }
   }
 </script>
@@ -224,6 +234,7 @@
     .m-message {
         padding: 10px 15px;
         overflow-y: scroll;
+        height: ~'calc(70% - 30px)';
 
         li {
             margin-bottom: 15px;

@@ -19,6 +19,7 @@ export default {
     information: '资料',
     personalInformation: '个人信息',
     registerTime: '注册时间',
+    joinDefaultGroup: '加入默认群',
     rules: {
       passwordRequire: '请填写密码',
       emailRequire: '请填写邮箱',
@@ -30,7 +31,8 @@ export default {
       passwordMinLimit: '密码最小长度为{min}字符',
       nameRequire: '请填写用户名',
       nameMinLimit: '用户名长度最小为{min}字符',
-      mobileNumberMinLimit: '手机号长度最小为{min}字符'
+      mobileNumberMinLimit: '手机号长度最小为{min}字符',
+      maxLimit: '该字段最大长度为{max}'
     },
     notify: {
       loginSuccess: '登录成功',
@@ -77,6 +79,14 @@ export default {
     hasBeenFriend: '已是好友',
     alreadyInTheGroup: '你已经在群组中',
     selectSendObject: '请先选择发送对象',
+    applyTime: '申请时间',
+    remarks: '备注',
+    agree: '同意',
+    refuse: '拒绝',
+    groupApply: '群申请',
+    friendApply: '好友申请',
+    passed: '已通过',
+    rejected: '已拒绝',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',

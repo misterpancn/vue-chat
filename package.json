@@ -1,5 +1,5 @@
 {
-  "name": "vue-chat",
+  "name": "VueChat",
   "version": "1.0.0",
   "author": "misterpancn@gmail.com",
   "description": "An electron-vue project",
@@ -22,10 +22,20 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "vue-chat",
+    "productName": "VueChat",
     "appId": "com.vue-chat.buck",
     "directories": {
       "output": "build"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "runAfterFinish": true,
+      "installerIcon": "./build/icons/icon.ico",
+      "uninstallerIcon": "./build/icons/icon.ico"
     },
     "files": [
       "dist/electron/**/*"
@@ -91,6 +101,7 @@
     "electron-builder": "^20.19.2",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4",
+    "electron-updater": "^4.0.5",
     "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-friendly-formatter": "^4.0.1",
