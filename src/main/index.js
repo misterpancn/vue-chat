@@ -1,6 +1,8 @@
 'use strict'
 
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
+import { autoUpdater } from 'electron-updater'
+import config from '../renderer/store/config/config'
 
 /**
  * Set `__static` path to static files in production
@@ -55,6 +57,7 @@ function createWindow () {
       })
     }
   })
+  handleUpdate()
 }
 
 app.on('ready', createWindow)
@@ -83,14 +86,32 @@ ipcMain.on('change-win-size', (e, args) => {
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-electron-builder.html#auto-updating
  */
 
-/*
-import { autoUpdater } from 'electron-updater'
-
-autoUpdater.on('update-downloaded', () => {
-  autoUpdater.quitAndInstall()
-})
-
-app.on('ready', () => {
-  if (process.env.NODE_ENV === 'production') autoUpdater.checkForUpdates()
-})
- */
+function handleUpdate () {
+  autoUpdater.autoDownload = false
+  autoUpdater.autoInstallOnAppQuit = false
+  autoUpdater.setFeedURL(config.downloadAddress);
+  autoUpdater.on('error', (err) => {
+    mainWindow.webContents.send('update-error', String(err))
+  })
+  autoUpdater.on('update-available', (info) => {
+    mainWindow.webContents.send('update-available', info)
+  })
+  autoUpdater.on('update-not-available', (info) => {
+    mainWindow.webContents.send('update-not-available', info)
+  })
+  autoUpdater.on('download-progress', (progress) => {
+    mainWindow.webContents.send('update-download-progress', progress)
+  })
+  autoUpdater.on('update-downloaded', (info) => {
+    mainWindow.webContents.send('update-downloaded', info)
+  })
+  ipcMain.on('check-for-update', () => {
+    autoUpdater.checkForUpdates()
+  })
+  ipcMain.on('update-download', () => {
+    autoUpdater.downloadUpdate()
+  })
+  ipcMain.on('update-install', () => {
+    autoUpdater.quitAndInstall()
+  })
+}

@@ -47,7 +47,15 @@ export default {
     language: {
       en: 'English',
       zh: 'Chinese'
-    }
+    },
+    checkForUpdate: 'Check for updates',
+    isTheLatestVersion: 'It is the latest version',
+    currentVersion: 'Current version',
+    latestVersion: 'Latest version',
+    releaseTime: 'Release time',
+    packageSize: 'Package size',
+    download: 'Download',
+    install: 'Install'
   },
   notifyTitle: {
     validationFailed: 'Validation failed',

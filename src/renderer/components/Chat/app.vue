@@ -10,6 +10,7 @@
   import systemNotify from './systemNotify'
   import {ipcRenderer} from 'electron'
   import config from '@/store/config/config'
+  import rec from '@/media/recorder'
 
   export default {
     data () {
@@ -85,6 +86,7 @@
           this.$store.dispatch('destroyModalStatus')
           this.$Message.success(this.$t('notify.exitSuccess'))
           this.$Modal.remove()
+          rec.closeAudio()
           this.$router.push('/login')
           ipcRenderer.send('change-win-size', config.windowSize.login)
         } else {

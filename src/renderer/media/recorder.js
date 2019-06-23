@@ -38,7 +38,7 @@ rec.startUserMedia = function (stream) {
 }
 rec.startRecording = function () {
   rec.audioContent.resume().then(() => {
-    console.log('playback resumed successfully')
+    rec.callback('playback resumed successfully')
   }).catch((err) => {
     rec.callback(err)
   })
@@ -51,14 +51,14 @@ rec.stopRecording = function (isSend, obj) {
 }
 rec.createDownloadLink = function (isSend, obj) {
   rec.recorder && rec.recorder.exportMP3(function (blob) {
-    console.log(blob)
+    rec.callback('Blob size: ' + blob.size)
     /* rec.blobToBase64(blob, function (base64) {
       var buf = Buffer.from(base64, 'base64'); // decode
       fs.writeFile(`${__dirname}/` + '../../../static/audio/aaa.wav', buf, 'binary', (err) => {
         rec.callback(err)
       })
     }) */
-    if (isSend) {
+    if (isSend && blob.size > 0) {
       let formData = new FormData();
       formData.append('media', blob)
       if (!obj.isGroup) {
@@ -87,6 +87,7 @@ rec.blobToBase64 = function (blob, cb) {
 rec.closeAudio = function () {
   if (rec.audioContent && rec.audioContent.state !== 'closed') {
     rec.audioContent.close()
+    rec.recorder.closeConnect()
   }
 }
 export default rec

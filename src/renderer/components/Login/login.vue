@@ -41,6 +41,7 @@
                     </FormItem>
                 </Form>
             </div>
+            <update></update>
         </Card>
     </div>
 </template>
@@ -48,7 +49,11 @@
 <script>
   import {ipcRenderer} from 'electron'
   import config from '@/store/config/config'
+  import update from './update'
   export default {
+    components: {
+      update
+    },
     data () {
       return {
         formInline: {
