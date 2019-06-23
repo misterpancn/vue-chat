@@ -209,7 +209,7 @@
                         <span ref="recorderTime" class="recorder-time" @click="controlsAudio($event)"></span>
                         <audio preload="auto" name="media" @canplay="getDuration($event)" ref="audio" @timeupdate="timeUpdate($event)"
                         @ended="endAudio($event)" hidden="true">
-                            <source :src="audioSrc(item.text)" type="audio/x-wav">
+                            <source :src="audioSrc(item.text)" type="audio/mp3">
                         </audio>
                         <span class="rec-icon"><Icon type="ios-volume-up" ref="recorderIcon" style="font-size: 2em" /></span>
                     </div>

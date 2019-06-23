@@ -48,6 +48,9 @@ var Recorder = function (source, cfg) {
 
   this.stop = function () {
     recording = false;
+  }
+  this.closeConnect = () => {
+    recording = false;
     if (source) source.disconnect()
     if (this.node) this.node.disconnect()
   }

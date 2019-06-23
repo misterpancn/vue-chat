@@ -47,7 +47,15 @@ export default {
     language: {
       en: '英文',
       zh: '简体中文'
-    }
+    },
+    checkForUpdate: '检查更新',
+    isTheLatestVersion: '已是最新版本',
+    currentVersion: '当前版本',
+    latestVersion: '最新版本',
+    releaseTime: '发布时间',
+    packageSize: '安装包大小',
+    download: '下载',
+    install: '安装'
   },
   notifyTitle: {
     validationFailed: '验证失败',

@@ -118,7 +118,7 @@
           return false;
         }
         if (rec.isSupport) {
-          // rec.startRecording()
+          rec.startRecording()
           this.recorderTime = new Date()
           this.showRecorder = true;
         } else {
@@ -158,7 +158,10 @@
       // this.editor.customConfig.uploadImgServer = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
       this.editor.create()
       rec.init((e) => {
-        console.log(e)
+        this.$Message.warning({
+          content: String(e),
+          duration: 5
+        });
       })
     }
   }
