@@ -1,10 +1,13 @@
 <script>
   import addToModal from '@/components/Chat/Modal/addTo.vue'
+  import editInfo from './Modal/editInfo.vue'
+  import changePassword from './Modal/changePwd.vue'
+  import modifyAvatar from './Modal/modifyAvatar.vue'
   import {ipcRenderer} from 'electron'
   import config from '@/store/config/config'
   import rec from '@/media/recorder'
   export default {
-    components: {addToModal},
+    components: { addToModal, editInfo, changePassword, modifyAvatar },
     methods: {
       logout () {
         this.$Modal.confirm({
@@ -49,6 +52,15 @@
         if (name === 'addTo') {
           this.addTo()
         }
+        if (name === 'edit') {
+          this.$store.dispatch('upEditInfoShow', true)
+        }
+        if (name === 'changePwd') {
+          this.$store.dispatch('setChangePwdShow', true)
+        }
+        if (name === 'modifyAvatar') {
+          this.$store.dispatch('setModifyAvatarShow', true)
+        }
       },
       addTo () {
         this.$store.dispatch('upAddToShow', true)
@@ -66,11 +78,17 @@
         <Dropdown trigger="hover" placement="top-start" transfer @on-click="setting">
             <span><Icon type="ios-settings" slot="prefix" class="setting"></Icon></span>
             <DropdownMenu slot="list">
+                <DropdownItem name="modifyAvatar">{{$t('account.modifyAvatar')}}</DropdownItem>
+                <DropdownItem name="edit">{{$t('account.editMaterials')}}</DropdownItem>
+                <DropdownItem name="changePwd">{{$t('account.changePassword')}}</DropdownItem>
                 <DropdownItem name="addTo">{{$t('chat.addTo')}}</DropdownItem>
                 <DropdownItem name="logout">{{$t('account.logout')}}</DropdownItem>
             </DropdownMenu>
         </Dropdown>
         <add-to-modal></add-to-modal>
+        <edit-info></edit-info>
+        <change-password></change-password>
+        <modify-avatar></modify-avatar>
     </div>
 </template>
 <style lang="less">

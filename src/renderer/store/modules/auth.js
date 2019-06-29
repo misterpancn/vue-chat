@@ -32,7 +32,7 @@ const mutations = {
     localStorage.setItem('tokenType', state.tokenType)
   },
   LOGOUT (state) {
-    state.userList = {};
+    state.user = {};
     state.userList = {};
     state.groupList = {};
     state.token = '';
@@ -70,7 +70,11 @@ const actions = {
           commit('SET_USER', {
             userId: parseInt(response.data.data.users.id),
             name: response.data.data.users.name,
-            photo: response.data.data.users.photo
+            photo: response.data.data.users.photo,
+            email: response.data.data.users.email,
+            mb_prefix: response.data.data.users.mb_prefix,
+            phone: response.data.data.users.phone,
+            chat_number: response.data.data.users.chat_number
           })
           commit('SET_TOKEN', {
             token: response.data.data.access_token,
@@ -126,6 +130,37 @@ const actions = {
         }
       })
     }
+  },
+  updateUserInfo ({commit}, data) {
+    return new Promise((resolve, reject) => {
+      request.updateUserInfo(data).then((r) => {
+        resolve(r)
+      }).catch((error) => {
+        reject(error)
+      })
+    })
+  },
+  me ({commit}) {
+    request.me().then((r) => {
+      commit('SET_USER', {
+        userId: parseInt(r.data.data.id),
+        name: r.data.data.name,
+        photo: r.data.data.photo,
+        email: r.data.data.email,
+        mb_prefix: r.data.data.mb_prefix,
+        phone: r.data.data.phone,
+        chat_number: r.data.data.chat_number
+      })
+    })
+  },
+  changePassword ({commit}, data) {
+    return new Promise((resolve, reject) => {
+      request.changePassword(data).then((r) => {
+        resolve(r)
+      }).catch((error) => {
+        reject(error)
+      })
+    })
   }
 }
 

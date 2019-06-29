@@ -81,5 +81,16 @@ export default {
   // 获取登录用户的群列表  无参数
   getGroupList () {
     return axios.get('chat/groupList/get')
+  },
+  me () {
+    return axios.post('auth/me')
+  },
+  // 更新用户信息 param: email name phone
+  updateUserInfo (data) {
+    return axios.post('auth/information/update', Qs.stringify(data))
+  },
+  // 修改密码 param: old_password & password & password_confirmation
+  changePassword (data) {
+    return axios.post('auth/password/change', Qs.stringify(data))
   }
 }

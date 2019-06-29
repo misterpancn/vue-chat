@@ -111,7 +111,7 @@
           ],
           confirmPass: [
             {required: true, message: this.$t('account.rules.passwordRequire'), trigger: 'blur'},
-            {validator: validatePassCheck},
+            {validator: validatePassCheck, trigger: 'blur'},
             {type: 'string', min: 6, message: this.$t('account.rules.passwordMinLimit', {min: 6}), trigger: 'blur'}
           ],
           phone: [

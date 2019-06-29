@@ -20,6 +20,12 @@ export default {
     personalInformation: '个人信息',
     registerTime: '注册时间',
     joinDefaultGroup: '加入默认群',
+    modifyPersonalData: '修改个人资料',
+    editMaterials: '编辑资料',
+    changePassword: '修改密码',
+    originalPassword: '原始密码',
+    newPassword: '新密码',
+    modifyAvatar: '修改头像',
     rules: {
       passwordRequire: '请填写密码',
       emailRequire: '请填写邮箱',
@@ -32,7 +38,8 @@ export default {
       nameRequire: '请填写用户名',
       nameMinLimit: '用户名长度最小为{min}字符',
       mobileNumberMinLimit: '手机号长度最小为{min}字符',
-      maxLimit: '该字段最大长度为{max}'
+      maxLimit: '该字段最大长度为{max}',
+      pleaseEnterOriginPwd: '请输入原始密码'
     },
     notify: {
       loginSuccess: '登录成功',
@@ -57,6 +64,9 @@ export default {
     download: '下载',
     install: '安装'
   },
+  operation: {
+    modify: '修改'
+  },
   notifyTitle: {
     validationFailed: '验证失败',
     errorReminding: '错误提醒',
@@ -68,7 +78,9 @@ export default {
     loading: '加载中...',
     exitSuccess: '退出成功',
     noDataQueried: '未查询到数据',
-    applicationHasBeenSent: '申请已发送'
+    applicationHasBeenSent: '申请已发送',
+    haveConfirmOperation: '您已确认这个操作？',
+    successOperation: '操作成功'
   },
   chat: {
     voice: '语音',
