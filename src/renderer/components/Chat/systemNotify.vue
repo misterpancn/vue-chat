@@ -13,35 +13,29 @@
       }
     },
     methods: {
-      agree (id) {
-        this.loading = true
-        axios.audit(id, {audit: 1}).then((r) => {
-          this.loading = false
-          this.$store.dispatch('updateNotifyList', {id: id, audit: 1})
+      post (id, audit) {
+        axios.audit(id, {audit: audit}).then((r) => {
+          this.$store.dispatch('updateNotifyList', {id: id, audit: audit})
           // 审核通过之后返回新的好友列表  更新本地数据
-          if (r.data.status_code === 200 && r.data.data.friend_list) {
+          if (audit === 1 && r.data.status_code === 200 && r.data.data.friend_list) {
             this.$store.dispatch('setUserList', r.data.data.friend_list)
           }
+          this.$Modal.remove()
         }).catch((error) => {
-          this.loading = false
           this.$Message.warning({
             content: error.response.data.data,
             duration: 3
           });
+          this.$Modal.remove()
         })
       },
-      refuse (id) {
-        this.loading = true
-        axios.audit(id, {audit: 2}).then((r) => {
-          this.loading = false
-          this.$store.dispatch('updateNotifyList', {id: id, audit: 2})
-          console.log(r)
-        }).catch((error) => {
-          this.loading = false
-          this.$Message.warning({
-            content: error.response.data.data,
-            duration: 3
-          });
+      audit (id, audit) {
+        this.$Modal.confirm({
+          title: this.$t('notify.haveConfirmOperation'),
+          loading: true,
+          onOk: () => {
+            this.post(id, audit)
+          }
         })
       },
       timeType (date) {
@@ -94,8 +88,8 @@
                             <Row>
                                 <Col :xs="10" :sm="8" :md="6" :lg="8" class="m-col">{{$t('chat.operation')}}</Col>
                                 <Col :xs="12" :sm="12" :md="12" :lg="8" class="m-col" v-if="item.apply_status === 0">
-                                <Button type="success" size="small" @click="agree(item.id)" :loading="loading">{{$t('chat.agree')}}</Button>
-                                <Button type="error" size="small" @click="refuse(item.id)" :loading="loading">{{$t('chat.refuse')}}</Button>
+                                <Button type="success" size="small" @click="audit(item.id, 1)" >{{$t('chat.agree')}}</Button>
+                                <Button type="error" size="small" @click="audit(item.id, 2)" >{{$t('chat.refuse')}}</Button>
                                 </Col>
                                 <Col :xs="12" :sm="12" :md="12" :lg="8" class="m-col" v-else>{{item.apply_status ===1 ? $t('chat.passed') : $t('chat.rejected')}}</Col>
                             </Row>

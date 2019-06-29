@@ -103,7 +103,6 @@
               password: this.formInline.password,
               is_app: true
             }).then((response) => {
-              console.log(response)
               if (response.status === 200 && response.data.status_code === 200) {
                 this.$router.push('/chat')
                 ipcRenderer.send('change-win-size', config.windowSize.chat)

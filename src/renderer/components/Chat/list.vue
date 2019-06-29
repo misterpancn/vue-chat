@@ -20,8 +20,9 @@
         }
       },
       setNotify (bool) {
+        let selection = this.$store.getters.getSelectNotify
         this.$store.dispatch('setSelectNotify', bool)
-        if (bool) {
+        if (bool && !selection) {
           this.$store.dispatch('setSelectId', 0)
           this.$store.dispatch('setIsGroup', false)
           this.$store.dispatch('setNotifyList')

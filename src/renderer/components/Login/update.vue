@@ -23,7 +23,7 @@
           if (this.updateAvailable) {
             this.showModal = true
           } else {
-            this.$Message.success({content: this.$t('system.isTheLatestVersion'), duration: 3})
+            this.$Message.success({content: this.$t('system.isTheLatestVersion') + '. v.' + this.currentVersion, duration: 3})
           }
         },
         downloadPack () {

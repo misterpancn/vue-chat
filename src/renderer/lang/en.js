@@ -20,6 +20,12 @@ export default {
     personalInformation: 'Personal information',
     registerTime: 'Registration time',
     joinDefaultGroup: 'Join the default group',
+    modifyPersonalData: 'Modification of personal data',
+    editMaterials: 'Editorial materials',
+    changePassword: 'Change Password',
+    originalPassword: 'Original Password',
+    newPassword: 'New Password',
+    modifyAvatar: 'Modify the Avatar',
     rules: {
       passwordRequire: 'Please fill in the password.',
       emailRequire: 'Mailbox cannot be empty',
@@ -32,7 +38,8 @@ export default {
       nameRequire: 'Please fill in the name',
       nameMinLimit: 'The name name cannot be less than {min} bits',
       mobileNumberMinLimit: 'The mobile number length cannot be less than {min} bits',
-      maxLimit: 'The maximum length of this field is {max}'
+      maxLimit: 'The maximum length of this field is {max}',
+      pleaseEnterOriginPwd: 'Please enter the original password'
     },
     notify: {
       loginSuccess: 'Login success!',
@@ -57,6 +64,9 @@ export default {
     download: 'Download',
     install: 'Install'
   },
+  operation: {
+    modify: 'Modify'
+  },
   notifyTitle: {
     validationFailed: 'Validation failed',
     errorReminding: 'Error reminding',
@@ -68,7 +78,9 @@ export default {
     loading: 'Loading...',
     exitSuccess: 'Exit successfully',
     noDataQueried: 'No data queried',
-    applicationHasBeenSent: 'The application has been sent'
+    applicationHasBeenSent: 'The application has been sent',
+    haveConfirmOperation: 'You have confirmed this operation?',
+    successOperation: 'Successful operation'
   },
   chat: {
     voice: 'Voice',
