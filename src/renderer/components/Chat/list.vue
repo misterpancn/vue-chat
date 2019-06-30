@@ -2,6 +2,9 @@
   export default {
     methods: {
       select (value) {
+        if (this.$store.getters.getSelectNotify) {
+          this.setNotify(false)
+        }
         this.$store.dispatch('setSelectId', value.chat_id > 0 ? value.chat_id : value.group_id)
         this.$store.dispatch('setIsGroup', value.group_id > 0)
         this.$store.dispatch('resetBadge', {
@@ -14,6 +17,16 @@
           return this.$store.getters.getBadgeCount(item.group_id, true)
         } else if (item.chat_id) {
           return this.$store.getters.getBadgeCount(item.chat_id, false)
+        }
+      },
+      setNotify (bool) {
+        let selection = this.$store.getters.getSelectNotify
+        this.$store.dispatch('setSelectNotify', bool)
+        if (bool && !selection) {
+          this.$store.dispatch('setSelectId', 0)
+          this.$store.dispatch('setIsGroup', false)
+          this.$store.dispatch('setNotifyList')
+          this.$store.dispatch('resetNotifyBadge')
         }
       }
     },
@@ -29,6 +42,15 @@
       },
       search () {
         return this.$store.getters.search
+      },
+      haveNotify () {
+        return this.$store.getters.getHaveNotify
+      },
+      selectNotify () {
+        return this.$store.getters.getSelectNotify
+      },
+      notifyBadge () {
+        return this.$store.getters.getNotifyBadge
       }
     },
     filters: {
@@ -44,6 +66,11 @@
 <template>
     <div v-if="users" class="m-list">
         <ul>
+            <li class="m-user-list" v-if="haveNotify"
+                :class="{ active: selectNotify }" @click="setNotify(true)">
+                <img class="avatar" width="30" height="30" src="./../../../../static/img/icon/head_4_1.png">
+                <Badge :count="notifyBadge" style="width: calc(100% - 50px)"><p class="name">系统消息</p></Badge>
+            </li>
             <li class="m-user-list" v-for="item in users"
                 :class="{ active: ((selectId === item.chat_id && !isGroup) || (selectId === item.group_id && isGroup)) }" @click="select(item)">
                 <img class="avatar" width="30" height="30" :alt="item.name" :src="item.photo" :class="item | img">

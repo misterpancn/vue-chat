@@ -7,10 +7,21 @@
   import menus from './menu'
   import ws from '@/request/websocket'
   import userInfoModal from './Modal/userInformation'
+  import systemNotify from './systemNotify'
+  import {ipcRenderer} from 'electron'
+  import config from '@/store/config/config'
+  import rec from '@/media/recorder'
 
   export default {
     data () {
-      return {}
+      return {
+        isInit: true
+      }
+    },
+    computed: {
+      selectNotify () {
+        return this.$store.getters.getSelectNotify
+      }
     },
     created () {
       ws.connectWS()
@@ -24,23 +35,7 @@
             this.notifyHandle(res)
             break;
           case ws.messageType.error:
-            this.$Modal.confirm({
-              title: this.$t('chat.notify.serverErrorLogout'), // 服务器出现异常，正在帮您退出登录
-              loading: true,
-              onOk: () => {
-                this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
-                  .then((response) => {
-                    this.logoutHttpStatus(response)
-                  }).catch((error) => {
-                    console.log(error)
-                    this.$Notice.error({
-                      title: this.$t('notifyTitle.reminding'),
-                      desc: error
-                    })
-                    this.$Modal.remove()
-                  })
-              }
-            })
+            this.logout()
             break;
           case ws.messageType.refresh_token:
             // token 过期自动刷新
@@ -51,6 +46,7 @@
             this.$Modal.remove()
             break;
           case ws.messageType.message:
+          case ws.messageType.audio:
             this.$store.dispatch('pushMessage', {
               response: res,
               thisUser: this.$store.getters.getUser
@@ -64,14 +60,35 @@
               this.$store.dispatch('setBadge', {id: res.group_id, is_group: true})
             }
             break;
+          // 好友申请通知
+          case ws.messageType.apply_notify:
+            // 如何没有系统消息或者是选中了系统消息  则请求更新
+            if (!this.$store.getters.getHaveNotify || this.$store.getters.getSelectNotify) {
+              this.$store.dispatch('setNotifyList')
+            }
+            // 如何没有系统消息或者是未选中系统消息  添加提醒数
+            if (!this.$store.getters.getHaveNotify || !this.$store.getters.getSelectNotify) {
+              this.$store.dispatch('upNotifyBadge')
+            }
+            break;
+          // 对方审核通过通知修改好友列表
+          case ws.messageType.release_friend_list:
+            this.$store.dispatch('getFriendsList', res.data)
+            break;
           default: break;
         }
       },
       logoutHttpStatus (response) {
         if (response.data.status_code === 200 || response.data.status_code === 401) {
+          this.$store.dispatch('deleteMessage')
+          this.$store.dispatch('chatDataDestroy')
+          this.$store.dispatch('destroyNotify')
+          this.$store.dispatch('destroyModalStatus')
           this.$Message.success(this.$t('notify.exitSuccess'))
           this.$Modal.remove()
+          rec.closeAudio()
           this.$router.push('/login')
+          ipcRenderer.send('change-win-size', config.windowSize.login)
         } else {
           this.$Notice.warning({
             title: this.$t('notifyTitle.reminding'),
@@ -91,33 +108,69 @@
       },
       httpCallback (response) {
         let res = response.status !== 200 ? response.response.data : response.data;
-        if (res.status_code === 200) {
-          switch (res.data.type) {
-            case 'init':
-              // 初始化请求中返回 未读消息数
-              if (res.data.badge_list) {
-                this.$store.dispatch('initBadge', res.data.badge_list)
-              }
-              break;
-            default: break;
-          }
+        if (res.status_code !== 200) {
+          this.logout()
         }
+        switch (res.data.type) {
+          case 'init':
+            // 初始化请求中返回 未读消息数
+            this.$Spin.hide();
+            if (res.data.badge_list && res.status_code === 200) {
+              this.isInit = false
+              this.$store.dispatch('initBadge', res.data.badge_list)
+              this.$store.dispatch('initNotifyList', res.data.apply_notify)
+              this.$store.dispatch('initNotifyBadge', res.data.apply_notify_badge)
+            } else {
+              this.logout()
+            }
+            break;
+          default: break;
+        }
+      },
+      logout () {
+        this.$Spin.hide();
+        this.$Modal.confirm({
+          title: this.$t('chat.notify.serverErrorLogout'), // 服务器出现异常，正在帮您退出登录
+          loading: true,
+          onOk: () => {
+            this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId, badge: this.$store.getters.getBadgeList})
+              .then((response) => {
+                this.logoutHttpStatus(response)
+              }).catch((error) => {
+                this.logoutHttpStatus(error.response)
+                this.$Notice.error({
+                  title: this.$t('notifyTitle.reminding'),
+                  desc: error
+                })
+                this.$Modal.remove()
+              })
+          }
+        })
+      }
+    },
+    mounted () {
+      if (this.isInit) {
+        this.$Spin.show();
       }
     },
     components: {
-      card, list, msgTextarea, message, name, menus, userInfoModal
+      card, list, msgTextarea, message, name, menus, userInfoModal, systemNotify
     }
   }
 </script>
 
 <template>
-    <div style="height: 600px;">
+    <div style="height: 100%;">
         <div class="sidebar">
             <card></card>
             <list></list>
             <menus></menus>
         </div>
-        <div class="main">
+        <div class="main" v-if="selectNotify">
+            <name></name>
+            <system-notify></system-notify>
+        </div>
+        <div class="main" v-else>
             <name></name>
             <message></message>
             <msgTextarea></msgTextarea>
@@ -129,7 +182,6 @@
 <style lang="less">
     #app {
         overflow: hidden;
-        border-radius: 3px;
 
         .sidebar, .main {
             height: 100%;
@@ -149,11 +201,9 @@
         .m-text {
             position: absolute;
             width: 100%;
-            bottom: 0;
             left: 0;
-        }
-        .m-message {
-            height: ~'calc(100% - 190px)';
+            min-height: 160px;
+            height: 30%;
         }
     }
 </style>

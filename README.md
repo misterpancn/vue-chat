@@ -29,6 +29,19 @@ npm run lint
 
 ```
 
+#### Config Setup
+```javascript
+const config = {
+  serviceAddress: 'localhost.com', // websocket service
+  websocketPort: 1234, // ws port
+  connectLimit: 10,
+  openssl: false,
+  apiVersion: 'prs.dingo.v1',
+  allMbPrefix: []
+}
+export default config
+```
+
 ---
 
 This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).

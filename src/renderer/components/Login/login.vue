@@ -2,13 +2,14 @@
     .c-center {
         height: -webkit-fill-available;
         width: 100%;
+        position: absolute;
     }
 </style>
 <template>
     <div class="row justify-content-center c-center">
-        <Card :bordered="false" :xs="8" :sm="4" :md="6" :lg="8">
+        <Card :bordered="false" :xs="8" :sm="4" :md="6" :lg="8" style="height: 100%">
             <p slot="title">{{ $t('account.login') }}</p>
-            <a slot="extra"><router-link to="/register">{{ $t('account.register') }}</router-link></a>
+            <a slot="extra" @click="toRegister"><router-link to="/register">{{ $t('account.register') }}</router-link></a>
             <div class="card-body">
                 <Form ref="formInline" :model="formInline" :rules="ruleInline">
                     <FormItem>
@@ -40,13 +41,19 @@
                     </FormItem>
                 </Form>
             </div>
+            <update></update>
         </Card>
     </div>
 </template>
 
 <script>
-  import ws from '@/request/websocket'
+  import {ipcRenderer} from 'electron'
+  import config from '@/store/config/config'
+  import update from './update'
   export default {
+    components: {
+      update
+    },
     data () {
       return {
         formInline: {
@@ -96,13 +103,13 @@
               password: this.formInline.password,
               is_app: true
             }).then((response) => {
-              console.log(response)
               if (response.status === 200 && response.data.status_code === 200) {
                 this.$router.push('/chat')
+                ipcRenderer.send('change-win-size', config.windowSize.chat)
               } else {
                 this.$Notice.error({
                   title: this.$t('notifyTitle.validationFailed'),
-                  desc: response.data.message
+                  desc: response.data.data
                 })
                 this.loading = false;
               }
@@ -132,17 +139,8 @@
           this.passwordType = 'password'
         }
       },
-      connectCallback (res) {
-        if (res.type === ws.messageType.error) {
-          this.loading = false;
-          this.$Notice.error({
-            title: this.$t('notifyTitle.errorReminding'),
-            desc: this.$t('account.notify.authenticationFail')
-          })
-          ws.closeConnect()
-        } else {
-          this.$router.push('/chat')
-        }
+      toRegister () {
+        ipcRenderer.send('change-win-size', config.windowSize.register)
       }
     }
   }

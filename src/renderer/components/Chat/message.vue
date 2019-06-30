@@ -23,12 +23,6 @@
       }
     },
     methods: {
-      // 筛选出用户头像
-      avatar (item) {
-        // 如果是自己发的消息显示登录用户的头像
-        let user = item.self ? this.$store.getters.getUser : this.sessionUser
-        return user && user.photo
-      },
       html (str) {
         if (str !== undefined) {
           return str.replace(/\\/g, '')
@@ -58,7 +52,11 @@
       getUserInfo (item) {
         if (!item.self) {
           this.$Spin.show();
-          this.$store.dispatch('setUserInfo', item.uid)
+          this.$store.dispatch('setUserInfo', item.uid).then((r) => {
+            if (r.status === 200) {
+              this.$store.dispatch('upUserInfoShow', true)
+            }
+          })
         }
       },
       // 获取音频的长度并显示
@@ -77,8 +75,8 @@
         // console.log(e.currentTarget.nextElementSibling.paused)
         var className = e.currentTarget.nextElementSibling.nextElementSibling.firstElementChild.className
         if (e.currentTarget.nextElementSibling.paused === false) {
-          e.currentTarget.nextElementSibling.pause()
           if (className === 'ivu-icon ivu-icon-ios-barcode-outline') {
+            e.currentTarget.nextElementSibling.pause()
             e.currentTarget.nextElementSibling.nextElementSibling.firstElementChild.className = 'ivu-icon ivu-icon-ios-volume-up'
           }
           return false;
@@ -158,16 +156,18 @@
       },
       audioSrc (src) {
         return src + '?t=' + localStorage.getItem('token')
-      }
-    },
-    filters: {
-      // 将日期过滤为 hour:minutes
+      },
+      timeType (date) {
+        date = new Date(parseInt(date) * 1000)
+        if (new Date().getTime() - date.getTime() > 5 * 1000) {
+          return 'datetime'
+        } else {
+          return 'relative'
+        }
+      },
       time (date) {
         date = new Date(parseInt(date) * 1000)
-        if (date.getDay() !== new Date().getDay()) {
-          return date.toLocaleDateString() + ' ' + date.toLocaleTimeString('en-US', {hour12: false})
-        }
-        return date.getHours() + ':' + date.getMinutes()
+        return date.getTime()
       }
     },
     directives: {
@@ -185,6 +185,12 @@
           this.loadingData()
         }
       }
+    },
+    mounted () {
+      // 当从系统消息切换到聊天消息时，不能触发session的watch事件  因为两次返回数据都是空数组  因此在钩子函数内进行初始化加载消息
+      if (this.selectId > 0 && !this.$store.getters.getSelectNotify && this.session.length === 0) {
+        this.loadingData()
+      }
     }
   }
 </script>
@@ -193,7 +199,7 @@
     <div v-if="session && session.messages !== undefined" class="m-message" v-scroll-bottom="session.messages">
         <ul>
             <li v-for="item in session.messages">
-                <p v-if="item.showTime" class="time"><span>{{item.date | time}}</span></p>
+                <p v-if="item.showTime" class="time"><span><Time :time="time(item.date)" :type="timeType(item.date)" /></span></p>
                 <div class="main" :class="{ self: item.self }">
                     <p v-if="isGroup" class="name"><span>{{item.user_name}}</span></p>
                     <img class="avatar" width="30" height="30" :src="item.photo" style="cursor: pointer" @click="getUserInfo(item)"/>
@@ -203,7 +209,7 @@
                         <span ref="recorderTime" class="recorder-time" @click="controlsAudio($event)"></span>
                         <audio preload="auto" name="media" @canplay="getDuration($event)" ref="audio" @timeupdate="timeUpdate($event)"
                         @ended="endAudio($event)" hidden="true">
-                            <source :src="audioSrc(item.text)" type="audio/x-wav">
+                            <source :src="audioSrc(item.text)" type="audio/mp3">
                         </audio>
                         <span class="rec-icon"><Icon type="ios-volume-up" ref="recorderIcon" style="font-size: 2em" /></span>
                     </div>
@@ -228,6 +234,7 @@
     .m-message {
         padding: 10px 15px;
         overflow-y: scroll;
+        height: ~'calc(70% - 30px)';
 
         li {
             margin-bottom: 15px;

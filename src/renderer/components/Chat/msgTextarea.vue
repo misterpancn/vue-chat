@@ -8,7 +8,8 @@
         text: '',
         visible: false,
         editor: {},
-        showRecorder: false
+        showRecorder: false,
+        recorderTime: new Date()
       }
     },
     computed: {
@@ -43,6 +44,9 @@
     watch: {
       editorDisable: function (val) {
         this.editor.$textElem.attr('contenteditable', val)
+      },
+      recorderTime: function (val) {
+        console.log(val)
       }
     },
     methods: {
@@ -106,10 +110,17 @@
         this.visible = false
       },
       recorderStart () {
+        if (this.selectId === 0) {
+          this.$Message.warning({
+            content: this.$t('chat.selectSendObject'),
+            duration: 3
+          });
+          return false;
+        }
         if (rec.isSupport) {
           rec.startRecording()
+          this.recorderTime = new Date()
           this.showRecorder = true;
-          console.log('star...')
         } else {
           this.$Message.warning({
             content: this.$t('chat.deviceNotSupport'),
@@ -119,13 +130,27 @@
       },
       recorderStop () {
         this.showRecorder = false;
-        rec.stopRecording(false, {isGroup: this.isGroup, selectId: this.selectId});
-        console.log('stop...')
+        // rec.stopRecording(false, {isGroup: this.isGroup, selectId: this.selectId});
       },
       sendRecorder () {
         this.showRecorder = false;
         rec.stopRecording(true, {isGroup: this.isGroup, selectId: this.selectId});
-        console.log('send...')
+      },
+      poptip () {
+        if (this.selectId === 0) {
+          this.visible = false
+          this.$Message.warning({
+            content: this.$t('chat.selectSendObject'),
+            duration: 3
+          });
+        }
+      },
+      functionNotOnline () {
+        this.$Message.warning({
+          content: this.$t('notify.functionNotOnlineYet'),
+          duration: 2
+        });
+        return false;
       }
     },
     mounted () {
@@ -136,11 +161,14 @@
       this.editor.customConfig.menus = []
       this.editor.customConfig.zIndex = 1
       this.editor.customConfig.pasteFilterStyle = true
-      this.editor.customConfig.pasteUrl = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
-      this.editor.customConfig.uploadImgServer = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
+      // this.editor.customConfig.pasteUrl = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
+      // this.editor.customConfig.uploadImgServer = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
       this.editor.create()
       rec.init((e) => {
-        console.log(e)
+        this.$Message.warning({
+          content: String(e),
+          duration: 3
+        });
       })
     }
   }
@@ -149,7 +177,7 @@
 <template>
     <div class="m-text">
         <div class="m-input-icon">
-            <Poptip word-wrap width="400" placement="top-start" v-model="visible">
+            <Poptip word-wrap width="400" placement="top-start" v-model="visible" @on-popper-show="poptip">
                 <a href="javascript:;" @click="getExpression"></a>
                 <div slot="content">
                     <Spin fix v-if="spinShow">
@@ -160,13 +188,14 @@
                     @click="activeImg(exp.id)">
                 </div>
             </Poptip>
-            <a href="javascript:;"></a>
-            <a href="javascript:;"></a>
-            <a href="javascript:;" :title="$t('chat.voice')" @click="recorderStart"></a>
-            <a href="javascript:;"></a>
-            <a href="javascript:;"></a>
+            <a href="javascript:;" @click="functionNotOnline"></a>
+            <a href="javascript:;" @click="functionNotOnline"></a>
+            <a href="javascript:;" :title="$t('chat.voice')" @click="functionNotOnline"></a>
+            <a href="javascript:;" @click="functionNotOnline"></a>
+            <a href="javascript:;" @click="functionNotOnline"></a>
             <Modal v-model="showRecorder" width="150" :mask-closable="false" @on-cancel="recorderStop">
                 <p slot="header" style="text-align: center;">{{ $t('chat.voice') }}</p>
+                <p style="text-align: center"><Time :time="recorderTime" :interval="1" /></p>
                 <p style="text-align: center">
                     <Icon type="md-microphone" style="font-size: 30px;" /><br>
                     {{ $t('chat.inRecording') }}
@@ -231,53 +260,53 @@
                 }
             }
             a:nth-child(1){
-                background: url(/static/img/icon/icon13.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon13.png) no-repeat center center;
             }
 
             a:nth-child(1):hover{
-                background: url(/static/img/icon/icon13_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon13_1.png) no-repeat center center;
             }
 
             a:nth-child(2){
-                background: url(/static/img/icon/icon14.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon14.png) no-repeat center center;
             }
 
             a:nth-child(2):hover{
-                background: url(/static/img/icon/icon14_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon14_1.png) no-repeat center center;
             }
 
             a:nth-child(3){
-                background: url(/static/img/icon/icon15.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon15.png) no-repeat center center;
             }
 
             a:nth-child(3):hover{
-                background: url(/static/img/icon/icon15_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon15_1.png) no-repeat center center;
             }
 
             a:nth-child(4){
-                background: url(/static/img/icon/icon16.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon16.png) no-repeat center center;
             }
 
             a:nth-child(4):hover{
-                background: url(/static/img/icon/icon16_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon16_1.png) no-repeat center center;
             }
 
             a:nth-child(6){
-                background: url(/static/img/icon/icon17.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon17.png) no-repeat center center;
                 float: right;
             }
 
             a:nth-child(6):hover{
-                background: url(/static/img/icon/icon17_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon17_1.png) no-repeat center center;
             }
 
             a:nth-child(5){
-                background: url(/static/img/icon/icon18.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon18.png) no-repeat center center;
                 float: right;
             }
 
             a:nth-child(5):hover{
-                background: url(/static/img/icon/icon18_1.png) no-repeat center center;
+                background: url(./../../../../static/img/icon/icon18_1.png) no-repeat center center;
             }
 
         }

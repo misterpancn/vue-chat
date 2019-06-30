@@ -4,19 +4,20 @@
       data () {
         return {
           photo: this.$store.getters.getUser.photo,
-          panel: ['1', '2']
+          panel: ['1', '2'],
+          loading: false
         }
       },
       computed: {
         show: {
           get: function () {
-            if (this.$store.getters.getModalStatus) {
+            if (this.$store.getters.getUserInfoShow) {
               this.$Spin.hide();
             }
-            return this.$store.getters.getModalStatus
+            return this.$store.getters.getUserInfoShow
           },
           set: function (val) {
-            this.$store.dispatch('setModalStatus', val)
+            this.$store.dispatch('upUserInfoShow', val)
           }
         },
         userInfo () {
@@ -27,16 +28,19 @@
         addFriends () {
           let uid = this.userInfo.id
           if (uid > 0) {
+            this.loading = true;
             axios.addFriends({friend_id: uid}).then((r) => {
               this.$Message.warning({
                 content: this.$t('notify.applicationHasBeenSent'),
                 duration: 3
               });
+              this.loading = false;
             }).catch((e) => {
               this.$Message.warning({
                 content: e.response.data.data,
                 duration: 3
               });
+              this.loading = false;
             })
           }
         }
@@ -81,8 +85,7 @@
                             <div slot="content">
                                 <Row>
                                     <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">
-                                    <Button shape="circle" size="small" icon="ios-add-circle" style="font-size: 1.2em" :title="$t('chat.addFriends')"
-                                    @click="addFriends"></Button>
+                                    <Button type="success" size="small" @click="addFriends" :loading="loading">{{$t('chat.addFriends')}}</Button>
                                     </Col>
                                 </Row>
                             </div>
