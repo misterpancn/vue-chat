@@ -92,5 +92,13 @@ export default {
   // 修改密码 param: old_password & password & password_confirmation
   changePassword (data) {
     return axios.post('auth/password/change', Qs.stringify(data))
+  },
+  // 删除修改头像的临时文件 param: img_path
+  deleteTempAvatar (data) {
+    return axios.post('media/upload/avatar/delete', Qs.stringify(data))
+  },
+  // 确认修改头像 param: img_path
+  saveTempAvatar (data) {
+    return axios.post('media/upload/avatar/save', Qs.stringify(data))
   }
 }

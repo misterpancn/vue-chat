@@ -65,14 +65,18 @@ export default {
     install: '安装'
   },
   operation: {
-    modify: '修改'
+    modify: '修改',
+    reSelection: '重新选择',
+    sureToModify: '确定修改'
   },
   notifyTitle: {
     validationFailed: '验证失败',
     errorReminding: '错误提醒',
     errorOccurred: '发生错误',
     serverException: '服务器异常',
-    reminding: '提醒'
+    reminding: '提醒',
+    fileFormatIsIncorrect: '文件格式不正确',
+    exceedingFileSizeLimit: '超出文件大小限制'
   },
   notify: {
     loading: '加载中...',
@@ -80,7 +84,9 @@ export default {
     noDataQueried: '未查询到数据',
     applicationHasBeenSent: '申请已发送',
     haveConfirmOperation: '您已确认这个操作？',
-    successOperation: '操作成功'
+    successOperation: '操作成功',
+    imgFileFormatIsIncorrectMes: '{fileName}文件格式不正确，请选择JPG或PNG。',
+    functionNotOnlineYet: '功能暂未上线，敬请期待'
   },
   chat: {
     voice: '语音',
@@ -111,7 +117,8 @@ export default {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',
       confirmLogout: '您真的要退出登录吗？',
-      sendByCtrlEnter: '按Ctrl+Enter发送'
+      sendByCtrlEnter: '按Ctrl+Enter发送',
+      clickOrDragFile: '单击或拖动文件到此处上载'
     }
   }
 }

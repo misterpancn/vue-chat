@@ -161,6 +161,24 @@ const actions = {
         reject(error)
       })
     })
+  },
+  deleteTempAvatar ({commit}, data) {
+    return new Promise((resolve, reject) => {
+      request.deleteTempAvatar(data).then((r) => {
+        resolve(r)
+      }).catch((error) => {
+        reject(error)
+      })
+    })
+  },
+  saveTempAvatar ({commit}, data) {
+    return new Promise((resolve, reject) => {
+      request.saveTempAvatar(data).then((r) => {
+        resolve(r)
+      }).catch((error) => {
+        reject(error)
+      })
+    })
   }
 }
 

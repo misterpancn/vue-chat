@@ -144,6 +144,13 @@
             duration: 3
           });
         }
+      },
+      functionNotOnline () {
+        this.$Message.warning({
+          content: this.$t('notify.functionNotOnlineYet'),
+          duration: 2
+        });
+        return false;
       }
     },
     mounted () {
@@ -160,7 +167,7 @@
       rec.init((e) => {
         this.$Message.warning({
           content: String(e),
-          duration: 5
+          duration: 3
         });
       })
     }
@@ -181,11 +188,11 @@
                     @click="activeImg(exp.id)">
                 </div>
             </Poptip>
-            <a href="javascript:;"></a>
-            <a href="javascript:;"></a>
-            <a href="javascript:;" :title="$t('chat.voice')" @click="recorderStart"></a>
-            <a href="javascript:;"></a>
-            <a href="javascript:;"></a>
+            <a href="javascript:;" @click="functionNotOnline"></a>
+            <a href="javascript:;" @click="functionNotOnline"></a>
+            <a href="javascript:;" :title="$t('chat.voice')" @click="functionNotOnline"></a>
+            <a href="javascript:;" @click="functionNotOnline"></a>
+            <a href="javascript:;" @click="functionNotOnline"></a>
             <Modal v-model="showRecorder" width="150" :mask-closable="false" @on-cancel="recorderStop">
                 <p slot="header" style="text-align: center;">{{ $t('chat.voice') }}</p>
                 <p style="text-align: center"><Time :time="recorderTime" :interval="1" /></p>

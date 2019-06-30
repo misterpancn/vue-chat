@@ -6,12 +6,8 @@
         loading: false,
         transport: config.openssl === false ? 'http://' : 'https://',
         uploadLink: config.serviceAddress + '/api/media/upload/imgToBase64',
-        headers: {
-          'Accept': 'application/' + config.apiVersion + '+json',
-          'Custom-Token': config.clientKey,
-          'Authorization': localStorage.getItem('tokenType') + ' ' + localStorage.getItem('token')
-        },
         imgUrl: '',
+        imgPath: '',
         imgShow: false
       }
     },
@@ -23,35 +19,68 @@
         set: function (val) {
           this.$store.dispatch('setModifyAvatarShow', val)
           if (!val) {
-            this.imgShow = false
+            this.cancel()
           }
+        }
+      },
+      headers () {
+        return {
+          'Accept': 'application/' + config.apiVersion + '+json',
+          'Custom-Token': config.clientKey,
+          'Authorization': localStorage.getItem('tokenType') + ' ' + localStorage.getItem('token')
         }
       }
     },
     methods: {
       handleSuccess (res, file) {
-        this.imgUrl = res.data
+        this.imgUrl = res.data.img_url
+        this.imgPath = res.data.img_path
         this.imgShow = true
-        console.log(res)
-        console.log(file)
       },
       handleFormatError (file) {
         this.$Notice.warning({
-          title: 'The file format is incorrect',
-          desc: 'File format of ' + file.name + ' is incorrect, please select jpg or png.'
+          title: this.$t('notifyTitle.fileFormatIsIncorrect'),
+          desc: this.$t('notify.imgFileFormatIsIncorrectMes', {fileName: file.name})
         });
       },
       handleMaxSize (file) {
         this.$Notice.warning({
-          title: 'Exceeding file size limit',
-          desc: 'File  ' + file.name + ' is too large, no more than 2M.'
+          title: this.$t('notifyTitle.exceedingFileSizeLimit'),
+          desc: this.$t('notify.imgFileFormatIsIncorrectMes', {fileName: file.name, size: '2M'})
         });
+      },
+      cancel () {
+        this.imgShow = false
+        if (this.imgPath) {
+          this.$store.dispatch('deleteTempAvatar', {img_path: this.imgPath})
+        }
+        this.imgPath = ''
+        this.imgUrl = ''
+      },
+      uploadAvatar () {
+        this.loading = true
+        this.$store.dispatch('saveTempAvatar', {img_path: this.imgPath}).then((r) => {
+          this.$store.dispatch('me')
+          this.imgPath = ''
+          this.show = false
+          this.loading = false
+          this.$Message.success({
+            content: this.$t('notify.successOperation'),
+            duration: 3
+          });
+        }).catch((e) => {
+          this.$Message.warning({
+            content: e.response.data.data,
+            duration: 3
+          });
+          this.loading = false
+        })
       }
     }
   }
 </script>
 <template>
-    <Modal v-model="show" :mask-closable="false" footer-hide>
+    <Modal v-model="show" :mask-closable="false" :footer-hide="!imgShow">
         <p slot="header" style="text-align: center;">{{ $t('account.modifyAvatar') }}</p>
         <div v-if="!imgShow" class="m-ui-content">
             <Upload
@@ -66,12 +95,16 @@
                     :action="transport + uploadLink">
                 <div style="padding: 20px 0">
                     <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
-                    <p>Click or drag files here to upload</p>
+                    <p>{{$t('chat.notify.clickOrDragFile')}}</p>
                 </div>
             </Upload>
         </div>
         <div v-else class="m-ui-content" style="text-align: center">
-            <img :src="imgUrl">
+            <img :src="imgUrl" width="50%">
+        </div>
+        <div slot="footer">
+            <p style="margin-bottom: 10px"><Button type="warning" size="large" long @click="cancel">{{$t('operation.reSelection')}}</Button></p>
+            <p><Button type="success" size="large" :loading="loading" long @click="uploadAvatar" >{{$t('operation.sureToModify')}}</Button></p>
         </div>
     </Modal>
 </template>

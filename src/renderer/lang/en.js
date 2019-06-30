@@ -65,14 +65,18 @@ export default {
     install: 'Install'
   },
   operation: {
-    modify: 'Modify'
+    modify: 'Modify',
+    reSelection: 'Re-selection',
+    sureToModify: 'Sure to modify'
   },
   notifyTitle: {
     validationFailed: 'Validation failed',
     errorReminding: 'Error reminding',
     errorOccurred: 'Error occurred',
     serverException: 'Server exception',
-    reminding: 'Reminding'
+    reminding: 'Reminding',
+    fileFormatIsIncorrect: 'The file format is incorrect',
+    exceedingFileSizeLimit: 'Exceeding file size limit'
   },
   notify: {
     loading: 'Loading...',
@@ -80,7 +84,10 @@ export default {
     noDataQueried: 'No data queried',
     applicationHasBeenSent: 'The application has been sent',
     haveConfirmOperation: 'You have confirmed this operation?',
-    successOperation: 'Successful operation'
+    successOperation: 'Successful operation',
+    imgFileFormatIsIncorrectMes: 'File format of {fileName} is incorrect, please select jpg or png.',
+    exceedingImageFileSizeLimitMes: 'File {fileName} is too large, no more than {size}.',
+    functionNotOnlineYet: 'The function is not online yet, please stay tuned'
   },
   chat: {
     voice: 'Voice',
@@ -111,7 +118,8 @@ export default {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',
       confirmLogout: 'Do you really want to log out?',
-      sendByCtrlEnter: 'Send by Ctrl+Enter'
+      sendByCtrlEnter: 'Send by Ctrl+Enter',
+      clickOrDragFile: 'Click or drag files here to upload'
     }
   }
 }
