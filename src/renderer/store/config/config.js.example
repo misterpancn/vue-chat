@@ -6,7 +6,7 @@ const config = {
   apiVersion: 'prs.dingo.v1',
   clientKey: 'client key',
   windowSize: {
-    login: {width: 540, height: 390},
+    login: {width: 540, height: 410},
     register: {width: 540, height: 550},
     chat: {width: 940, height: 700}
   },
