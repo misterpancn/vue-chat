@@ -107,7 +107,7 @@
         position: relative;
         font-size: 14px;
         .m-row {
-            padding: 10px;
+            padding: 5px;
         }
     }
 </style>
