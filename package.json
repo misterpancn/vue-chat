@@ -63,13 +63,16 @@
       ]
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "build/icons/icon.icns",
+      "artifactName": "${productName}_Setup_${version}.${ext}"
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/icon.ico",
+      "artifactName": "${productName}_Setup_${version}.${ext}"
     },
     "linux": {
-      "icon": "build/icons"
+      "icon": "build/icons",
+      "artifactName": "${productName}_Setup_${version}.${ext}"
     }
   },
   "dependencies": {
