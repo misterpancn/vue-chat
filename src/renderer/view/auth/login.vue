@@ -49,7 +49,7 @@
 <script>
   import {ipcRenderer} from 'electron'
   import config from '@/store/config/config'
-  import update from './update'
+  import update from '@/components/Login/update'
   export default {
     components: {
       update

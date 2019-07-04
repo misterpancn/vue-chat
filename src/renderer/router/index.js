@@ -8,17 +8,17 @@ export default new Router({
     {
       path: '/',
       name: 'login',
-      component: require('@/components/Login/login').default
+      component: require('@/view/auth/login').default
     },
     {
       path: '/chat',
       name: 'chat',
-      component: require('@/components/Chat/app').default
+      component: require('@/view/chat/app').default
     },
     {
       path: '/register',
       name: 'register',
-      component: require('@/components/Login/register').default
+      component: require('@/view/auth/register').default
     },
     {
       path: '*',
