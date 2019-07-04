@@ -8,6 +8,7 @@ import store from './store'
 import iview from 'iview'
 import 'iview/dist/styles/iview.css'
 import i18n from './lang'
+import VueWorker from 'vue-worker'
 
 Vue.use(iview, {
   i18n: function (path, options) {
@@ -20,6 +21,8 @@ Vue.use(iview, {
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
+
+Vue.use(VueWorker)
 
 /* eslint-disable no-new */
 new Vue({
