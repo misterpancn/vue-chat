@@ -8,7 +8,8 @@
         uploadLink: config.serviceAddress + '/api/media/upload/imgToBase64',
         imgUrl: '',
         imgPath: '',
-        imgShow: false
+        imgShow: false,
+        postParam: {is_save: 1}
       }
     },
     computed: {
@@ -90,6 +91,7 @@
                     :max-size="2048"
                     :on-format-error="handleFormatError"
                     :on-exceeded-size="handleMaxSize"
+                    :data="postParam"
                     type="drag"
                     name="img"
                     :action="transport + uploadLink">
