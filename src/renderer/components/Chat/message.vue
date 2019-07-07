@@ -36,7 +36,6 @@
           isGroup: this.isGroup,
           users: this.$store.getters.getUser
         }).then((res) => {
-          console.log(res)
           if (res.data.data && res.data.data.length === 0) {
             this.$Message.warning({
               content: this.$t('notify.noDataQueried'),
@@ -45,7 +44,6 @@
           }
           this.loading = true;
         }).catch((e) => {
-          console.log(e);
           this.loading = true;
         })
       },

@@ -15,12 +15,20 @@
   export default {
     data () {
       return {
-        isInit: true
+        isInit: true,
+        split: 0.7
       }
     },
     computed: {
       selectNotify () {
         return this.$store.getters.getSelectNotify
+      }
+    },
+    watch: {
+      split (val) {
+        if (val > 0.71 || val < 0.3) {
+          this.split = 0.71
+        }
       }
     },
     created () {
@@ -172,8 +180,10 @@
         </div>
         <div class="main" v-else>
             <name></name>
-            <message></message>
-            <msgTextarea></msgTextarea>
+            <Split v-model="split" mode="vertical">
+                <message slot="top" style="height: 100%"></message>
+                <msgTextarea slot="bottom"></msgTextarea>
+            </Split>
         </div>
         <userInfoModal></userInfoModal>
     </div>
@@ -203,7 +213,6 @@
             width: 100%;
             left: 0;
             min-height: 160px;
-            height: 30%;
         }
     }
 </style>

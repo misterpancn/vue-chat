@@ -1,15 +1,18 @@
 <script>
   import chat from '@/request/websocket'
-  import WangEdit from 'wangeditor'
+  import config from '@/store/config/config'
+  import wangEditor from '@/lib/wangEditor'
   import rec from '@/media/recorder'
   export default {
     data () {
       return {
         text: '',
         visible: false,
+        uploadLink: (config.openssl === false ? 'http://' : 'https://') + config.serviceAddress + '/api/media/upload/imgToBase64',
         editor: {},
         showRecorder: false,
-        recorderTime: new Date()
+        recorderTime: 0,
+        timerFunc: null
       }
     },
     computed: {
@@ -39,6 +42,13 @@
       },
       isGroup () {
         return this.$store.getters.isGroup
+      },
+      headers () {
+        return {
+          'Accept': 'application/' + config.apiVersion + '+json',
+          'Custom-Token': config.clientKey,
+          'Authorization': localStorage.getItem('tokenType') + ' ' + localStorage.getItem('token')
+        }
       }
     },
     watch: {
@@ -46,7 +56,14 @@
         this.editor.$textElem.attr('contenteditable', val)
       },
       recorderTime: function (val) {
-        console.log(val)
+        // console.log(val)
+        // 录制时间最长120s  超过自动发送
+        if (val > 120) {
+          this.sendRecorder()
+        }
+      },
+      headers: (val) => {
+        this.editor.customConfig.uploadImgHeaders = val
       }
     },
     methods: {
@@ -118,9 +135,10 @@
           return false;
         }
         if (rec.isSupport) {
-          rec.startRecording()
-          this.recorderTime = new Date()
+          // this.recorderTime = new Date()
+          this.timeRun()
           this.showRecorder = true;
+          rec.startRecording()
         } else {
           this.$Message.warning({
             content: this.$t('chat.deviceNotSupport'),
@@ -130,10 +148,12 @@
       },
       recorderStop () {
         this.showRecorder = false;
-        // rec.stopRecording(false, {isGroup: this.isGroup, selectId: this.selectId});
+        this.clearTimer()
+        rec.stopRecording(false, {isGroup: this.isGroup, selectId: this.selectId});
       },
       sendRecorder () {
         this.showRecorder = false;
+        this.clearTimer()
         rec.stopRecording(true, {isGroup: this.isGroup, selectId: this.selectId});
       },
       poptip () {
@@ -151,24 +171,62 @@
           duration: 2
         });
         return false;
+      },
+      timeRun () {
+        if (this.timerFunc === null) {
+          this.timerFunc = setInterval(() => {
+            this.recorderTime++
+          }, 1000)
+        }
+      },
+      clearTimer () {
+        if (this.timerFunc) {
+          clearInterval(this.timerFunc)
+        }
+        this.timerFunc = null
+        this.recorderTime = 0
       }
     },
     mounted () {
-      this.editor = new WangEdit('#menus', '#textarea')
+      wangEditor.init({
+        menu: '#menu',
+        cont: '#textarea',
+        headers: this.headers,
+        uploadLink: this.uploadLink
+      })
+      this.editor = wangEditor.editor
       this.$nextTick(() => {
         this.editor.$textElem.attr('contenteditable', this.editorDisable)
       })
-      this.editor.customConfig.menus = []
-      this.editor.customConfig.zIndex = 1
-      this.editor.customConfig.pasteFilterStyle = true
-      // this.editor.customConfig.pasteUrl = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
-      // this.editor.customConfig.uploadImgServer = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
-      this.editor.create()
-      rec.init((e) => {
+      this.editor.customConfig.customAlert = (info) => {
+        // info 是需要提示的内容
         this.$Message.warning({
-          content: String(e),
+          content: String(info),
           duration: 3
         });
+      }
+      this.editor.customConfig.uploadImgHooks = {
+        // 如果服务器端返回的不是 {errno:0, data: [...]} 这种格式，可使用该配置
+        // （但是，服务器端返回的必须是一个 JSON 格式字符串！！！否则会报错）
+        customInsert: function (insertImg, result, editor) {
+          // 图片上传并返回结果，自定义插入图片的事件（而不是编辑器自动插入图片！！！）
+          // insertImg 是插入图片的函数，editor 是编辑器对象，result 是服务器端返回的结果
+
+          // 举例：假如上传图片成功后，服务器端返回的是 {url:'....'} 这种格式，即可这样插入图片：
+          var url = result.data.img_url
+          insertImg(url)
+
+          // result 必须是一个 JSON 格式字符串！！！否则报错
+        }
+      }
+      this.editor.create()
+      rec.init((e) => {
+        if (process.env.NODE_ENV === 'development') {
+          this.$Message.warning({
+            content: String(e),
+            duration: 3
+          });
+        }
       })
     }
   }
@@ -190,12 +248,12 @@
             </Poptip>
             <a href="javascript:;" @click="functionNotOnline"></a>
             <a href="javascript:;" @click="functionNotOnline"></a>
-            <a href="javascript:;" :title="$t('chat.voice')" @click="functionNotOnline"></a>
+            <a href="javascript:;" :title="$t('chat.voice')" @click="recorderStart"></a>
             <a href="javascript:;" @click="functionNotOnline"></a>
             <a href="javascript:;" @click="functionNotOnline"></a>
             <Modal v-model="showRecorder" width="150" :mask-closable="false" @on-cancel="recorderStop">
                 <p slot="header" style="text-align: center;">{{ $t('chat.voice') }}</p>
-                <p style="text-align: center"><Time :time="recorderTime" :interval="1" /></p>
+                <p style="text-align: center"><span>{{recorderTime}}s</span></p>
                 <p style="text-align: center">
                     <Icon type="md-microphone" style="font-size: 30px;" /><br>
                     {{ $t('chat.inRecording') }}
@@ -215,7 +273,7 @@
 
 <style lang="less">
     .m-text {
-        height: 160px;
+        height:calc(100% - 42px);
         border-top: solid 1px #ddd;
 
         .m-input-box {
