@@ -21,6 +21,11 @@ export default new Router({
       component: require('@/view/auth/register').default
     },
     {
+      path: '/modelWindow',
+      name: 'modelWindow',
+      component: require('@/view/chat/winModal').default
+    },
+    {
       path: '*',
       redirect: '/'
     }

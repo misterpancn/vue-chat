@@ -1,5 +1,6 @@
 <script>
   import Vue from 'vue'
+  import {ipcRenderer} from 'electron'
   export default {
     data () {
       return {
@@ -155,17 +156,22 @@
       audioSrc (src) {
         return src + '?t=' + localStorage.getItem('token')
       },
-      timeType (date) {
-        date = new Date(parseInt(date) * 1000)
-        if (new Date().getTime() - date.getTime() > 5 * 1000) {
-          return 'datetime'
-        } else {
-          return 'relative'
+      openWinModal (src) {
+        let img = new Image()
+        img.src = src
+        img.onload = () => {
+          ipcRenderer.send('show-win-model', {
+            width: img.width,
+            height: img.height,
+            src: src
+          })
         }
       },
-      time (date) {
-        date = new Date(parseInt(date) * 1000)
-        return date.getTime()
+      scrollToBottom () {
+        let dom = document.getElementsByClassName('m-message')
+        Vue.nextTick(() => {
+          dom.scrollTop = dom.scrollHeight - dom.clientHeight
+        })
       }
     },
     directives: {
@@ -174,6 +180,16 @@
         Vue.nextTick(() => {
           el.scrollTop = el.scrollHeight - el.clientHeight
         })
+      }
+    },
+    filters: {
+      // 将日期过滤为 hour:minutes
+      time (date) {
+        date = new Date(parseInt(date) * 1000)
+        if (date.getDay() !== new Date().getDay()) {
+          return date.toLocaleDateString() + ' ' + date.toLocaleTimeString('en-US', {hour12: false})
+        }
+        return date.getHours() + ':' + date.getMinutes()
       }
     },
     watch: {
@@ -197,7 +213,7 @@
     <div v-if="session && session.messages !== undefined" class="m-message" v-scroll-bottom="session.messages">
         <ul>
             <li v-for="item in session.messages">
-                <p v-if="item.showTime" class="time"><span><Time :time="time(item.date)" :type="timeType(item.date)" /></span></p>
+                <p v-if="item.showTime" class="time"><span>{{item.date | time}}</span></p>
                 <div class="main" :class="{ self: item.self }">
                     <p v-if="isGroup" class="name"><span>{{item.user_name}}</span></p>
                     <img class="avatar" width="30" height="30" :src="item.photo" style="cursor: pointer" @click="getUserInfo(item)"/>
@@ -210,6 +226,9 @@
                             <source :src="audioSrc(item.text)" type="audio/mp3">
                         </audio>
                         <span class="rec-icon"><Icon type="ios-volume-up" ref="recorderIcon" style="font-size: 2em" /></span>
+                    </div>
+                    <div v-else-if="item.type === 4" class="text" >
+                        <img :src="item.text" width="100%" @dblclick="openWinModal(item.text)" @load="scrollToBottom">
                     </div>
                 </div>
             </li>
