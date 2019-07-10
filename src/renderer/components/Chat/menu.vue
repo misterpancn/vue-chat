@@ -39,8 +39,6 @@
                   desc: error
                 })
                 this.$Modal.remove()
-                this.$router.push('/login')
-                ipcRenderer.send('change-win-size', config.windowSize.login)
               })
           }
         })

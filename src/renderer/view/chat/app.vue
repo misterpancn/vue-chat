@@ -55,6 +55,7 @@
             break;
           case ws.messageType.message:
           case ws.messageType.audio:
+          case ws.messageType.img:
             this.$store.dispatch('pushMessage', {
               response: res,
               thisUser: this.$store.getters.getUser
@@ -67,6 +68,7 @@
             } else if (res.group_id > 0 && (!isGroup || (isGroup && res.group_id !== selectId))) {
               this.$store.dispatch('setBadge', {id: res.group_id, is_group: true})
             }
+            ipcRenderer.send('show-win-notify', {show: true})
             break;
           // 好友申请通知
           case ws.messageType.apply_notify:

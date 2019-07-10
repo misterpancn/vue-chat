@@ -68,16 +68,27 @@
     },
     methods: {
       inputing (e) {
+        if (!e.ctrlKey && e.keyCode !== 13) {
+          return false;
+        }
         let html = this.editor.txt.html()
         let empty = true;
         if (this.editor.txt.text().length || html.search(/(img)+/i) > 0) {
           empty = false
         }
         if (e.ctrlKey && e.keyCode === 13 && !empty) {
+          let uploadImg = document.getElementsByClassName('m-editor-upload-img')
+          let base64Img = []
+          if (uploadImg) {
+            for (var i = 0; i < uploadImg.length; i++) {
+              base64Img.push(uploadImg[i].currentSrc)
+            }
+          }
           if (this.isGroup) {
             this.$store.dispatch('sendGroupMes', {
               group_id: this.selectId,
-              content: this.editor.txt.html()
+              content: this.editor.txt.html(),
+              base64_img: base64Img
             }).then((res) => {
               if (res.data.status_code !== 200) {
                 this.$Message.warning({
@@ -91,11 +102,14 @@
                 duration: 2
               });
             })
-            chat.localPush(this.editor.txt.html(), 0, this.selectId)
+            if (base64Img.length === 0) {
+              chat.localPush(this.editor.txt.html(), 0, this.selectId)
+            }
           } else {
             this.$store.dispatch('sendChatMes', {
               chat_id: this.selectId,
-              content: this.editor.txt.html()
+              content: this.editor.txt.html(),
+              base64_img: base64Img
             }).then((res) => {
               if (res.data.status_code !== 200) {
                 this.$Message.warning({
@@ -109,7 +123,9 @@
                 duration: 2
               });
             })
-            chat.localPush(this.editor.txt.html(), this.selectId, 0)
+            if (base64Img.length === 0) {
+              chat.localPush(this.editor.txt.html(), this.selectId, 0)
+            }
           }
           this.text = ''
           this.editor.txt.clear()
@@ -208,13 +224,33 @@
       this.editor.customConfig.uploadImgHooks = {
         // 如果服务器端返回的不是 {errno:0, data: [...]} 这种格式，可使用该配置
         // （但是，服务器端返回的必须是一个 JSON 格式字符串！！！否则会报错）
-        customInsert: function (insertImg, result, editor) {
+        customInsert: (insertImg, result, editor) => {
           // 图片上传并返回结果，自定义插入图片的事件（而不是编辑器自动插入图片！！！）
           // insertImg 是插入图片的函数，editor 是编辑器对象，result 是服务器端返回的结果
 
           // 举例：假如上传图片成功后，服务器端返回的是 {url:'....'} 这种格式，即可这样插入图片：
           var url = result.data.img_url
-          insertImg(url)
+          let proportion = 1;
+          let max;
+          if (parseInt(result.data.img_info.width) > parseInt(result.data.img_info.height)) {
+            max = parseInt(result.data.img_info.width)
+          } else {
+            max = parseInt(result.data.img_info.height)
+          }
+          if (max >= 1000) {
+            proportion = 0.2
+          }
+          if (max >= 500 && max < 1000) {
+            proportion = 0.35
+          }
+          if (max >= 200 && max < 500) {
+            proportion = 0.6
+          }
+          let width = parseInt(result.data.img_info.width) * proportion
+          let height = parseInt(result.data.img_info.height) * proportion
+          // insertImg(url)
+          let expHtml = "<img class='m-editor-upload-img' width='" + width + "' height='" + height + "' src='" + url + "'>";
+          editor.cmd.do('insertHtml', expHtml)
 
           // result 必须是一个 JSON 格式字符串！！！否则报错
         }

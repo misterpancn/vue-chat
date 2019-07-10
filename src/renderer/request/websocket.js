@@ -15,6 +15,7 @@ var chat = {
     notify: 1,
     pong: 2,
     connect: 3,
+    img: 4,
     error: 5,
     refresh_token: 6,
     audio: 7,
