@@ -70,7 +70,7 @@
       languages () {
         return [
           {value: 'en', label: this.$t('system.language.en')},
-          {value: 'zh', label: this.$t('system.language.zh')}
+          {value: 'zh-CN', label: this.$t('system.language.zh')}
         ]
       },
       ruleInline () {
@@ -142,6 +142,9 @@
       toRegister () {
         ipcRenderer.send('change-win-size', config.windowSize.register)
       }
+    },
+    mounted () {
+      this.$store.dispatch('setLanguage', this.language)
     }
   }
 </script>

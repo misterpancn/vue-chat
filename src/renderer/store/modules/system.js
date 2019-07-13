@@ -1,5 +1,5 @@
 const state = {
-  language: localStorage.getItem('language') || 'zh'
+  language: localStorage.getItem('language') || 'zh-CN'
 }
 
 const mutations = {

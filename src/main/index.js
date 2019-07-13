@@ -43,7 +43,7 @@ function createWindow () {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
   })
-  winModal = new BrowserWindow({ parent: mainWindow, modal: true, useContentSize: true, frame: false, show: false })
+  winModal = new BrowserWindow({ parent: mainWindow, modal: true, useContentSize: true, frame: false, show: false, alwaysOnTop: true })
   winModal.loadURL(winModalURL)
   winModal.on('closed', () => {
     winModal = null
