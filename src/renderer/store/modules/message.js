@@ -166,15 +166,15 @@ const actions = {
       if (obj.selectId > 0 && typeof obj.users === 'object') {
         if (obj.isGroup) {
           request.getGroupMessage(obj.selectId, 50).then((response) => {
-            if (response.data.data && response.data.data.length > 0) {
-              commit('SET_MESSAGE', {response: response.data.data, obj: obj})
+            if (response.data.data.data && response.data.data.data.length > 0) {
+              commit('SET_MESSAGE', {response: response.data.data.data, obj: obj})
             }
             resolve(response)
           }).catch((e) => { reject(e) })
         } else {
           request.getChatMessage(obj.selectId, 50).then((response) => {
-            if (response.data.data && response.data.data.length > 0) {
-              commit('SET_MESSAGE', {response: response.data.data, obj: obj})
+            if (response.data.data.data && response.data.data.data.length > 0) {
+              commit('SET_MESSAGE', {response: response.data.data.data, obj: obj})
             }
             resolve(response)
           }).catch((e) => { reject(e) })

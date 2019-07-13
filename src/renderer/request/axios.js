@@ -1,6 +1,6 @@
 import axios from 'axios'
 import config from '@/store/config/config'
-// import store from '@/store'
+import store from '@/store'
 var transport = config.openssl === false ? 'http://' : 'https://'
 var instance = axios.create({
   baseURL: transport + config.serviceAddress + '/api/',
@@ -14,6 +14,7 @@ var instance = axios.create({
 instance.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
   config.headers.Authorization = localStorage.getItem('tokenType') + ' ' + localStorage.getItem('token')
+  config.headers.common['Accept-Language'] = store.getters.getLanguage || 'zh-CN'
   return config
 }, function (error) {
   // 对请求错误做些什么
