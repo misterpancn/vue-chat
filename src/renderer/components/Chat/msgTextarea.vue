@@ -12,7 +12,15 @@
         editor: {},
         showRecorder: false,
         recorderTime: 0,
-        timerFunc: null
+        timerFunc: null,
+        menu: {
+          emoji: 'ios-happy-outline',
+          mic: 'ios-mic-outline',
+          call: 'ios-call-outline',
+          folderOpen: 'ios-folder-open-outline',
+          video: 'ios-videocam-outline',
+          history: 'ios-time-outline'
+        }
       }
     },
     computed: {
@@ -201,6 +209,16 @@
         }
         this.timerFunc = null
         this.recorderTime = 0
+      },
+      openMessageHistory () {
+        if (this.selectId === 0) {
+          this.$Message.warning({
+            content: this.$t('chat.selectSendObject'),
+            duration: 3
+          });
+          return false;
+        }
+        this.$store.dispatch('setMessageHistory', true)
       }
     },
     mounted () {
@@ -272,7 +290,9 @@
     <div class="m-text">
         <div class="m-input-icon">
             <Poptip word-wrap width="400" placement="top-start" v-model="visible" @on-popper-show="poptip">
-                <a href="javascript:;" @click="getExpression"></a>
+                <span @click="getExpression" @mousemove="menu.emoji = 'ios-happy'"
+                 @mouseout="menu.emoji = 'ios-happy-outline'">
+                    <Icon size="24" :type="menu.emoji" /></span>
                 <div slot="content">
                     <Spin fix v-if="spinShow">
                         <Icon type="ios-loading" size=20 class="demo-spin-icon-load"></Icon>
@@ -282,11 +302,26 @@
                     @click="activeImg(exp.id)">
                 </div>
             </Poptip>
-            <a href="javascript:;" @click="functionNotOnline"></a>
-            <a href="javascript:;" @click="functionNotOnline"></a>
-            <a href="javascript:;" :title="$t('chat.voice')" @click="recorderStart"></a>
-            <a href="javascript:;" @click="functionNotOnline"></a>
-            <a href="javascript:;" @click="functionNotOnline"></a>
+            <span @click="functionNotOnline"
+            @mousemove="menu.folderOpen = 'ios-folder-open'" @mouseout="menu.folderOpen = 'ios-folder-open-outline'">
+                <Icon size="24" :type="menu.folderOpen" />
+            </span>
+            <span :title="$t('chat.voice')" @click="recorderStart"
+            @mousemove="menu.mic = 'ios-mic'" @mouseout="menu.mic = 'ios-mic-outline'">
+                <Icon size="24" :type="menu.mic" />
+            </span>
+            <span @click="functionNotOnline"
+            @mousemove="menu.call = 'ios-call'" @mouseout="menu.call = 'ios-call-outline'">
+                <Icon size="24" :type="menu.call" />
+            </span>
+            <span @click="functionNotOnline"
+            @mousemove="menu.video = 'ios-videocam'" @mouseout="menu.video = 'ios-videocam-outline'">
+                <Icon size="24" :type="menu.video" />
+            </span>
+            <span class="float-right" @click="openMessageHistory" :title="$t('chat.messageHistory')"
+            @mousemove="menu.history = 'ios-time'" @mouseout="menu.history = 'ios-time-outline'">
+                <Icon size="24" :type="menu.history" />
+            </span>
             <Modal v-model="showRecorder" width="150" :mask-closable="false" @on-cancel="recorderStop">
                 <p slot="header" style="text-align: center;">{{ $t('chat.voice') }}</p>
                 <p style="text-align: center"><span>{{recorderTime}}s</span></p>
@@ -339,68 +374,15 @@
         .m-input-icon {
             height: 42px;
             padding:0 10px;
-            a {
+            span {
                 position: relative;
                 display: inline-block;
-                height: 20px;
-                width: 24px;
                 margin-top:11px;
                 margin-right:8px;
-                img {
-                    position: absolute;
-                    left: 50%;
-                    top: 50%;
-                    transform:translate(-50%,-50%);
-                }
+                cursor: pointer;
             }
-            a:nth-child(1){
-                background: url(./../../../../static/img/icon/icon13.png) no-repeat center center;
-            }
-
-            a:nth-child(1):hover{
-                background: url(./../../../../static/img/icon/icon13_1.png) no-repeat center center;
-            }
-
-            a:nth-child(2){
-                background: url(./../../../../static/img/icon/icon14.png) no-repeat center center;
-            }
-
-            a:nth-child(2):hover{
-                background: url(./../../../../static/img/icon/icon14_1.png) no-repeat center center;
-            }
-
-            a:nth-child(3){
-                background: url(./../../../../static/img/icon/icon15.png) no-repeat center center;
-            }
-
-            a:nth-child(3):hover{
-                background: url(./../../../../static/img/icon/icon15_1.png) no-repeat center center;
-            }
-
-            a:nth-child(4){
-                background: url(./../../../../static/img/icon/icon16.png) no-repeat center center;
-            }
-
-            a:nth-child(4):hover{
-                background: url(./../../../../static/img/icon/icon16_1.png) no-repeat center center;
-            }
-
-            a:nth-child(6){
-                background: url(./../../../../static/img/icon/icon17.png) no-repeat center center;
+            .float-right {
                 float: right;
-            }
-
-            a:nth-child(6):hover{
-                background: url(./../../../../static/img/icon/icon17_1.png) no-repeat center center;
-            }
-
-            a:nth-child(5){
-                background: url(./../../../../static/img/icon/icon18.png) no-repeat center center;
-                float: right;
-            }
-
-            a:nth-child(5):hover{
-                background: url(./../../../../static/img/icon/icon18_1.png) no-repeat center center;
             }
 
         }

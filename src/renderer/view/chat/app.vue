@@ -8,6 +8,7 @@
   import ws from '@/request/websocket'
   import userInfoModal from '@/components/Chat/Modal/userInformation'
   import systemNotify from '@/components/Chat/systemNotify'
+  import messageHistory from '@/components/Chat/Modal/messageHistory'
   import {ipcRenderer} from 'electron'
   import config from '@/store/config/config'
   import rec from '@/media/recorder'
@@ -164,7 +165,7 @@
       }
     },
     components: {
-      card, list, msgTextarea, message, name, menus, userInfoModal, systemNotify
+      card, list, msgTextarea, message, name, menus, userInfoModal, systemNotify, messageHistory
     }
   }
 </script>
@@ -188,6 +189,7 @@
             </Split>
         </div>
         <userInfoModal></userInfoModal>
+        <message-history></message-history>
     </div>
 </template>
 

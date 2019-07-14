@@ -113,6 +113,7 @@ export default {
     friendApply: '好友申请',
     passed: '已通过',
     rejected: '已拒绝',
+    messageHistory: '历史消息',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',

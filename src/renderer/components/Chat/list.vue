@@ -68,7 +68,7 @@
         <ul>
             <li class="m-user-list" v-if="haveNotify"
                 :class="{ active: selectNotify }" @click="setNotify(true)">
-                <img class="avatar" width="30" height="30" src="./../../../../static/img/icon/head_4_1.png">
+                <img class="avatar" width="30" height="30" src="../../../../static/img/head_4_1.png">
                 <Badge :count="notifyBadge" style="width: calc(100% - 50px)"><p class="name">系统消息</p></Badge>
             </li>
             <li class="m-user-list" v-for="item in users"
