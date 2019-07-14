@@ -14,9 +14,13 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow
 let exit = false
+let winModal
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
+const winModalURL = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/modelWindow`
+  : `file://${__dirname}/index.html#modelWindow`
 
 function createWindow () {
   /**
@@ -35,8 +39,14 @@ function createWindow () {
     mainWindow = null
     exit = false
   })
+  mainWindow.on('focus', () => mainWindow.flashFrame(false))
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
+  })
+  winModal = new BrowserWindow({ parent: mainWindow, modal: true, useContentSize: true, frame: false, show: false, alwaysOnTop: true })
+  winModal.loadURL(winModalURL)
+  winModal.on('closed', () => {
+    winModal = null
   })
   mainWindow.on('close', (e) => {
     if (!exit) {
@@ -76,6 +86,19 @@ app.on('activate', () => {
 
 ipcMain.on('change-win-size', (e, args) => {
   mainWindow.setSize(args.width, args.height)
+})
+ipcMain.on('show-win-notify', (e, args) => {
+  if (!mainWindow.isFocused()) {
+    mainWindow.flashFrame(args.show)
+  }
+})
+ipcMain.on('show-win-model', (e, args) => {
+  winModal.setSize(args.width, args.height)
+  winModal.show()
+  winModal.webContents.send('send-win-modal-img', args.src)
+})
+ipcMain.on('hide-win-modal', (e, args) => {
+  winModal.hide()
 })
 
 /**

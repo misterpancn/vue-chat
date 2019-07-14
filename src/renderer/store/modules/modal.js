@@ -3,7 +3,8 @@ const state = {
   userInfoShow: false,
   addToShow: false,
   changePwdShow: false,
-  modifyAvatarShow: false
+  modifyAvatarShow: false,
+  messageHistoryShow: false
 }
 
 const mutations = {
@@ -22,12 +23,16 @@ const mutations = {
   SET_MODIFY_AVATAR_SHOW (state, data) {
     state.modifyAvatarShow = data
   },
+  SET_MESSAGE_HISTORY (state, data) {
+    state.messageHistoryShow = data
+  },
   DESTROY (state) {
     state.editInfoShow = false
     state.addToShow = false
     state.userInfoShow = false
     state.changePwdShow = false
     state.modifyAvatarShow = false
+    state.messageHistoryShow = false
   }
 }
 
@@ -49,6 +54,9 @@ const actions = {
   },
   setModifyAvatarShow ({commit}, data) {
     commit('SET_MODIFY_AVATAR_SHOW', data)
+  },
+  setMessageHistory ({commit}, data) {
+    commit('SET_MESSAGE_HISTORY', data)
   }
 }
 
@@ -57,7 +65,8 @@ const getters = {
   getUserInfoShow: state => state.userInfoShow,
   getAddToShow: state => state.addToShow,
   getChangePwdShow: state => state.changePwdShow,
-  getModifyAvatarShow: state => state.modifyAvatarShow
+  getModifyAvatarShow: state => state.modifyAvatarShow,
+  getMessageHistoryShow: state => state.messageHistoryShow
 }
 
 export default {

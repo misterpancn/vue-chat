@@ -1,13 +1,14 @@
 <script>
-  import card from './card'
-  import list from './list'
-  import msgTextarea from './msgTextarea'
-  import message from './message'
-  import name from './name'
-  import menus from './menu'
+  import card from '@/components/Chat/card'
+  import list from '@/components/Chat/list'
+  import msgTextarea from '@/components/Chat/msgTextarea'
+  import message from '@/components/Chat/message'
+  import name from '@/components/Chat/name'
+  import menus from '@/components/Chat/menu'
   import ws from '@/request/websocket'
-  import userInfoModal from './Modal/userInformation'
-  import systemNotify from './systemNotify'
+  import userInfoModal from '@/components/Chat/Modal/userInformation'
+  import systemNotify from '@/components/Chat/systemNotify'
+  import messageHistory from '@/components/Chat/Modal/messageHistory'
   import {ipcRenderer} from 'electron'
   import config from '@/store/config/config'
   import rec from '@/media/recorder'
@@ -15,12 +16,20 @@
   export default {
     data () {
       return {
-        isInit: true
+        isInit: true,
+        split: 0.7
       }
     },
     computed: {
       selectNotify () {
         return this.$store.getters.getSelectNotify
+      }
+    },
+    watch: {
+      split (val) {
+        if (val > 0.71 || val < 0.3) {
+          this.split = 0.71
+        }
       }
     },
     created () {
@@ -47,6 +56,7 @@
             break;
           case ws.messageType.message:
           case ws.messageType.audio:
+          case ws.messageType.img:
             this.$store.dispatch('pushMessage', {
               response: res,
               thisUser: this.$store.getters.getUser
@@ -59,6 +69,7 @@
             } else if (res.group_id > 0 && (!isGroup || (isGroup && res.group_id !== selectId))) {
               this.$store.dispatch('setBadge', {id: res.group_id, is_group: true})
             }
+            ipcRenderer.send('show-win-notify', {show: true})
             break;
           // 好友申请通知
           case ws.messageType.apply_notify:
@@ -154,7 +165,7 @@
       }
     },
     components: {
-      card, list, msgTextarea, message, name, menus, userInfoModal, systemNotify
+      card, list, msgTextarea, message, name, menus, userInfoModal, systemNotify, messageHistory
     }
   }
 </script>
@@ -172,10 +183,13 @@
         </div>
         <div class="main" v-else>
             <name></name>
-            <message></message>
-            <msgTextarea></msgTextarea>
+            <Split v-model="split" mode="vertical">
+                <message slot="top" style="height: 100%"></message>
+                <msgTextarea slot="bottom"></msgTextarea>
+            </Split>
         </div>
         <userInfoModal></userInfoModal>
+        <message-history></message-history>
     </div>
 </template>
 
@@ -203,7 +217,6 @@
             width: 100%;
             left: 0;
             min-height: 160px;
-            height: 30%;
         }
     }
 </style>

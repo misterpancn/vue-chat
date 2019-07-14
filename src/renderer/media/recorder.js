@@ -1,5 +1,7 @@
 import Recorder from '@/media/recorderjs/recordmp3.js'
 import store from '@/store'
+import log from 'electron-log'
+log.transports.console.level = 'silly';
 const rec = {
   isSupport: true,
   audioContent: null,
@@ -41,6 +43,7 @@ rec.startRecording = function () {
     rec.callback('playback resumed successfully')
   }).catch((err) => {
     rec.callback(err)
+    log.error(err)
   })
   rec.recorder && rec.recorder.record()
 }
@@ -88,6 +91,7 @@ rec.closeAudio = function () {
   if (rec.audioContent && rec.audioContent.state !== 'closed') {
     rec.audioContent.close()
     rec.recorder.closeConnect()
+    rec.recorder.clear()
   }
 }
 export default rec
