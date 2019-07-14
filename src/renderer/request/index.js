@@ -19,8 +19,8 @@ export default {
     return axios.get('chat/getChatMessage/chat/' + chatId + '/' + limit)
   },
   // 获取群历史聊天记录
-  getGroupMessage (groupId, limit) {
-    return axios.get('chat/getGroupMessage/' + groupId + '/' + limit)
+  getGroupMessage (groupId, limit, page) {
+    return axios.get('chat/getGroupMessage/' + groupId + '/' + limit + '?page=' + page)
   },
   // 获取用户信息
   getUserInfo (uid) {

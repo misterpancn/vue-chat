@@ -25,8 +25,8 @@ const mutations = {
             item.lastTime = res.time
           }
           item.messages.push({
-            text: res.data,
-            date: res.time,
+            data: res.data,
+            time: res.time,
             self: parseInt(res.uid) === thisUser.userId,
             uid: res.uid,
             user_name: res.user_name,
@@ -47,8 +47,8 @@ const mutations = {
             item.lastTime = res.time
           }
           item.messages.push({
-            text: res.data,
-            date: res.time,
+            data: res.data,
+            time: res.time,
             self: parseInt(res.uid) === thisUser.userId,
             uid: res.uid,
             user_name: res.user_name,
@@ -66,8 +66,8 @@ const mutations = {
           lastTime: res.time,
           messages: [
             {
-              text: res.data,
-              date: res.time,
+              data: res.data,
+              time: res.time,
               self: parseInt(res.uid) === thisUser.userId,
               uid: res.uid,
               user_name: res.user_name,
@@ -86,8 +86,8 @@ const mutations = {
           lastTime: res.time,
           messages: [
             {
-              text: res.data,
-              date: res.time,
+              data: res.data,
+              time: res.time,
               self: parseInt(res.uid) === thisUser.userId,
               uid: res.uid,
               user_name: res.user_name,
@@ -119,8 +119,8 @@ const mutations = {
     if (mes.length > 0) {
       mes.map((v) => {
         list.push({
-          text: v.data,
-          date: v.time,
+          data: v.data,
+          time: v.time,
           self: parseInt(v.uid) === users.userId,
           uid: v.uid,
           user_name: v.user_name,
@@ -165,15 +165,15 @@ const actions = {
     return new Promise((resolve, reject) => {
       if (obj.selectId > 0 && typeof obj.users === 'object') {
         if (obj.isGroup) {
-          request.getGroupMessage(obj.selectId, 50).then((response) => {
-            if (response.data.data.data && response.data.data.data.length > 0) {
+          request.getGroupMessage(obj.selectId, obj.limit, obj.page).then((response) => {
+            if (obj.saveLocal && response.data.data.data && response.data.data.data.length > 0) {
               commit('SET_MESSAGE', {response: response.data.data.data, obj: obj})
             }
             resolve(response)
           }).catch((e) => { reject(e) })
         } else {
-          request.getChatMessage(obj.selectId, 50).then((response) => {
-            if (response.data.data.data && response.data.data.data.length > 0) {
+          request.getChatMessage(obj.selectId, obj.limit, obj.page).then((response) => {
+            if (obj.saveLocal && response.data.data.data && response.data.data.data.length > 0) {
               commit('SET_MESSAGE', {response: response.data.data.data, obj: obj})
             }
             resolve(response)

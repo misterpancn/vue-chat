@@ -114,6 +114,7 @@ export default {
     friendApply: 'Friends Application',
     passed: 'Passed',
     rejected: 'Rejected',
+    messageHistory: 'Message history',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',
