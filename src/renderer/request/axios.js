@@ -7,7 +7,7 @@ var instance = axios.create({
   timeout: 1000 * 60,
   headers: {
     'Accept': 'application/' + config.apiVersion + '+json',
-    'Custom-Token': config.clientKey
+    'Client-Key': config.clientKey
   }
 })
 // 添加请求拦截器

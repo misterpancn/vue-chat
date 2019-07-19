@@ -1,16 +1,49 @@
 const config = {
-  serviceAddress: 'localhost.com',
+  /**
+   *  域名地址
+   */
+  serviceAddress: 'example.com',
+  /**
+   * websocket 端口号
+   */
   websocketPort: 1234,
+  /**
+   *  定时重连限制尝试次数
+   */
   connectLimit: 10,
+  /**
+   * 是否开启ssl
+   */
   openssl: false,
+  /**
+   * dingo api版本信息
+   */
   apiVersion: 'prs.dingo.v1',
-  clientKey: 'client key',
+  /**
+   * 客户端请求授权码
+   */
+  clientKey: 'ce10ae3d3c94432db913cf9349d238b6',
+  /**
+   * 程序自动更新地址
+   */
+  downloadAddress: 'https://download.example.cn',
+  /**
+   * 设置程序窗口大小
+   */
   windowSize: {
     login: {width: 540, height: 410},
     register: {width: 540, height: 550},
     chat: {width: 940, height: 700}
   },
-  downloadAddress: 'http://.xxx.com',
+  /**
+   * 设置内容同源策略
+   */
+  contentSecurityPolicy: [
+    'default-src \'self\' *.example.com ws://example.com:* \'unsafe-inline\' \'unsafe-eval\' data:'
+  ],
+  /**
+   * 各国家号码前缀
+   */
   allMbPrefix: ['+86', '+93', '+355', '+213', '+376', '+244', '+1264',
     '+247', '+1268', '+54', '+374', '+297', '+61', '+43', '+994',
     '+1242', '+973', '+880', '+1246', '+375', '+32', '+501', '+229',

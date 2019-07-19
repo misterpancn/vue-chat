@@ -2,7 +2,7 @@ import ws from '@/request/websocket'
 import request from '@/request'
 
 const state = {
-  allMessage: localStorage.getItem('allMessage') !== null ? JSON.parse(localStorage.getItem('allMessage')) : []
+  allMessage: []
 }
 
 const mutations = {
@@ -100,7 +100,6 @@ const mutations = {
       ];
     }
     state.allMessage = sessionList;
-    localStorage.setItem('allMessage', JSON.stringify(state.allMessage))
   },
   RESET_MESSAGE (state) {
     state.allMessage = [];
@@ -150,7 +149,6 @@ const mutations = {
       sessionList.push(masterList)
     }
     state.allMessage = sessionList;
-    localStorage.setItem('allMessage', JSON.stringify(state.allMessage))
   }
 }
 

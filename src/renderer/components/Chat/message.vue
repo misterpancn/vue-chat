@@ -32,7 +32,7 @@
           saveLocal: true,
           page: 1
         }).then((res) => {
-          if (res.data.data && res.data.data.length === 0) {
+          if (res.data.data.data && res.data.data.data.length === 0) {
             this.$Message.warning({
               content: this.$t('notify.noDataQueried'),
               duration: 3
@@ -40,8 +40,29 @@
           }
           this.loading = true;
         }).catch((e) => {
+          this.$Message.warning({
+            content: this.$t('notifyTitle.errorOccurred'),
+            duration: 3
+          });
           this.loading = true;
         })
+      },
+      getUserInfo (item) {
+        if (!item.self) {
+          this.$Spin.show();
+          this.$store.dispatch('setUserInfo', item.uid).then((r) => {
+            if (r.status === 200) {
+              this.$store.dispatch('upUserInfoShow', true)
+            }
+            this.$Spin.hide();
+          }).catch((e) => {
+            this.$Message.warning({
+              content: this.$t('notifyTitle.errorOccurred'),
+              duration: 3
+            });
+            this.$Spin.hide();
+          })
+        }
       }
     },
     directives: {

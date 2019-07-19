@@ -27,7 +27,7 @@
       headers () {
         return {
           'Accept': 'application/' + config.apiVersion + '+json',
-          'Custom-Token': config.clientKey,
+          'Client-Key': config.clientKey,
           'Authorization': localStorage.getItem('tokenType') + ' ' + localStorage.getItem('token')
         }
       }

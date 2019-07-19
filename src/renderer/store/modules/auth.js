@@ -4,8 +4,8 @@ import rec from '@/media/recorder'
 
 const state = {
   user: localStorage.getItem('user') !== null ? JSON.parse(localStorage.getItem('user')) : {},
-  userList: localStorage.getItem('userList') !== null ? JSON.parse(localStorage.getItem('userList')) : {},
-  groupList: localStorage.getItem('groupList') !== null ? JSON.parse(localStorage.getItem('groupList')) : {},
+  userList: {},
+  groupList: {},
   token: localStorage.getItem('token') !== null ? localStorage.getItem('token') : '',
   tokenType: localStorage.getItem('tokenType') !== null ? localStorage.getItem('tokenType') : '',
   isOnline: false
@@ -19,11 +19,9 @@ const mutations = {
   },
   SET_USER_LIST (state, userList) {
     state.userList = userList;
-    localStorage.setItem('userList', JSON.stringify(state.userList))
   },
   SET_GROUP_LIST (state, groupList) {
     state.groupList = groupList;
-    localStorage.setItem('groupList', JSON.stringify(state.groupList))
   },
   SET_TOKEN (state, token) {
     state.token = token.token;
@@ -44,12 +42,13 @@ const mutations = {
     rec.closeAudio()
   },
   SET_USER_STATUS (state, data) {
-    state.userList.map((item) => {
-      if (item.id === data.uid) {
-        item.is_online = data.online
-      }
-    })
-    localStorage.setItem('userList', JSON.stringify(state.userList))
+    if (state.userList.length > 0) {
+      state.userList.map((item) => {
+        if (item.id === data.uid) {
+          item.is_online = data.online
+        }
+      })
+    }
   }
 }
 
@@ -80,8 +79,6 @@ const actions = {
             token: response.data.data.access_token,
             type: response.data.data.token_type
           })
-          commit('SET_USER_LIST', response.data.data.friend_list)
-          commit('SET_GROUP_LIST', response.data.data.group_list)
         }
         resolve(response)
       }).catch((error) => {
