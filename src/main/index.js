@@ -43,7 +43,14 @@ function createWindow () {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
   })
-  winModal = new BrowserWindow({ parent: mainWindow, modal: true, useContentSize: true, frame: false, show: false, alwaysOnTop: true })
+  winModal = new BrowserWindow({
+    parent: mainWindow,
+    modal: true,
+    useContentSize: true,
+    frame: false,
+    show: false,
+    alwaysOnTop: true
+  })
   winModal.loadURL(winModalURL)
   winModal.on('closed', () => {
     winModal = null
@@ -67,6 +74,17 @@ function createWindow () {
       })
     }
   })
+  const { session } = require('electron')
+
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    let c = {
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': config.contentSecurityPolicy ? config.contentSecurityPolicy : ['default-src \'self\' \'unsafe-inline\' \'unsafe-eval\' data:']
+      }
+    }
+    callback(c)
+  })
   handleUpdate()
 }
 
@@ -86,6 +104,7 @@ app.on('activate', () => {
 
 ipcMain.on('change-win-size', (e, args) => {
   mainWindow.setSize(args.width, args.height)
+  mainWindow.center()
 })
 ipcMain.on('show-win-notify', (e, args) => {
   if (!mainWindow.isFocused()) {
@@ -95,6 +114,7 @@ ipcMain.on('show-win-notify', (e, args) => {
 ipcMain.on('show-win-model', (e, args) => {
   winModal.setSize(args.width, args.height)
   winModal.show()
+  winModal.center()
   winModal.webContents.send('send-win-modal-img', args.src)
 })
 ipcMain.on('hide-win-modal', (e, args) => {

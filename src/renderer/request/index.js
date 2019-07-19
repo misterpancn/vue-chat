@@ -100,5 +100,9 @@ export default {
   // 确认修改头像 param: img_path
   saveTempAvatar (data) {
     return axios.post('media/upload/avatar/save', Qs.stringify(data))
+  },
+  // 获取群成员
+  getGroupMember (groupId) {
+    return axios.get('chat/getGroupMember/' + groupId)
   }
 }
