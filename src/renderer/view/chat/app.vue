@@ -38,7 +38,6 @@
     },
     methods: {
       callbackWs (res) {
-        console.log(res)
         switch (res.type) {
           case ws.messageType.notify:
             this.notifyHandle(res)
@@ -128,6 +127,8 @@
             this.$Spin.hide();
             if (res.data.badge_list && res.status_code === 200) {
               this.isInit = false
+              this.$store.dispatch('setGroupList', res.data.group_list)
+              this.$store.dispatch('setUserList', res.data.friend_list)
               this.$store.dispatch('initBadge', res.data.badge_list)
               this.$store.dispatch('initNotifyList', res.data.apply_notify)
               this.$store.dispatch('initNotifyBadge', res.data.apply_notify_badge)

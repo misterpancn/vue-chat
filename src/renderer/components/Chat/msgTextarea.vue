@@ -3,7 +3,9 @@
   import config from '@/store/config/config'
   import wangEditor from '@/lib/wangEditor'
   import rec from '@/media/recorder'
+  import groupUser from './Modal/groupUser'
   export default {
+    components: { groupUser },
     data () {
       return {
         text: '',
@@ -19,7 +21,8 @@
           call: 'ios-call-outline',
           folderOpen: 'ios-folder-open-outline',
           video: 'ios-videocam-outline',
-          history: 'ios-time-outline'
+          history: 'ios-time-outline',
+          people: 'ios-contacts-outline'
         }
       }
     },
@@ -54,7 +57,7 @@
       headers () {
         return {
           'Accept': 'application/' + config.apiVersion + '+json',
-          'Custom-Token': config.clientKey,
+          'Client-Key': config.clientKey,
           'Authorization': localStorage.getItem('tokenType') + ' ' + localStorage.getItem('token')
         }
       }
@@ -140,6 +143,14 @@
         }
       },
       getExpression () {
+        if (this.selectId === 0) {
+          this.$Message.warning({
+            content: this.$t('chat.selectSendObject'),
+            duration: 3
+          });
+          this.visible = false
+          return false;
+        }
         if (this.expression === null || this.expression.length === 0) {
           this.$store.dispatch('expression')
         }
@@ -179,15 +190,6 @@
         this.showRecorder = false;
         this.clearTimer()
         rec.stopRecording(true, {isGroup: this.isGroup, selectId: this.selectId});
-      },
-      poptip () {
-        if (this.selectId === 0) {
-          this.visible = false
-          this.$Message.warning({
-            content: this.$t('chat.selectSendObject'),
-            duration: 3
-          });
-        }
       },
       functionNotOnline () {
         this.$Message.warning({
@@ -289,15 +291,12 @@
 <template>
     <div class="m-text">
         <div class="m-input-icon">
-            <Poptip word-wrap width="400" placement="top-start" v-model="visible" @on-popper-show="poptip">
+            <Poptip word-wrap width="400" placement="top-start" v-model="visible">
                 <span @click="getExpression" @mousemove="menu.emoji = 'ios-happy'"
                  @mouseout="menu.emoji = 'ios-happy-outline'">
                     <Icon size="24" :type="menu.emoji" /></span>
                 <div slot="content">
-                    <Spin fix v-if="spinShow">
-                        <Icon type="ios-loading" size=20 class="demo-spin-icon-load"></Icon>
-                        <div>{{ $t('notify.loading') }}</div>
-                    </Spin>
+                    <Spin fix v-if="spinShow"></Spin>
                     <img v-for="exp in expression" :src="exp.path" width="21px" height="21px" style="padding: 2px;cursor: pointer"
                     @click="activeImg(exp.id)">
                 </div>
@@ -322,6 +321,10 @@
             @mousemove="menu.history = 'ios-time'" @mouseout="menu.history = 'ios-time-outline'">
                 <Icon size="24" :type="menu.history" />
             </span>
+            <span class="float-right" v-if="isGroup" @click="$store.dispatch('setGroupUserShow', true)"
+                  @mousemove="menu.people = 'ios-contacts'" @mouseout="menu.people = 'ios-contacts-outline'">
+                <Icon size="24" :type="menu.people" />
+            </span>
             <Modal v-model="showRecorder" width="150" :mask-closable="false" @on-cancel="recorderStop">
                 <p slot="header" style="text-align: center;">{{ $t('chat.voice') }}</p>
                 <p style="text-align: center"><span>{{recorderTime}}s</span></p>
@@ -339,6 +342,7 @@
             <div class="textarea" id="textarea" @keyup="inputing" :title="$t('chat.notify.sendByCtrlEnter')"></div>
             <!--<textarea placeholder="按 Ctrl + Enter 发送" v-model="text" @keyup="inputing" title="按 Ctrl + Enter 发送"></textarea>-->
         </div>
+        <group-user></group-user>
     </div>
 </template>
 

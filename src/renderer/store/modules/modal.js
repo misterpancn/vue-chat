@@ -4,7 +4,8 @@ const state = {
   addToShow: false,
   changePwdShow: false,
   modifyAvatarShow: false,
-  messageHistoryShow: false
+  messageHistoryShow: false,
+  groupUserShow: false
 }
 
 const mutations = {
@@ -26,6 +27,9 @@ const mutations = {
   SET_MESSAGE_HISTORY (state, data) {
     state.messageHistoryShow = data
   },
+  SET_GROUP_USER_SHOW (state, data) {
+    state.groupUserShow = data
+  },
   DESTROY (state) {
     state.editInfoShow = false
     state.addToShow = false
@@ -33,6 +37,7 @@ const mutations = {
     state.changePwdShow = false
     state.modifyAvatarShow = false
     state.messageHistoryShow = false
+    state.groupUserShow = false
   }
 }
 
@@ -57,6 +62,9 @@ const actions = {
   },
   setMessageHistory ({commit}, data) {
     commit('SET_MESSAGE_HISTORY', data)
+  },
+  setGroupUserShow ({commit}, data) {
+    commit('SET_GROUP_USER_SHOW', data)
   }
 }
 
@@ -66,7 +74,8 @@ const getters = {
   getAddToShow: state => state.addToShow,
   getChangePwdShow: state => state.changePwdShow,
   getModifyAvatarShow: state => state.modifyAvatarShow,
-  getMessageHistoryShow: state => state.messageHistoryShow
+  getMessageHistoryShow: state => state.messageHistoryShow,
+  getGroupUserShow: state => state.groupUserShow
 }
 
 export default {

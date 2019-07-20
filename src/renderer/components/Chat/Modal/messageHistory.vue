@@ -4,8 +4,7 @@
       components: { messageItem },
       data () {
         return {
-          message: null,
-          loading: false
+          message: null
         }
       },
       computed: {
@@ -49,10 +48,11 @@
             page: page
           }).then((res) => {
             this.message = res.data.data
-            console.log(res)
-            this.loading = true;
           }).catch((e) => {
-            this.loading = true;
+            this.$Message.warning({
+              content: this.$t('notifyTitle.errorOccurred'),
+              duration: 3
+            });
           })
         }
       }
@@ -61,8 +61,8 @@
 <template>
     <Modal v-model="show" :mask-closable="false" :styles="{top: '50px'}">
         <p slot="header" style="text-align: center;">{{ $t('chat.messageHistory') }}</p>
-        <div class="m-ui-content-message" v-if="message">
-            <Row v-for="item in message.data">
+        <div class="m-ui-content-message" v-if="message && message.data && message.data.length">
+            <Row v-for="item in message.data" :key="item.id">
                 <p>
                     <span style="margin-right: 10px;"><b>{{item.user_name}}</b></span>
                     <span style="color: darkturquoise"><Time :time="item.time * 1000" type="datetime" /></span>
@@ -70,22 +70,35 @@
                 <message-item v-bind:item="item"></message-item>
             </Row>
         </div>
+        <div v-else-if="message" class="m-ui-content-message"><p class="m-ui-p">{{$t('notify.noDataQueried')}}</p></div>
         <div v-else class="m-ui-content-message"><Spin fix></Spin></div>
         <div slot="footer" v-if="message">
-            <Page :total="message.total" :current="message.current_page" :page-size="parseInt(message.per_page)" @on-change="changePage" show-elevator />
+            <Page :total="message.total" :current="message.current_page" :page-size="parseInt(message.per_page)" @on-change="changePage" size="small" show-elevator show-total />
         </div>
-        <div v-else slot="footer"><Spin fix></Spin></div>
+        <div v-else slot="footer"></div>
     </Modal>
 </template>
 <style lang="less">
     .m-ui-content-message {
         position: relative;
         overflow: auto;
-        height: calc(100vh - 250px);
+        max-height: calc(100vh - 250px);
+        min-height: 100px;
         font-size: 12px;
         .m-mess-modal {
             background: none;
             width: 100% !important;
+        }
+        .m-ui-p {
+            width:50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -moz-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            text-align: center;
         }
     }
 </style>

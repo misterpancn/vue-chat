@@ -27,9 +27,9 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 350,
-    useContentSize: true,
-    width: 540,
+    height: config.windowSize.login.height,
+    // useContentSize: true,
+    width: config.windowSize.login.width,
     show: false
   })
 
@@ -43,13 +43,20 @@ function createWindow () {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
   })
-  winModal = new BrowserWindow({ parent: mainWindow, modal: true, useContentSize: true, frame: false, show: false, alwaysOnTop: true })
+  winModal = new BrowserWindow({
+    parent: mainWindow,
+    modal: true,
+    useContentSize: true,
+    frame: false,
+    show: false,
+    alwaysOnTop: true
+  })
   winModal.loadURL(winModalURL)
   winModal.on('closed', () => {
     winModal = null
   })
   mainWindow.on('close', (e) => {
-    if (!exit) {
+    if (!exit && isShowExitNotify()) {
       e.preventDefault()
       dialog.showMessageBox(mainWindow, {
         type: 'warning',
@@ -66,6 +73,17 @@ function createWindow () {
         }
       })
     }
+  })
+  const { session } = require('electron')
+
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    let c = {
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': config.contentSecurityPolicy ? config.contentSecurityPolicy : ['default-src \'self\' \'unsafe-inline\' \'unsafe-eval\' data:']
+      }
+    }
+    callback(c)
   })
   handleUpdate()
 }
@@ -86,6 +104,7 @@ app.on('activate', () => {
 
 ipcMain.on('change-win-size', (e, args) => {
   mainWindow.setSize(args.width, args.height)
+  mainWindow.center()
 })
 ipcMain.on('show-win-notify', (e, args) => {
   if (!mainWindow.isFocused()) {
@@ -95,6 +114,7 @@ ipcMain.on('show-win-notify', (e, args) => {
 ipcMain.on('show-win-model', (e, args) => {
   winModal.setSize(args.width, args.height)
   winModal.show()
+  winModal.center()
   winModal.webContents.send('send-win-modal-img', args.src)
 })
 ipcMain.on('hide-win-modal', (e, args) => {
@@ -137,4 +157,15 @@ function handleUpdate () {
   ipcMain.on('update-install', () => {
     autoUpdater.quitAndInstall()
   })
+}
+
+function isShowExitNotify () {
+  let size = mainWindow.getSize();
+  if (size[0] === config.windowSize.login.width && size[1] === config.windowSize.login.height) {
+    return false;
+  }
+  if (size[0] === config.windowSize.register.width && size[1] === config.windowSize.register.height) {
+    return false;
+  }
+  return true;
 }

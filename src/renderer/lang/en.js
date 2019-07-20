@@ -87,7 +87,8 @@ export default {
     successOperation: 'Successful operation',
     imgFileFormatIsIncorrectMes: 'File format of {fileName} is incorrect, please select jpg or png.',
     exceedingImageFileSizeLimitMes: 'File {fileName} is too large, no more than {size}.',
-    functionNotOnlineYet: 'The function is not online yet, please stay tuned'
+    functionNotOnlineYet: 'The function is not online yet, please stay tuned',
+    thisIsYou: 'This is you'
   },
   chat: {
     voice: 'Voice',
@@ -115,6 +116,10 @@ export default {
     passed: 'Passed',
     rejected: 'Rejected',
     messageHistory: 'Message history',
+    groupOwner: 'Group owner',
+    createTime: 'Create time',
+    groupMembers: 'Group members',
+    groupInformation: 'Group of information',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',

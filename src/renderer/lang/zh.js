@@ -86,7 +86,8 @@ export default {
     haveConfirmOperation: '您已确认这个操作？',
     successOperation: '操作成功',
     imgFileFormatIsIncorrectMes: '{fileName}文件格式不正确，请选择JPG或PNG。',
-    functionNotOnlineYet: '功能暂未上线，敬请期待'
+    functionNotOnlineYet: '功能暂未上线，敬请期待',
+    thisIsYou: '这是你自己哦'
   },
   chat: {
     voice: '语音',
@@ -114,6 +115,10 @@ export default {
     passed: '已通过',
     rejected: '已拒绝',
     messageHistory: '历史消息',
+    groupOwner: '群主',
+    createTime: '创建时间',
+    groupMembers: '群成员',
+    groupInformation: '群信息',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',
