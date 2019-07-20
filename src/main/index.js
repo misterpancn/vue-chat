@@ -27,9 +27,9 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 350,
-    useContentSize: true,
-    width: 540,
+    height: config.windowSize.login.height,
+    // useContentSize: true,
+    width: config.windowSize.login.width,
     show: false
   })
 
@@ -56,7 +56,7 @@ function createWindow () {
     winModal = null
   })
   mainWindow.on('close', (e) => {
-    if (!exit) {
+    if (!exit && isShowExitNotify()) {
       e.preventDefault()
       dialog.showMessageBox(mainWindow, {
         type: 'warning',
@@ -157,4 +157,15 @@ function handleUpdate () {
   ipcMain.on('update-install', () => {
     autoUpdater.quitAndInstall()
   })
+}
+
+function isShowExitNotify () {
+  let size = mainWindow.getSize();
+  if (size[0] === config.windowSize.login.width && size[1] === config.windowSize.login.height) {
+    return false;
+  }
+  if (size[0] === config.windowSize.register.width && size[1] === config.windowSize.register.height) {
+    return false;
+  }
+  return true;
 }

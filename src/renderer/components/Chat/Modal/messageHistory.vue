@@ -61,7 +61,7 @@
 <template>
     <Modal v-model="show" :mask-closable="false" :styles="{top: '50px'}">
         <p slot="header" style="text-align: center;">{{ $t('chat.messageHistory') }}</p>
-        <div class="m-ui-content-message" v-if="message">
+        <div class="m-ui-content-message" v-if="message && message.data && message.data.length">
             <Row v-for="item in message.data" :key="item.id">
                 <p>
                     <span style="margin-right: 10px;"><b>{{item.user_name}}</b></span>
@@ -70,11 +70,12 @@
                 <message-item v-bind:item="item"></message-item>
             </Row>
         </div>
+        <div v-else-if="message" class="m-ui-content-message"><p class="m-ui-p">{{$t('notify.noDataQueried')}}</p></div>
         <div v-else class="m-ui-content-message"><Spin fix></Spin></div>
         <div slot="footer" v-if="message">
             <Page :total="message.total" :current="message.current_page" :page-size="parseInt(message.per_page)" @on-change="changePage" size="small" show-elevator show-total />
         </div>
-        <div v-else slot="footer"><Spin fix></Spin></div>
+        <div v-else slot="footer"></div>
     </Modal>
 </template>
 <style lang="less">
@@ -87,6 +88,17 @@
         .m-mess-modal {
             background: none;
             width: 100% !important;
+        }
+        .m-ui-p {
+            width:50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -moz-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            -webkit-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            text-align: center;
         }
     }
 </style>
