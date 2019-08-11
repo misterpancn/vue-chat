@@ -1,13 +1,12 @@
 import axios from 'axios'
-import config from '@/store/config/config'
+import localConfig from '@/store/config/config'
 import store from '@/store'
-var transport = config.openssl === false ? 'http://' : 'https://'
+var transport = localConfig.openssl === false ? 'http://' : 'https://'
 var instance = axios.create({
-  baseURL: transport + config.serviceAddress + '/api/',
+  baseURL: transport + localConfig.serviceAddress + '/api/',
   timeout: 1000 * 60,
   headers: {
-    'Accept': 'application/' + config.apiVersion + '+json',
-    'Client-Key': config.clientKey
+    'Accept': 'application/' + localConfig.apiVersion + '+json'
   }
 })
 // 添加请求拦截器
@@ -15,6 +14,9 @@ instance.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
   config.headers.Authorization = localStorage.getItem('tokenType') + ' ' + localStorage.getItem('token')
   config.headers.common['Accept-Language'] = store.getters.getLanguage || 'zh-CN'
+  let keys = localConfig.encrypt()
+  config.headers.common['Client-Key'] = keys.key
+  config.headers.common['Secret-Salt'] = keys.salt
   return config
 }, function (error) {
   // 对请求错误做些什么
