@@ -25,9 +25,11 @@
         }
       },
       headers () {
+        let keys = config.encrypt()
         return {
           'Accept': 'application/' + config.apiVersion + '+json',
-          'Client-Key': config.clientKey,
+          'Client-Key': keys.key,
+          'Secret-Salt': keys.salt,
           'Authorization': localStorage.getItem('tokenType') + ' ' + localStorage.getItem('token')
         }
       }

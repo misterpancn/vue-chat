@@ -12,19 +12,19 @@ export default {
   },
   // 获取表情库
   getExpression () {
-    return axios.get('lib/getExpression')
+    return axios.get('lib/expression')
   },
   // 获取好友聊天记录
-  getChatMessage (chatId, limit) {
-    return axios.get('chat/getChatMessage/chat/' + chatId + '/' + limit)
+  getChatMessage (chatId, limit, page) {
+    return axios.get('chat/message/list/chat/' + chatId + '/' + limit + '?page=' + page)
   },
   // 获取群历史聊天记录
   getGroupMessage (groupId, limit, page) {
-    return axios.get('chat/getGroupMessage/' + groupId + '/' + limit + '?page=' + page)
+    return axios.get('chat/message/list/group/' + groupId + '/' + limit + '?page=' + page)
   },
   // 获取用户信息
   getUserInfo (uid) {
-    return axios.get('chat/getUserInfo/' + uid)
+    return axios.get('chat/user/info/' + uid)
   },
   // websocket初始化
   initChat (data) {
@@ -32,19 +32,19 @@ export default {
   },
   // 对话消息接口 param: chat_id & content
   sendChatMessage (data) {
-    return axios.post('chat/chatMessage', Qs.stringify(data))
+    return axios.post('chat/message/chat/send', Qs.stringify(data))
   },
   // 群消息接口 param: group_id & content
   sendGroupMessage (data) {
-    return axios.post('chat/groupMessage', Qs.stringify(data))
+    return axios.post('chat/message/group/send', Qs.stringify(data))
   },
   // websocket断开接口
   chatConnectClose () {
-    return axios.get('chat/connectClose');
+    return axios.get('chat/connect/close');
   },
   // 重置消息提醒 param:chat_id or group id & is_group
   resetBadge (data) {
-    return axios.post('chat/resetBadge', Qs.stringify(data))
+    return axios.post('chat/reset/badge', Qs.stringify(data))
   },
   // 对话发送语音
   uploadRecorderByChat (chatId, data, config) {
@@ -56,11 +56,11 @@ export default {
   },
   // 添加群或好友 param: friend_id | group_id & remarks
   addFriends (data) {
-    return axios.post('chat/addFriends', Qs.stringify(data))
+    return axios.post('chat/friend/add', Qs.stringify(data))
   },
   // 搜索好友和群 param: chat_number
   searchNo (data) {
-    return axios.post('chat/searchNo', Qs.stringify(data))
+    return axios.post('chat/number/search', Qs.stringify(data))
   },
   // 加群加好友审核 param: audit
   audit (applyId, data) {
@@ -76,11 +76,11 @@ export default {
   },
   // 获取好友列表  无参数
   getFriendList () {
-    return axios.get('chat/friendsList/get')
+    return axios.get('chat/friend/list')
   },
   // 获取登录用户的群列表  无参数
   getGroupList () {
-    return axios.get('chat/groupList/get')
+    return axios.get('chat/group/list')
   },
   me () {
     return axios.post('auth/me')
@@ -103,6 +103,6 @@ export default {
   },
   // 获取群成员
   getGroupMember (groupId) {
-    return axios.get('chat/getGroupMember/' + groupId)
+    return axios.get('chat/member/group/' + groupId)
   }
 }

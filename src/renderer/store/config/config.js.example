@@ -22,7 +22,10 @@ const config = {
   /**
    * 客户端请求授权码
    */
-  clientKey: 'ce10ae3d3c94432db913cf9349d238b6',
+  appId: 10001,
+  secretId: '71c1d9683afa4b5dafb398dc2f49d580',
+  secretKey: 'd578ac32dd044fb3b3c80ead326e0806',
+  encrypt: () => {},
   /**
    * 程序自动更新地址
    */
