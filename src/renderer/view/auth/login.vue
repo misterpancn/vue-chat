@@ -114,7 +114,7 @@
                 this.loading = false;
               }
             }).catch((error) => {
-              console.log(error.response)
+              console.log(error)
               this.loading = false;
               this.$Notice.error({
                 title: this.$t('notifyTitle.errorReminding'),
