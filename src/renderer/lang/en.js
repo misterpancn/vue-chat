@@ -16,9 +16,11 @@ export default {
     name: 'name',
     logout: 'logout',
     username: 'User Name',
+    groupUsername: 'Group of nicknames',
     information: 'Information',
     personalInformation: 'Personal information',
     registerTime: 'Registration time',
+    joinTime: 'Join time',
     joinDefaultGroup: 'Join the default group',
     modifyPersonalData: 'Modification of personal data',
     editMaterials: 'Editorial materials',
@@ -120,12 +122,20 @@ export default {
     createTime: 'Create time',
     groupMembers: 'Group members',
     groupInformation: 'Group of information',
+    inviteToGroup: 'Invite to group',
+    theFriendsList: 'The friends list',
+    theSelected: 'The selected',
+    quitTheGroup: 'Quit the group',
+    unfriending: 'Unfriending',
+    videoCall: 'Video call',
+    allRight: 'All Right',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',
       confirmLogout: 'Do you really want to log out?',
-      sendByCtrlEnter: 'Send by Ctrl+Enter',
-      clickOrDragFile: 'Click or drag files here to upload'
+      sendByCtrlEnter: 'Send by {key}',
+      clickOrDragFile: 'Click or drag files here to upload',
+      confirmRemoveGroupUser: 'Are you sure you want to remove the user from the group'
     }
   }
 }

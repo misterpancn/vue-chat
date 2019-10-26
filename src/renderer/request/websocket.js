@@ -20,7 +20,9 @@ var chat = {
     refresh_token: 6,
     audio: 7,
     apply_notify: 8,
-    release_friend_list: 9
+    release_friend_list: 9,
+    video_call: 10,
+    video_answer: 11
   }
 }
 var socket
@@ -146,7 +148,7 @@ chat.localPush = function (con, chatId, groupId) {
         chat_id: chatId,
         group_id: groupId,
         uid: store.getters.getUser.userId,
-        user_name: store.getters.getUser.name,
+        user_name: store.getters.getGroupUserInfo.group_user_name,
         photo: store.getters.getUser.photo
       }
     })

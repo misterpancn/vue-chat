@@ -5,7 +5,9 @@ const state = {
   changePwdShow: false,
   modifyAvatarShow: false,
   messageHistoryShow: false,
-  groupUserShow: false
+  groupUserShow: false,
+  addGroupUserShow: false,
+  videoCallShow: false
 }
 
 const mutations = {
@@ -30,6 +32,12 @@ const mutations = {
   SET_GROUP_USER_SHOW (state, data) {
     state.groupUserShow = data
   },
+  SET_ADD_GROUP_USER_SHOW (state, data) {
+    state.addGroupUserShow = data
+  },
+  SET_VIDEO_CALL_SHOW (state, data) {
+    state.videoCallShow = data
+  },
   DESTROY (state) {
     state.editInfoShow = false
     state.addToShow = false
@@ -38,6 +46,8 @@ const mutations = {
     state.modifyAvatarShow = false
     state.messageHistoryShow = false
     state.groupUserShow = false
+    state.addGroupUserShow = false
+    state.videoCallShow = false
   }
 }
 
@@ -65,6 +75,12 @@ const actions = {
   },
   setGroupUserShow ({commit}, data) {
     commit('SET_GROUP_USER_SHOW', data)
+  },
+  addGroupUserShow ({commit}, data) {
+    commit('SET_ADD_GROUP_USER_SHOW', data)
+  },
+  videoCallShow ({commit}, data) {
+    commit('SET_VIDEO_CALL_SHOW', data)
   }
 }
 
@@ -75,7 +91,9 @@ const getters = {
   getChangePwdShow: state => state.changePwdShow,
   getModifyAvatarShow: state => state.modifyAvatarShow,
   getMessageHistoryShow: state => state.messageHistoryShow,
-  getGroupUserShow: state => state.groupUserShow
+  getGroupUserShow: state => state.groupUserShow,
+  getAddGroupUserShow: state => state.addGroupUserShow,
+  getVideoCallShow: state => state.videoCallShow
 }
 
 export default {

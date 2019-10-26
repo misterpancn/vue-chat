@@ -19,13 +19,13 @@
                         </Select>
                     </FormItem>
                     <FormItem prop="mail">
-                        <Input v-model="formInline.mail" :placeholder="$t('account.email')" size="large">
+                        <Input v-model="formInline.mail" :placeholder="$t('account.email')" size="large" @keydown.native.enter.prevent ="handleSubmit('formInline')">
                         <Icon type="md-mail" slot="prefix" style="font-size: 18px;"></Icon>
                         </Input>
                     </FormItem>
                     <FormItem prop="password">
                         <Input v-bind:type="passwordType" v-model="formInline.password" :placeholder="$t('account.password')"
-                               size="large">
+                               size="large" @keydown.native.enter.prevent ="handleSubmit('formInline')">
                         <Icon type="md-lock" slot="prefix" style="font-size: 18px;"></Icon>
                         <Icon v-if="!formInline.is_eye" type="ios-eye-off-outline" slot="suffix"
                               style="font-size: 18px;cursor: pointer;" @click="funcShow"></Icon>
@@ -94,6 +94,9 @@
     },
     methods: {
       handleSubmit (name) {
+        if (this.loading) {
+          return false;
+        }
         this.$refs[name].validate((valid) => {
           if (valid) {
             this.loading = true;

@@ -15,12 +15,12 @@ export default {
     return axios.get('lib/expression')
   },
   // 获取好友聊天记录
-  getChatMessage (chatId, limit, page) {
-    return axios.get('chat/message/list/chat/' + chatId + '/' + limit + '?page=' + page)
+  getChatMessage (chatId, limit, page, getLast) {
+    return axios.get('chat/message/list/chat/' + chatId + '/' + limit + '?page=' + page + '&getLast=' + getLast)
   },
   // 获取群历史聊天记录
-  getGroupMessage (groupId, limit, page) {
-    return axios.get('chat/message/list/group/' + groupId + '/' + limit + '?page=' + page)
+  getGroupMessage (groupId, limit, page, getLast) {
+    return axios.get('chat/message/list/group/' + groupId + '/' + limit + '?page=' + page + '&getLast=' + getLast)
   },
   // 获取用户信息
   getUserInfo (uid) {
@@ -57,6 +57,10 @@ export default {
   // 添加群或好友 param: friend_id | group_id & remarks
   addFriends (data) {
     return axios.post('chat/friend/add', Qs.stringify(data))
+  },
+  // 添加群或好友 param: friend_id | group_id & remarks
+  inviteToGroup (data) {
+    return axios.post('chat/group/invite', Qs.stringify(data))
   },
   // 搜索好友和群 param: chat_number
   searchNo (data) {
@@ -104,5 +108,25 @@ export default {
   // 获取群成员
   getGroupMember (groupId) {
     return axios.get('chat/member/group/' + groupId)
+  },
+  // 获取群里某个人的信息
+  getGroupUserInfo (groupId, uid) {
+    return axios.get('chat/group/' + groupId + '/uid/' + uid + '/info')
+  },
+  // 退出群
+  quitTheGroup (groupId, uid) {
+    return axios.delete('chat/group/' + groupId + '/uid/' + uid + '/quit')
+  },
+  // 解除好友
+  unFriend (chatId) {
+    return axios.delete('chat/friend/' + chatId + '/remove');
+  },
+  // 修改群昵称 param: group_id & name
+  editGroupUserName (data) {
+    return axios.post('chat/group/username/edit', Qs.stringify(data));
+  },
+  // 修改群名称 param: group_id & name
+  editGroupName (data) {
+    return axios.post('chat/group/name/edit', Qs.stringify(data));
   }
 }

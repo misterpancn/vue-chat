@@ -161,16 +161,17 @@ const actions = {
   },
   getMessage ({commit}, obj) {
     return new Promise((resolve, reject) => {
+      let getLast = obj.getLast ? 1 : 0;
       if (obj.selectId > 0 && typeof obj.users === 'object') {
         if (obj.isGroup) {
-          request.getGroupMessage(obj.selectId, obj.limit, obj.page).then((response) => {
+          request.getGroupMessage(obj.selectId, obj.limit, obj.page, getLast).then((response) => {
             if (obj.saveLocal && response.data.data.data && response.data.data.data.length > 0) {
               commit('SET_MESSAGE', {response: response.data.data.data, obj: obj})
             }
             resolve(response)
           }).catch((e) => { reject(e) })
         } else {
-          request.getChatMessage(obj.selectId, obj.limit, obj.page).then((response) => {
+          request.getChatMessage(obj.selectId, obj.limit, obj.page, getLast).then((response) => {
             if (obj.saveLocal && response.data.data.data && response.data.data.data.length > 0) {
               commit('SET_MESSAGE', {response: response.data.data.data, obj: obj})
             }
