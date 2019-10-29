@@ -3,6 +3,7 @@
   import config from '@/store/config/config'
   import wangEditor from '@/lib/wangEditor'
   import rec from '@/media/recorder'
+  import webrtc from '@/request/webrtc'
   export default {
     data () {
       return {
@@ -244,7 +245,7 @@
       setSendMethod (name) {
         this.sendMethod = name
       },
-      videoCall () {
+      async videoCall () {
         if (this.selectId === 0) {
           this.$Message.warning({
             content: this.$t('chat.selectSendObject'),
@@ -254,6 +255,14 @@
         }
         if (!rec.isSupport) {
           // this.recorderTime = new Date()
+          let res = await webrtc.init('chat:' + this.selectId)
+          if (res === false) {
+            this.$Message.warning({
+              content: webrtc.error,
+              duration: 3
+            });
+            return false;
+          }
           this.$store.dispatch('videoInfo', {mes: null, role: 'offer'}).then(() => {
             this.$store.dispatch('videoCallShow', true)
           })

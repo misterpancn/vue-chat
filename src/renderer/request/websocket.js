@@ -1,5 +1,6 @@
 import config from '@/store/config/config'
 import store from '@/store'
+import webrtc from './webrtc'
 var chat = {
   Server: config.serviceAddress,
   url: (config.openssl === false ? 'http://' : 'https://') + config.serviceAddress,
@@ -130,6 +131,7 @@ chat.closeConnect = () => {
     socket.close()
   }
   chat.clearTimer()
+  webrtc.signalClose()
 }
 chat.clearTimer = () => {
   clearInterval(chat.pingTimer)
