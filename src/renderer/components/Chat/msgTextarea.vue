@@ -3,7 +3,7 @@
   import config from '@/store/config/config'
   import wangEditor from '@/lib/wangEditor'
   import rec from '@/media/recorder'
-  import webrtc from '@/request/webrtc'
+  import {ipcRenderer} from 'electron'
   export default {
     data () {
       return {
@@ -245,7 +245,7 @@
       setSendMethod (name) {
         this.sendMethod = name
       },
-      async videoCall () {
+      videoCall () {
         if (this.selectId === 0) {
           this.$Message.warning({
             content: this.$t('chat.selectSendObject'),
@@ -253,18 +253,16 @@
           });
           return false;
         }
-        if (!rec.isSupport) {
+        if (rec.isSupport) {
           // this.recorderTime = new Date()
-          let res = await webrtc.init('chat:' + this.selectId)
-          if (res === false) {
-            this.$Message.warning({
-              content: webrtc.error,
-              duration: 3
-            });
-            return false;
-          }
+          let user = this.$store.getters.getSelectUser(this.selectId, this.isGroup)
           this.$store.dispatch('videoInfo', {mes: null, role: 'offer'}).then(() => {
-            this.$store.dispatch('videoCallShow', true)
+            // this.$store.dispatch('videoCallShow', true)
+            ipcRenderer.send('show-video-modal', {
+              video_info: {mes: {user_name: user.name}, role: 'offer'},
+              select_id: this.selectId,
+              is_group: this.isGroup
+            })
           })
         } else {
           this.$Message.warning({

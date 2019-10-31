@@ -15,12 +15,16 @@ if (process.env.NODE_ENV !== 'development') {
 let mainWindow
 let exit = false
 let winModal
+let videoModal
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080`
   : `file://${__dirname}/index.html`
 const winModalURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9080/#/modelWindow`
   : `file://${__dirname}/index.html#modelWindow`
+const videoModalURl = process.env.NODE_ENV === 'development'
+  ? `http://localhost:9080/#/videoModal`
+  : `file://${__dirname}/index.html#videoModal`
 
 function createWindow () {
   /**
@@ -48,8 +52,7 @@ function createWindow () {
     modal: true,
     useContentSize: true,
     frame: false,
-    show: false,
-    alwaysOnTop: true
+    show: false
   })
   winModal.loadURL(winModalURL)
   winModal.on('closed', () => {
@@ -134,19 +137,19 @@ function handleUpdate () {
   autoUpdater.autoInstallOnAppQuit = false
   autoUpdater.setFeedURL(config.downloadAddress);
   autoUpdater.on('error', (err) => {
-    mainWindow.webContents.send('update-error', String(err))
+    if (mainWindow) mainWindow.webContents.send('update-error', String(err))
   })
   autoUpdater.on('update-available', (info) => {
-    mainWindow.webContents.send('update-available', info)
+    if (mainWindow) mainWindow.webContents.send('update-available', info)
   })
   autoUpdater.on('update-not-available', (info) => {
-    mainWindow.webContents.send('update-not-available', info)
+    if (mainWindow) mainWindow.webContents.send('update-not-available', info)
   })
   autoUpdater.on('download-progress', (progress) => {
-    mainWindow.webContents.send('update-download-progress', progress)
+    if (mainWindow) mainWindow.webContents.send('update-download-progress', progress)
   })
   autoUpdater.on('update-downloaded', (info) => {
-    mainWindow.webContents.send('update-downloaded', info)
+    if (mainWindow) mainWindow.webContents.send('update-downloaded', info)
   })
   ipcMain.on('check-for-update', () => {
     autoUpdater.checkForUpdates()
@@ -169,3 +172,34 @@ function isShowExitNotify () {
   }
   return true;
 }
+
+function createVideoModal (data) {
+  videoModal = new BrowserWindow({
+    parent: mainWindow,
+    modal: true,
+    useContentSize: true,
+    frame: false,
+    show: false
+  })
+  videoModal.loadURL(videoModalURl)
+  videoModal.on('closed', () => {
+    videoModal = null
+  })
+  videoModal.once('ready-to-show', () => {
+    videoModal.show()
+    videoModal.webContents.send('video-modal-data', data)
+  })
+}
+ipcMain.on('show-video-modal', (e, data) => {
+  createVideoModal(data)
+})
+ipcMain.on('close-video-modal', () => {
+  if (videoModal) {
+    videoModal.close()
+  }
+})
+ipcMain.on('forwarded-message-to-video', (e, data) => {
+  if (videoModal) {
+    videoModal.webContents.send('forwarded-message-to-video', data)
+  }
+})

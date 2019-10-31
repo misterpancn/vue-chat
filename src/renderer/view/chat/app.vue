@@ -12,7 +12,6 @@
   import {ipcRenderer} from 'electron'
   import config from '@/store/config/config'
   import rec from '@/media/recorder'
-  import webrtc from '@/request/webrtc'
 
   export default {
     data () {
@@ -89,14 +88,31 @@
           case ws.messageType.video_call:
             this.$store.dispatch('setIsGroup', res.group_id > 0)
             this.$store.dispatch('setSelectId', res.chat_id ? res.chat_id : res.group_id)
-            webrtc.init('chat:' + res.chat_id)
             this.$store.dispatch('videoInfo', {mes: res, role: 'answer'}).then(() => {
-              this.$store.dispatch('videoCallShow', true)
+              ipcRenderer.send('show-video-modal', {
+                video_info: {mes: res, role: 'answer'},
+                select_id: (res.chat_id ? res.chat_id : res.group_id),
+                is_group: res.group_id > 0
+              })
             })
             break;
           case ws.messageType.video_answer:
             let videoInfo = this.$store.getters.getVideoInfo
             this.$store.dispatch('videoInfo', {mes: res, role: videoInfo.status, answer: res.data})
+              .then(() => {
+                ipcRenderer.send('forwarded-message-to-video', {
+                  video_info: {mes: res, role: videoInfo.status, answer: res.data},
+                  select_id: (res.chat_id ? res.chat_id : res.group_id),
+                  is_group: res.group_id > 0,
+                  type: 'init'
+                })
+              })
+            break;
+          case ws.messageType.video_close:
+            ipcRenderer.send('forwarded-message-to-video', {
+              status: 'close',
+              type: 'notify'
+            })
             break;
           default: break;
         }
@@ -145,7 +161,6 @@
               this.$store.dispatch('initBadge', res.data.badge_list)
               this.$store.dispatch('initNotifyList', res.data.apply_notify)
               this.$store.dispatch('initNotifyBadge', res.data.apply_notify_badge)
-              webrtc.startSignaling()
             } else {
               this.logout()
             }
@@ -204,7 +219,6 @@
             </Split>
         </div>
         <message-history></message-history>
-        <video-call></video-call>
     </div>
 </template>
 
