@@ -203,3 +203,12 @@ ipcMain.on('forwarded-message-to-video', (e, data) => {
     videoModal.webContents.send('forwarded-message-to-video', data)
   }
 })
+ipcMain.on('video-modal-full-screen', () => {
+  if (videoModal) {
+    if (videoModal.isMaximized()) {
+      videoModal.unmaximize()
+    } else {
+      videoModal.maximize()
+    }
+  }
+})

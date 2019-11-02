@@ -145,7 +145,8 @@ export default {
       theOtherPartyHasAgreed: '对方已同意，正在尝试建立连接通道...',
       theCallIsOff: '对方已挂断通话',
       talkingOnVideo: '正在和{name}进行视频通话',
-      hangUpAndExit: '挂断并退出'
+      hangUpAndExit: '挂断并退出',
+      dlClickOpenOrCloseFullScreen: '双击开启或关闭全屏'
     }
   }
 }
