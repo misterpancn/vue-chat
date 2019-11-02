@@ -27,6 +27,7 @@
       close () {
         this.exitLoading = true
         if (this.autoExit) {
+          this.exitLoading = false
           this.exit()
         } else {
           this.$store.dispatch('sendChatMes', {
@@ -34,6 +35,7 @@
             content: 'close',
             video_call: 3
           }).then((res) => {
+            this.exitLoading = false
             this.exit()
           }).catch((e) => {
             this.messageFn(this.$t('chat.messageSendFailed'))
@@ -102,7 +104,7 @@
         if (isOffer) {
           await webrtc.offer()
         }
-        if (!webrtc.status || !webrtc.isSetICE) {
+        if (!webrtc.status) {
           let e = webrtc.error ? webrtc.error : this.$t('chat.video.ICEFailed')
           this.messageFn(e)
           return false;
@@ -139,7 +141,6 @@
         }
       },
       fullScreen () {
-        console.log(222)
         ipcRenderer.send('video-modal-full-screen')
       }
     },

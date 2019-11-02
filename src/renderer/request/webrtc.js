@@ -58,10 +58,10 @@ const webrtc = {
       })
       throw new Error('signaling server not open')
     }
-    let conf = {iceServers: [
-      {urls: 'turn:misterpan.cn', username: 'buck', credential: 'panwei123'}
+    let con = {iceServers: [
+      {urls: conf.turnServer, username: conf.turnUser, credential: conf.turnPass}
     ]};
-    this.peer = new PeerConnection(conf);
+    this.peer = new PeerConnection(con);
     this.peer.onicecandidate = (e) => {
       console.log(e)
       if (!e.candidate && this.isSetICE) {
