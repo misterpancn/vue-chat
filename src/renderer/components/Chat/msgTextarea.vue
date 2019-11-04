@@ -189,7 +189,7 @@
           });
           return false;
         }
-        if (rec.isSupport || !this.isGroup) {
+        if (rec.isSupport) {
           // this.recorderTime = new Date()
           this.timeRun()
           this.showRecorder = true;
