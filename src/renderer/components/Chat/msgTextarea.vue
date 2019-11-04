@@ -3,9 +3,8 @@
   import config from '@/store/config/config'
   import wangEditor from '@/lib/wangEditor'
   import rec from '@/media/recorder'
-  import groupUser from './Modal/groupUser'
+  import {ipcRenderer} from 'electron'
   export default {
-    components: { groupUser },
     data () {
       return {
         text: '',
@@ -23,7 +22,9 @@
           video: 'ios-videocam-outline',
           history: 'ios-time-outline',
           people: 'ios-contacts-outline'
-        }
+        },
+        sendMethod: 'ctrl_enter',
+        sendLoading: false
       }
     },
     computed: {
@@ -81,15 +82,28 @@
     },
     methods: {
       inputing (e) {
-        if (!e.ctrlKey && e.keyCode !== 13) {
-          return false;
+        if (e.ctrlKey && e.keyCode === 13 && this.sendMethod === 'ctrl_enter') {
+          this.sendMessage(false)
         }
+        if (!e.ctrlKey && e.keyCode === 13 && this.sendMethod === 'enter') {
+          this.sendMessage(false)
+        }
+        return false;
+      },
+      sendMessage (isButton) {
         let html = this.editor.txt.html()
         let empty = true;
+        this.sendLoading = true;
         if (this.editor.txt.text().length || html.search(/(img)+/i) > 0) {
           empty = false
+        } else {
+          this.sendLoading = false;
         }
-        if (e.ctrlKey && e.keyCode === 13 && !empty) {
+        // 当发生方式为enter键时 去掉最后一行空白行
+        if (this.sendMethod === 'enter' && !isButton) {
+          html = html.slice(0, -11)
+        }
+        if (!empty) {
           let uploadImg = document.getElementsByClassName('m-editor-upload-img')
           let base64Img = []
           if (uploadImg) {
@@ -100,7 +114,7 @@
           if (this.isGroup) {
             this.$store.dispatch('sendGroupMes', {
               group_id: this.selectId,
-              content: this.editor.txt.html(),
+              content: html,
               base64_img: base64Img
             }).then((res) => {
               if (res.data.status_code !== 200) {
@@ -109,19 +123,21 @@
                   duration: 2
                 });
               }
+              this.sendLoading = false;
             }).catch((e) => {
               this.$Message.warning({
                 content: this.$t('chat.messageSendFailed'),
                 duration: 2
               });
+              this.sendLoading = false;
             })
             if (base64Img.length === 0) {
-              chat.localPush(this.editor.txt.html(), 0, this.selectId)
+              chat.localPush(html, 0, this.selectId)
             }
           } else {
             this.$store.dispatch('sendChatMes', {
               chat_id: this.selectId,
-              content: this.editor.txt.html(),
+              content: html,
               base64_img: base64Img
             }).then((res) => {
               if (res.data.status_code !== 200) {
@@ -130,14 +146,16 @@
                   duration: 2
                 });
               }
+              this.sendLoading = false;
             }).catch((e) => {
               this.$Message.warning({
                 content: this.$t('chat.messageSendFailed'),
                 duration: 2
               });
+              this.sendLoading = false;
             })
             if (base64Img.length === 0) {
-              chat.localPush(this.editor.txt.html(), this.selectId, 0)
+              chat.localPush(html, this.selectId, 0)
             }
           }
           this.text = ''
@@ -171,7 +189,7 @@
           });
           return false;
         }
-        if (rec.isSupport) {
+        if (rec.isSupport || !this.isGroup) {
           // this.recorderTime = new Date()
           this.timeRun()
           this.showRecorder = true;
@@ -223,6 +241,35 @@
           return false;
         }
         this.$store.dispatch('setMessageHistory', true)
+      },
+      setSendMethod (name) {
+        this.sendMethod = name
+      },
+      videoCall () {
+        if (this.selectId === 0) {
+          this.$Message.warning({
+            content: this.$t('chat.selectSendObject'),
+            duration: 3
+          });
+          return false;
+        }
+        if (rec.isSupport) {
+          // this.recorderTime = new Date()
+          let user = this.$store.getters.getSelectUser(this.selectId, this.isGroup)
+          this.$store.dispatch('videoInfo', {mes: null, role: 'offer'}).then(() => {
+            // this.$store.dispatch('videoCallShow', true)
+            ipcRenderer.send('show-video-modal', {
+              video_info: {mes: {user_name: user.name}, role: 'offer'},
+              select_id: this.selectId,
+              is_group: this.isGroup
+            })
+          })
+        } else {
+          this.$Message.warning({
+            content: this.$t('chat.deviceNotSupport'),
+            duration: 3
+          });
+        }
       }
     },
     mounted () {
@@ -315,17 +362,13 @@
             @mousemove="menu.call = 'ios-call'" @mouseout="menu.call = 'ios-call-outline'">
                 <Icon size="24" :type="menu.call" />
             </span>
-            <span @click="functionNotOnline"
+            <span @click="videoCall" v-if="!isGroup"
             @mousemove="menu.video = 'ios-videocam'" @mouseout="menu.video = 'ios-videocam-outline'">
                 <Icon size="24" :type="menu.video" />
             </span>
             <span class="float-right" @click="openMessageHistory" :title="$t('chat.messageHistory')"
             @mousemove="menu.history = 'ios-time'" @mouseout="menu.history = 'ios-time-outline'">
                 <Icon size="24" :type="menu.history" />
-            </span>
-            <span class="float-right" v-if="isGroup" @click="$store.dispatch('setGroupUserShow', true)"
-                  @mousemove="menu.people = 'ios-contacts'" @mouseout="menu.people = 'ios-contacts-outline'">
-                <Icon size="24" :type="menu.people" />
             </span>
             <Modal v-model="showRecorder" width="150" :mask-closable="false" @on-cancel="recorderStop">
                 <p slot="header" style="text-align: center;">{{ $t('chat.voice') }}</p>
@@ -341,16 +384,25 @@
         </div>
         <div class="m-input-box">
             <div class="menus" id="menus"></div>
-            <div class="textarea" id="textarea" @keyup="inputing" :title="$t('chat.notify.sendByCtrlEnter')"></div>
+            <div class="textarea" id="textarea" @keyup="inputing" :title="$t('chat.notify.sendByCtrlEnter', {key: (sendMethod === 'ctrl_enter' ? 'Ctrl+Enter' : 'Enter')})"></div>
             <!--<textarea placeholder="按 Ctrl + Enter 发送" v-model="text" @keyup="inputing" title="按 Ctrl + Enter 发送"></textarea>-->
+            <div class="send-button">
+                <Dropdown trigger="hover" placement="top-end" transfer @on-click="setSendMethod">
+                    <span style="cursor: pointer"><Icon type="ios-arrow-up" size="20" slot="prefix"></Icon></span>
+                    <DropdownMenu slot="list">
+                        <DropdownItem name="ctrl_enter">Ctrl + Enter  <Icon v-if="sendMethod === 'ctrl_enter'" type="md-checkmark" size="16" /></DropdownItem>
+                        <DropdownItem name="enter">Enter <Icon v-if="sendMethod === 'enter'" type="md-checkmark" size="16" /></DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+                <Button :loading="sendLoading" @click="sendMessage(true)">Send</Button>
+            </div>
         </div>
-        <group-user></group-user>
     </div>
 </template>
 
 <style lang="less">
     .m-text {
-        height:calc(100% - 42px);
+        height:calc(100% - 35px);
         border-top: solid 1px #ddd;
 
         .m-input-box {
@@ -375,6 +427,13 @@
                         margin: 0;
                     }
                 }
+            }
+            .send-button {
+                position: absolute;
+                float: right;
+                bottom: 21px;
+                right: 36px;
+                z-index: 2;
             }
         }
         .m-input-icon {

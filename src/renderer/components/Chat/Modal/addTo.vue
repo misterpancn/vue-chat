@@ -49,7 +49,6 @@
       },
       trimStr (data) {
         if (data.is_related) {
-          console.log(data)
           return data.is_group ? this.$t('chat.alreadyInTheGroup') : this.$t('chat.hasBeenFriend')
         }
       },

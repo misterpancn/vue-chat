@@ -1,10 +1,9 @@
 <script>
     import axios from '@/request'
     export default {
+      props: [ 'isGroup' ],
       data () {
         return {
-          photo: this.$store.getters.getUser.photo,
-          panel: ['1', '2'],
           loading: false
         }
       },
@@ -17,6 +16,9 @@
             return this.$store.getters.getUserInfoShow
           },
           set: function (val) {
+            if (!val) {
+              this.$store.dispatch('resetUserInfo')
+            }
             this.$store.dispatch('upUserInfoShow', val)
           }
         },
@@ -30,82 +32,96 @@
           if (uid > 0) {
             this.loading = true;
             axios.addFriends({friend_id: uid}).then((r) => {
-              this.$Message.warning({
+              this.$Message.success({
                 content: this.$t('notify.applicationHasBeenSent'),
                 duration: 3
               });
               this.loading = false;
             }).catch((e) => {
-              this.$Message.warning({
+              this.$Message.error({
                 content: e.response.data.data,
                 duration: 3
               });
               this.loading = false;
             })
           }
+        },
+        unfriend () {
+          this.$Modal.confirm({
+            title: this.$t('notify.haveConfirmOperation'),
+            loading: true,
+            onOk: () => {
+              axios.unFriend(this.$store.getters.selectId).then((r) => {
+                this.$Modal.remove()
+                this.$Message.success({
+                  content: this.$t('notify.successOperation'),
+                  duration: 3
+                });
+                this.show = false
+                this.$store.dispatch('setSelectId', 0)
+                this.$store.dispatch('setIsGroup', false)
+              }).catch((e) => {
+                this.$Message.error({
+                  content: this.$t('notifyTitle.errorOccurred'),
+                  duration: 3
+                });
+                this.$Modal.remove()
+              })
+            }
+          })
         }
       }
     }
 </script>
 <template>
-    <Modal v-model="show" :mask-closable="false" footer-hide>
+    <Drawer v-model="show" :closable="false" footer-hide>
         <p slot="header" style="text-align: center;">{{ $t('account.information') }}</p>
-        <div class="m-ui-content">
-            <Layout style="background: none" v-if="userInfo">
-                <Sider class="left-content">
-                    <img height="120" width="120" :src="photo" style="margin: 10px 30px" />
-                    <Divider orientation="left">{{$t('chat.chatId')}}：</Divider>
-                    <Divider orientation="right" size="small">{{userInfo.chat_number}}</Divider>
-                </Sider>
-                <Layout style="background: none; margin-left: 10px">
-                    <Collapse v-model="panel" simple>
-                        <Panel name="1">
-                            {{$t('account.personalInformation')}}
-                            <div slot="content">
-                                <Row>
-                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">{{$t('account.username')}}</Col>
-                                    <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.name }}</Col>
-                                </Row>
-                                <Row>
-                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">{{$t('account.email')}}</Col>
-                                    <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.email }}</Col>
-                                </Row>
-                                <Row>
-                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">{{$t('account.mobileNumber')}}</Col>
-                                    <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.mb_prefix + userInfo.phone }}</Col>
-                                </Row>
-                                <Row>
-                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">{{$t('account.registerTime')}}</Col>
-                                    <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.created_at }}</Col>
-                                </Row>
-                            </div>
-                        </Panel>
-                        <Panel name="2">
-                            {{$t('chat.operation')}}
-                            <div slot="content">
-                                <Row>
-                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">
-                                    <Button type="success" size="small" @click="addFriends" :loading="loading">{{$t('chat.addFriends')}}</Button>
-                                    </Col>
-                                </Row>
-                            </div>
-                        </Panel>
-                    </Collapse>
-                </Layout>
-            </Layout>
+        <div class="m-ui-content-information" v-if="userInfo">
+            <div>
+                <img height="120" width="120" :src="userInfo.photo" style="display: block; margin: 0 auto;" />
+            </div>
+            <Divider orientation="left" size="small">{{$t('account.personalInformation')}}</Divider>
+            <div class="m-ui-gu-gi">
+                <Row class="m-ui-gu-row">
+                    <Col span="8">{{$t('chat.chatId')}}</Col><Col span="16">{{userInfo.chat_number}}</Col>
+                </Row>
+                <Row class="m-ui-gu-row">
+                    <Col span="8">{{$t('account.username')}}</Col><Col span="16">{{ userInfo.name }}</Col>
+                </Row>
+                <Row class="m-ui-gu-row">
+                    <Col span="8">{{$t('account.email')}}</Col><Col span="16">{{ userInfo.email }}</Col>
+                </Row>
+                <Row class="m-ui-gu-row">
+                    <Col span="8">{{$t('account.mobileNumber')}}</Col><Col span="16">{{ userInfo.mb_prefix + userInfo.phone }}</Col>
+                </Row>
+                <Row class="m-ui-gu-row">
+                    <Col span="8">{{$t('account.registerTime')}}</Col><Col span="16">{{ userInfo.created_at }}</Col>
+                </Row>
+            </div>
+            <div class="m-ui-group-user-bottom">
+                <Button v-if="isGroup" type="success" :loading="loading" long @click="addFriends">{{$t('chat.addFriends')}}</Button>
+                <Button v-else type="error" long @click="unfriend">{{$t('chat.unfriending')}}</Button>
+            </div>
         </div>
-    </Modal>
+        <div class="m-ui-content-information" v-else><Spin fix></Spin></div>
+    </Drawer>
 </template>
 <style lang="less">
-    .m-ui-content {
+    .m-ui-content-information {
         position: relative;
-        .left-content {
-            height: 100%;
-            background: none;
-            .m-col {
-                font-size: 21px;
-                margin: 10px 0;
+        overflow-y: auto;
+        min-height: 150px;
+        height: 100%;
+        .m-ui-gu-gi {
+            margin-bottom: 10px;
+            .m-ui-gu-row {
+                padding: 6px 0;
             }
+        }
+        .m-ui-group-user-bottom {
+            position: absolute;
+            bottom: 0px;
+            width: 100%;
         }
     }
 </style>

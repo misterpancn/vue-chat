@@ -16,7 +16,6 @@ instance.interceptors.request.use(function (config) {
   config.headers.common['Accept-Language'] = store.getters.getLanguage || 'zh-CN'
   let keys = localConfig.encrypt()
   config.headers.common['Client-Key'] = keys.key
-  config.headers.common['Secret-Salt'] = keys.salt
   return config
 }, function (error) {
   // 对请求错误做些什么

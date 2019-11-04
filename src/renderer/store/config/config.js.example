@@ -44,6 +44,9 @@ const config = {
   contentSecurityPolicy: [
     'default-src \'self\' *.example.com ws://example.com:* \'unsafe-inline\' \'unsafe-eval\' data:'
   ],
+  turnServer: 'turn:turn.google.com',
+  turnUser: 'username',
+  turnPass: '123456',
   /**
    * 各国家号码前缀
    */

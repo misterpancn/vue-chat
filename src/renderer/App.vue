@@ -33,6 +33,25 @@
   ul {
     list-style: none;
   }
+
+  ::-webkit-scrollbar
+  {
+    width: 5px;  /*滚动条宽度*/
+    height: 5px;  /*滚动条高度*/
+  }
+
+  /*定义滚动条轨道 内阴影+圆角*/
+  ::-webkit-scrollbar-track
+  {
+    border-radius: 2.5px;  /*滚动条的背景区域的圆角*/
+    background-color: #e6e6e6;/*滚动条的背景颜色*/
+  }
+
+  /*定义滑块 内阴影+圆角*/
+  ::-webkit-scrollbar-thumb {
+    border-radius: 2.5px; /*滚动条的圆角*/
+    background-color: #A9A9A9; /*滚动条的颜色*/
+  }
   #app {
     margin: auto;
     max-width: 100%;

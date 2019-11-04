@@ -6,9 +6,9 @@
   import name from '@/components/Chat/name'
   import menus from '@/components/Chat/menu'
   import ws from '@/request/websocket'
-  import userInfoModal from '@/components/Chat/Modal/userInformation'
   import systemNotify from '@/components/Chat/systemNotify'
   import messageHistory from '@/components/Chat/Modal/messageHistory'
+  import videoCall from '@/components/Chat/Modal/videoCall'
   import {ipcRenderer} from 'electron'
   import config from '@/store/config/config'
   import rec from '@/media/recorder'
@@ -84,6 +84,35 @@
           // 对方审核通过通知修改好友列表
           case ws.messageType.release_friend_list:
             this.$store.dispatch('getFriendsList', res.data)
+            break;
+          case ws.messageType.video_call:
+            this.$store.dispatch('setIsGroup', res.group_id > 0)
+            this.$store.dispatch('setSelectId', res.chat_id ? res.chat_id : res.group_id)
+            this.$store.dispatch('videoInfo', {mes: res, role: 'answer'}).then(() => {
+              ipcRenderer.send('show-video-modal', {
+                video_info: {mes: res, role: 'answer'},
+                select_id: (res.chat_id ? res.chat_id : res.group_id),
+                is_group: res.group_id > 0
+              })
+            })
+            break;
+          case ws.messageType.video_answer:
+            let videoInfo = this.$store.getters.getVideoInfo
+            this.$store.dispatch('videoInfo', {mes: res, role: videoInfo.status, answer: res.data})
+              .then(() => {
+                ipcRenderer.send('forwarded-message-to-video', {
+                  video_info: {mes: res, role: videoInfo.status, answer: res.data},
+                  select_id: (res.chat_id ? res.chat_id : res.group_id),
+                  is_group: res.group_id > 0,
+                  type: 'init'
+                })
+              })
+            break;
+          case ws.messageType.video_close:
+            ipcRenderer.send('forwarded-message-to-video', {
+              status: 'close',
+              type: 'notify'
+            })
             break;
           default: break;
         }
@@ -166,7 +195,7 @@
       }
     },
     components: {
-      card, list, msgTextarea, message, name, menus, userInfoModal, systemNotify, messageHistory
+      card, list, msgTextarea, message, name, menus, systemNotify, messageHistory, videoCall
     }
   }
 </script>
@@ -189,7 +218,6 @@
                 <msgTextarea slot="bottom"></msgTextarea>
             </Split>
         </div>
-        <userInfoModal></userInfoModal>
         <message-history></message-history>
     </div>
 </template>
