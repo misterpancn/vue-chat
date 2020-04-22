@@ -7,7 +7,8 @@
 </style>
 <template>
     <div class="row justify-content-center c-center">
-        <Card :bordered="false" :xs="8" :sm="4" :md="6" :lg="8" style="height: 100%">
+        <app-menu v-bind:showLogo="true"></app-menu>
+        <Card :bordered="false" :xs="8" :sm="4" :md="6" :lg="8" dis-hover>
             <p slot="title">{{ $t('account.login') }}</p>
             <a slot="extra" @click="toRegister"><router-link to="/register">{{ $t('account.register') }}</router-link></a>
             <div class="card-body">
@@ -34,6 +35,7 @@
                         </Input>
                     </FormItem>
                     <FormItem>
+                        <p style="text-align: right;"><a @click="openExternal">{{$t('account.forgotPassword')}}</a></p>
                         <Button type="primary" :loading="loading" @click="handleSubmit('formInline')" long>
                             <span v-if="!loading">{{ $t('account.signIn') }}</span>
                             <span v-else>{{ $t('notify.loading') }}</span>
@@ -47,12 +49,13 @@
 </template>
 
 <script>
-  import {ipcRenderer} from 'electron'
+  import {ipcRenderer, shell} from 'electron'
   import config from '@/store/config/config'
   import update from '@/components/Login/update'
+  import appMenu from '@/components/AppMenu'
   export default {
     components: {
-      update
+      update, appMenu
     },
     data () {
       return {
@@ -84,6 +87,11 @@
             {type: 'email', message: this.$t('account.rules.emailCheck'), trigger: 'blur'}
           ]
         }
+      },
+      forgetPassLink () {
+        let protocol = 'http://'
+        if (config.openssl) protocol = 'https://';
+        return protocol + config.serviceAddress + '/password/forgot'
       }
     },
     watch: {
@@ -144,6 +152,9 @@
       },
       toRegister () {
         ipcRenderer.send('change-win-size', config.windowSize.register)
+      },
+      openExternal () {
+        shell.openExternal(this.forgetPassLink)
       }
     },
     mounted () {

@@ -1,10 +1,28 @@
 <script>
-    import {ipcRenderer} from 'electron'
+    import {ipcRenderer, shell} from 'electron'
+    import ws from '@/request/websocket'
+    import config from '@/store/config/config'
+    import fs from 'fs'
     export default {
       props: ['item'],
       data () {
         return {
-          loading: false
+          loading: false,
+          progressStyle: {display: 'none'}
+        }
+      },
+      computed: {
+        downloadPercent () {
+          return this.$store.getters.getChatFDP
+        }
+      },
+      watch: {
+        downloadPercent: function (val) {
+          if (val > 0) {
+            this.progressStyle = {display: 'inline-block'}
+          } else {
+            this.progressStyle = {display: 'none'}
+          }
         }
       },
       methods: {
@@ -118,15 +136,88 @@
             ipcRenderer.send('show-win-model', {
               width: img.width,
               height: img.height,
-              src: src
+              src: src,
+              type: 'img'
             })
           }
+        },
+        evil (str) {
+          return ws.evil(str)
+        },
+        fileSize (size) {
+          if (!size) {
+            return 0;
+          }
+          var num = 1024.00; // byte
+          if (size < num) {
+            return size + 'B';
+          }
+          if (size < Math.pow(num, 2)) {
+            return (size / num).toFixed(2) + 'K'; // kb
+          }
+          if (size < Math.pow(num, 3)) {
+            return (size / Math.pow(num, 2)).toFixed(2) + 'M'; // M
+          }
+          if (size < Math.pow(num, 4)) {
+            return (size / Math.pow(num, 3)).toFixed(2) + 'G'; // G
+          }
+          return (size / Math.pow(num, 4)).toFixed(2) + 'T'; // T
+        },
+        downloadFileUrl (item) {
+          if (this.downloadPercent === 0) {
+            if (item.is_down) {
+              this.$Message.warning({
+                content: this.$t('notify.youHaveDownloadedTheFile'),
+                duration: 3
+              });
+              return false;
+            }
+            let route = this.evil(item.data).src;
+            let fileName = this.evil(item.data).fileName;
+            // e.currentTarget.parentElement.parentElement.nextElementSibling.style.display = 'inline-block'
+            var src = (config.openssl === false ? 'http://' : 'https://') + config.serviceAddress + route + '?t=' + localStorage.getItem('token') + '&fileName=' + fileName;
+            if (item.mes_id) {
+              this.$store.dispatch('setFileId', item.mes_id)
+            } else if (item.redis_id) {
+              this.$store.dispatch('setFileId', item.redis_id)
+            }
+            ipcRenderer.send('download-chat-file', {
+              data: src,
+              cmd: 'url'
+            })
+          } else {
+            this.$Message.warning({
+              content: this.$t('notify.otherDownloadAlreadyExist'),
+              duration: 3
+            });
+          }
+        },
+        openFile (file) {
+          if (!file) {
+            this.$Message.warning({
+              content: this.$t('notify.fileDoneNotExist'),
+              duration: 3
+            });
+            return false;
+          }
+          fs.access(file, (err) => {
+            if (!err) {
+              shell.openItem(file)
+            } else {
+              this.$Message.warning({
+                content: this.$t('notify.fileDoneNotExist'),
+                duration: 3
+              });
+            }
+          })
         }
       }
     }
 </script>
 <template>
+    <!-- 普通文本 -->
     <div v-if="item && item.type === 0" class="text m-mess-modal" v-html="html(item.data)"></div>
+    <!-- 语音 -->
     <div class="text recorder" v-else-if="item && item.type === 7">
         <!-- 注意：这里的html层级关系不可改 -->
         <span ref="recorderTime" class="recorder-time" @click="controlsAudio($event)"></span>
@@ -136,8 +227,25 @@
         </audio>
         <span class="rec-icon"><Icon type="ios-volume-up" ref="recorderIcon" style="font-size: 2em" /></span>
     </div>
+    <!-- 图片 -->
     <div v-else-if="item && item.type === 4" class="text" >
         <img :src="item.data" width="100%" @dblclick="openWinModal(item.data)">
+    </div>
+    <!-- 文件 -->
+    <div v-else-if="item && item.type === 13" class="text" style="padding: .4rem">
+        <div class="file-type">{{evil(item.data).ext.toUpperCase()}}</div>
+        <div style="display: inline-block;float: left;min-height: 50px;">
+            <p>
+                <!-- 自己发的文件不下载 直接根据上传路径打开文件 -->
+                <a v-if="item.is_down && item.save_path" @click="openFile(item.save_path)" :data="item.save_path">{{evil(item.data).fileName}}</a>
+                <a v-else-if="item.self" @click="openFile(evil(item.data).localPath)" :data="evil(item.data).localPath">{{evil(item.data).fileName}}</a>
+                <a v-else @click="downloadFileUrl(item)">{{evil(item.data).fileName}}</a>
+                <br>
+                {{fileSize(evil(item.data).size)}}
+                <span v-if="item.is_down && !item.self">({{$t('notify.theSave')}})</span>
+            </p>
+        </div>
+        <Progress v-if="!item.self && !item.is_down" :percent="downloadPercent" status="active" :stroke-width="3" class="download-progress" :style="progressStyle" />
     </div>
 </template>
 <style lang="less">
@@ -147,7 +255,7 @@
         padding: 0 10px;
         max-width: ~'calc(100% - 40px)';
         min-height: 30px;
-        line-height: 2.5;
+        line-height: 30px;
         font-size: 12px;
         text-align: left;
         word-break: break-all;
@@ -164,6 +272,16 @@
         }
         img {
             vertical-align: middle
+        }
+        .file-type {
+            width: 50px;
+            height: 50px;
+            display: inline-block;
+            background-color: #FCE1E5;
+            float: left;
+            text-align: center;
+            line-height: 50px;
+            margin-right: .4rem;
         }
     }
 

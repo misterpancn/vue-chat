@@ -128,5 +128,16 @@ export default {
   // 修改群名称 param: group_id & name
   editGroupName (data) {
     return axios.post('chat/group/name/edit', Qs.stringify(data));
+  },
+  imgToBase64 (data, header) {
+    return axios.post('media/upload/imgToBase64', data, header)
+  },
+  // 聊天文件下载通知
+  chatFileDownload (chatId, mesId, data) {
+    return axios.post('chat/' + chatId + '/file/' + mesId + '/download', data)
+  },
+  // 群聊天文件下载通知
+  groupFileDownload (groupId, mesId, data) {
+    return axios.post('chat/group/' + groupId + '/file/' + mesId + '/download', data)
   }
 }

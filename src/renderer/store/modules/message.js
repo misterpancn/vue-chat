@@ -5,6 +5,25 @@ const state = {
   allMessage: []
 }
 
+const fuc = {
+  handleMes: function (res, other) {
+    return {
+      data: res.data,
+      time: res.time,
+      self: parseInt(res.uid) === other.userId,
+      uid: res.uid,
+      user_name: res.user_name,
+      showTime: other.show,
+      photo: res.photo,
+      type: res.type,
+      mes_id: parseInt(res.group_mes_id) ? parseInt(res.group_mes_id) : parseInt(res.user_mes_id),
+      redis_id: res.redis_id,
+      is_down: res.is_down,
+      save_path: res.save_path
+    }
+  }
+}
+
 const mutations = {
   // 消息推送
   PUSH_MESSAGE (state, message) {
@@ -24,16 +43,7 @@ const mutations = {
           if (show) {
             item.lastTime = res.time
           }
-          item.messages.push({
-            data: res.data,
-            time: res.time,
-            self: parseInt(res.uid) === thisUser.userId,
-            uid: res.uid,
-            user_name: res.user_name,
-            showTime: show,
-            photo: res.photo,
-            type: res.type
-          })
+          item.messages.push(fuc.handleMes(res, {userId: thisUser.userId, show: show}))
           isSave = true
         }
         // 群消息
@@ -46,16 +56,7 @@ const mutations = {
           if (show) {
             item.lastTime = res.time
           }
-          item.messages.push({
-            data: res.data,
-            time: res.time,
-            self: parseInt(res.uid) === thisUser.userId,
-            uid: res.uid,
-            user_name: res.user_name,
-            showTime: show,
-            photo: res.photo,
-            type: res.type
-          })
+          item.messages.push(fuc.handleMes(res, {userId: thisUser.userId, show: show}))
           isSave = true
         }
       })
@@ -64,18 +65,7 @@ const mutations = {
           sendTo: parseInt(res.chat_id) > 0 ? parseInt(res.chat_id) : parseInt(res.group_id),
           isGroup: res.group_id > 0,
           lastTime: res.time,
-          messages: [
-            {
-              data: res.data,
-              time: res.time,
-              self: parseInt(res.uid) === thisUser.userId,
-              uid: res.uid,
-              user_name: res.user_name,
-              showTime: true,
-              photo: res.photo,
-              type: res.type
-            }
-          ]
+          messages: [fuc.handleMes(res, {userId: thisUser.userId, show: true})]
         })
       }
     } else {
@@ -84,18 +74,7 @@ const mutations = {
           sendTo: parseInt(res.chat_id) > 0 ? parseInt(res.chat_id) : parseInt(res.group_id),
           isGroup: res.group_id > 0,
           lastTime: res.time,
-          messages: [
-            {
-              data: res.data,
-              time: res.time,
-              self: parseInt(res.uid) === thisUser.userId,
-              uid: res.uid,
-              user_name: res.user_name,
-              showTime: true,
-              photo: res.photo,
-              type: res.type
-            }
-          ]
+          messages: [fuc.handleMes(res, {userId: thisUser.userId, show: true})]
         }
       ];
     }
@@ -117,16 +96,7 @@ const mutations = {
     };
     if (mes.length > 0) {
       mes.map((v) => {
-        list.push({
-          data: v.data,
-          time: v.time,
-          self: parseInt(v.uid) === users.userId,
-          uid: v.uid,
-          user_name: v.user_name,
-          showTime: true,
-          photo: v.photo,
-          type: v.type
-        })
+        list.push(fuc.handleMes(v, {userId: users.userId, show: true}))
         lastTime = v.time;
       })
       masterList.messages = list;
@@ -149,6 +119,19 @@ const mutations = {
       sessionList.push(masterList)
     }
     state.allMessage = sessionList;
+  },
+  UPDATE_MESSAGE_FILE_STATUS (status, data) {
+    state.allMessage.map((item) => {
+      if (item.sendTo === data.selectId && item.isGroup === data.isGroup) {
+        item.messages.map((mes) => {
+          if (parseInt(mes.type) === ws.messageType.file &&
+            (mes.redis_id === data.redis_id || parseInt(mes.mes_id) === parseInt(data.redis_id))) {
+            mes.is_down = 1
+            mes.save_path = data.savePath
+          }
+        })
+      }
+    })
   }
 }
 
@@ -208,6 +191,9 @@ const actions = {
         headers: {'Content-Type': 'multipart/form-data'}
       }).then((r) => { resolve(r) }).catch((e) => { reject(e) })
     })
+  },
+  changeFileStatusMes ({commit}, data) {
+    commit('UPDATE_MESSAGE_FILE_STATUS', data)
   }
 }
 

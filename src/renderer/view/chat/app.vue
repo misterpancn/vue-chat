@@ -3,7 +3,6 @@
   import list from '@/components/Chat/list'
   import msgTextarea from '@/components/Chat/msgTextarea'
   import message from '@/components/Chat/message'
-  import name from '@/components/Chat/name'
   import menus from '@/components/Chat/menu'
   import ws from '@/request/websocket'
   import systemNotify from '@/components/Chat/systemNotify'
@@ -12,6 +11,7 @@
   import {ipcRenderer} from 'electron'
   import config from '@/store/config/config'
   import rec from '@/media/recorder'
+  import appMenu from '@/components/AppMenu'
 
   export default {
     data () {
@@ -53,9 +53,11 @@
             })
             this.$Modal.remove()
             break;
+          // 消息类通知  包括文本 语音 图片 文件
           case ws.messageType.message:
           case ws.messageType.audio:
           case ws.messageType.img:
+          case ws.messageType.file:
             this.$store.dispatch('pushMessage', {
               response: res,
               thisUser: this.$store.getters.getUser
@@ -85,17 +87,20 @@
           case ws.messageType.release_friend_list:
             this.$store.dispatch('getFriendsList', res.data)
             break;
+          // 视频聊天发起
           case ws.messageType.video_call:
             this.$store.dispatch('setIsGroup', res.group_id > 0)
             this.$store.dispatch('setSelectId', res.chat_id ? res.chat_id : res.group_id)
             this.$store.dispatch('videoInfo', {mes: res, role: 'answer'}).then(() => {
-              ipcRenderer.send('show-video-modal', {
+              ipcRenderer.send('show-win-modal', {
                 video_info: {mes: res, role: 'answer'},
                 select_id: (res.chat_id ? res.chat_id : res.group_id),
-                is_group: res.group_id > 0
+                is_group: res.group_id > 0,
+                type: 'video'
               })
             })
             break;
+          // 视频聊天应答
           case ws.messageType.video_answer:
             let videoInfo = this.$store.getters.getVideoInfo
             this.$store.dispatch('videoInfo', {mes: res, role: videoInfo.status, answer: res.data})
@@ -108,6 +113,7 @@
                 })
               })
             break;
+          // 视频聊天关闭通知
           case ws.messageType.video_close:
             ipcRenderer.send('forwarded-message-to-video', {
               status: 'close',
@@ -193,9 +199,59 @@
       if (this.isInit) {
         this.$Spin.show();
       }
+      // 入口模板监听
+      ipcRenderer.on('main-app-listen', (e, data) => {
+        // 聊天文件下载进度
+        if (data.type === 'download-file-progress') {
+          if (data.data.code === 'ing') { // 进行中
+            this.$store.dispatch('setChatFDP', Math.round(data.data.con * 100))
+          }
+          if (data.data.code === 'success') {
+            let selectId = this.$store.getters.selectId;
+            let isGroup = this.$store.getters.isGroup;
+            let mesId = this.$store.getters.currentFileID;
+            let user = this.$store.getters.getUser;
+            if (!isGroup && selectId && mesId) {
+              this.$store.dispatch('chatFileDown', {
+                selectId: selectId,
+                mesId: mesId,
+                savePath: data.data.con
+              }).then(() => {
+                this.$store.dispatch('changeFileStatusMes', {
+                  selectId: selectId,
+                  isGroup: isGroup,
+                  redis_id: mesId,
+                  savePath: data.data.con
+                })
+              })
+            } else if (isGroup && selectId && mesId) {
+              this.$store.dispatch('groupFileDown', {
+                selectId: selectId,
+                mesId: mesId,
+                savePath: data.data.con
+              }).then(() => {
+                this.$store.dispatch('changeFileStatusMes', {
+                  selectId: selectId,
+                  isGroup: isGroup,
+                  redis_id: mesId,
+                  savePath: data.data.con,
+                  user_id: user.userId
+                })
+              })
+            }
+          }
+          if (data.data.code === 'cancel') {
+            this.$store.dispatch('setChatFDP', 0)
+            this.$store.dispatch('setFileId', '')
+          }
+        }
+      })
     },
     components: {
-      card, list, msgTextarea, message, name, menus, systemNotify, messageHistory, videoCall
+      card, list, msgTextarea, message, menus, systemNotify, messageHistory, videoCall, appMenu
+    },
+    destroyed () {
+      ipcRenderer.removeAllListeners('main-app-listen')
     }
   }
 </script>
@@ -208,11 +264,11 @@
             <menus></menus>
         </div>
         <div class="main" v-if="selectNotify">
-            <name></name>
+            <app-menu v-bind:showLogo="false"></app-menu>
             <system-notify></system-notify>
         </div>
         <div class="main" v-else>
-            <name></name>
+            <app-menu v-bind:showLogo="false"></app-menu>
             <Split v-model="split" mode="vertical">
                 <message slot="top" style="height: 100%"></message>
                 <msgTextarea slot="bottom"></msgTextarea>

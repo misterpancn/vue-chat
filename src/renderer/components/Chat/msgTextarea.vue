@@ -4,13 +4,14 @@
   import wangEditor from '@/lib/wangEditor'
   import rec from '@/media/recorder'
   import {ipcRenderer} from 'electron'
+  import request from '@/request'
   export default {
     data () {
       return {
         text: '',
         visible: false,
         uploadLink: (config.openssl === false ? 'http://' : 'https://') + config.serviceAddress + '/api/media/upload/imgToBase64',
-        editor: {},
+        editor: null,
         showRecorder: false,
         recorderTime: 0,
         timerFunc: null,
@@ -24,7 +25,10 @@
           people: 'ios-contacts-outline'
         },
         sendMethod: 'ctrl_enter',
-        sendLoading: false
+        sendLoading: false,
+        uploadData: {local_path: null},
+        encrypt: config.encrypt(),
+        timer: null
       }
     },
     computed: {
@@ -56,12 +60,18 @@
         return this.$store.getters.isGroup
       },
       headers () {
-        let keys = config.encrypt()
+        let keys = this.encrypt
         return {
           'Accept': 'application/' + config.apiVersion + '+json',
           'Client-Key': keys.key,
-          'Secret-Salt': keys.salt,
           'Authorization': localStorage.getItem('tokenType') + ' ' + localStorage.getItem('token')
+        }
+      },
+      uploadFileUrl () {
+        if (this.isGroup) {
+          return (config.openssl === false ? 'http://' : 'https://') + config.serviceAddress + '/api/media/upload/file/group/' + this.selectId
+        } else {
+          return (config.openssl === false ? 'http://' : 'https://') + config.serviceAddress + '/api/media/upload/file/chat/' + this.selectId
         }
       }
     },
@@ -75,9 +85,6 @@
         if (val > 120) {
           this.sendRecorder()
         }
-      },
-      headers: (val) => {
-        this.editor.customConfig.uploadImgHeaders = val
       }
     },
     methods: {
@@ -258,10 +265,11 @@
           let user = this.$store.getters.getSelectUser(this.selectId, this.isGroup)
           this.$store.dispatch('videoInfo', {mes: null, role: 'offer'}).then(() => {
             // this.$store.dispatch('videoCallShow', true)
-            ipcRenderer.send('show-video-modal', {
+            ipcRenderer.send('show-win-modal', {
               video_info: {mes: {user_name: user.name}, role: 'offer'},
               select_id: this.selectId,
-              is_group: this.isGroup
+              is_group: this.isGroup,
+              type: 'video'
             })
           })
         } else {
@@ -270,6 +278,27 @@
             duration: 3
           });
         }
+      },
+      sendFileError () {
+        this.$Message.warning({
+          content: this.$t('chat.messageSendFailed'),
+          duration: 2
+        });
+      },
+      sendFileExceedSize (file) {
+        this.$Notice.warning({
+          title: this.$t('notifyTitle.exceedingFileSizeLimit'),
+          desc: this.$t('notify.exceedingImageFileSizeLimitMes', {fileName: file.name, size: '100M'})
+        });
+      },
+      beforeUpload (file) {
+        this.uploadData = {local_path: file.path}
+        let promise = new Promise((resolve) => {
+          this.$nextTick(function () {
+            resolve(true);
+          });
+        });
+        return promise; // 通过返回一个promis对象解决
       }
     },
     mounted () {
@@ -290,14 +319,18 @@
           duration: 3
         });
       }
-      this.editor.customConfig.uploadImgHooks = {
-        // 如果服务器端返回的不是 {errno:0, data: [...]} 这种格式，可使用该配置
-        // （但是，服务器端返回的必须是一个 JSON 格式字符串！！！否则会报错）
-        customInsert: (insertImg, result, editor) => {
-          // 图片上传并返回结果，自定义插入图片的事件（而不是编辑器自动插入图片！！！）
-          // insertImg 是插入图片的函数，editor 是编辑器对象，result 是服务器端返回的结果
+      this.editor.customConfig.customUploadImg = (files, insert) => {
+        // files 是 input 中选中的文件列表
+        // insert 是获取图片 url 后，插入到编辑器的方法
 
-          // 举例：假如上传图片成功后，服务器端返回的是 {url:'....'} 这种格式，即可这样插入图片：
+        // 上传代码返回结果之后，将图片插入到编辑器中
+        var formData = new FormData();
+        formData.append('img', files[0])
+        formData.append('is_save', 0)
+        request.imgToBase64(formData, {
+          headers: {'Content-Type': 'multipart/form-data'}
+        }).then((res) => {
+          var result = res.data
           var url = result.data.img_url
           let proportion = 1;
           let max;
@@ -317,12 +350,15 @@
           }
           let width = parseInt(result.data.img_info.width) * proportion
           let height = parseInt(result.data.img_info.height) * proportion
-          // insertImg(url)
           let expHtml = "<img class='m-editor-upload-img' width='" + width + "' height='" + height + "' src='" + url + "'>";
-          editor.cmd.do('insertHtml', expHtml)
-
-          // result 必须是一个 JSON 格式字符串！！！否则报错
-        }
+          this.editor.cmd.do('insertHtml', expHtml)
+        }).catch((e) => {
+          this.$Message.warning({
+            content: e.data.data,
+            duration: 3
+          });
+        })
+        // insert(imgUrl)
       }
       this.editor.create()
       rec.init((e) => {
@@ -333,6 +369,14 @@
           });
         }
       })
+      this.timer = setInterval(() => {
+        this.encrypt = config.encrypt()
+      }, 120000)
+    },
+    destroyed () {
+      if (this.timer) {
+        clearInterval(this.timer)
+      }
     }
   }
 </script>
@@ -350,10 +394,13 @@
                     @click="activeImg(exp.id)">
                 </div>
             </Poptip>
-            <span @click="functionNotOnline"
-            @mousemove="menu.folderOpen = 'ios-folder-open'" @mouseout="menu.folderOpen = 'ios-folder-open-outline'">
+            <Upload :action="uploadFileUrl" style="display: inline-block" :headers="headers" :disabled="!selectId" :before-upload="beforeUpload"
+                    :data="uploadData"
+            :on-error="sendFileError" :max-size="100 * 1024" :show-upload-list="false" :on-exceeded-size="sendFileExceedSize">
+                <span @mousemove="menu.folderOpen = 'ios-folder-open'" @mouseout="menu.folderOpen = 'ios-folder-open-outline'">
                 <Icon size="24" :type="menu.folderOpen" />
             </span>
+            </Upload>
             <span :title="$t('chat.voice')" @click="recorderStart"
             @mousemove="menu.mic = 'ios-mic'" @mouseout="menu.mic = 'ios-mic-outline'">
                 <Icon size="24" :type="menu.mic" />
@@ -386,7 +433,7 @@
             <div class="menus" id="menus"></div>
             <div class="textarea" id="textarea" @keyup="inputing" :title="$t('chat.notify.sendByCtrlEnter', {key: (sendMethod === 'ctrl_enter' ? 'Ctrl+Enter' : 'Enter')})"></div>
             <!--<textarea placeholder="按 Ctrl + Enter 发送" v-model="text" @keyup="inputing" title="按 Ctrl + Enter 发送"></textarea>-->
-            <div class="send-button">
+            <div class="send-button" v-if="selectId">
                 <Dropdown trigger="hover" placement="top-end" transfer @on-click="setSendMethod">
                     <span style="cursor: pointer"><Icon type="ios-arrow-up" size="20" slot="prefix"></Icon></span>
                     <DropdownMenu slot="list">
