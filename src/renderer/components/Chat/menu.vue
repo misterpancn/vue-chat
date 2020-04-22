@@ -65,7 +65,7 @@
       }
     },
     mounted () {
-      ipcRenderer.on('close-window', () => {
+      ipcRenderer.once('close-window', () => {
         this.logout()
       })
     }

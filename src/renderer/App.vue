@@ -26,8 +26,6 @@
   body {
     color: #4d4d4d;
     font: 14px/1.4em 'Helvetica Neue', Helvetica, 'Microsoft Yahei', Arial, sans-serif;
-    background: #f5f5f5 url('./../../static/img/bg.jpg') no-repeat center;
-    background-size: cover;
     font-smoothing: antialiased;
   }
   ul {

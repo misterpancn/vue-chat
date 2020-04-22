@@ -28,6 +28,7 @@ export default {
     originalPassword: '原始密码',
     newPassword: '新密码',
     modifyAvatar: '修改头像',
+    forgotPassword: '忘记密码',
     rules: {
       passwordRequire: '请填写密码',
       emailRequire: '请填写邮箱',
@@ -90,7 +91,11 @@ export default {
     imgFileFormatIsIncorrectMes: '{fileName}文件格式不正确，请选择JPG或PNG。',
     exceedingImageFileSizeLimitMes: '{fileName}该文件最大限制为{size}.',
     functionNotOnlineYet: '功能暂未上线，敬请期待',
-    thisIsYou: '这是你自己哦'
+    thisIsYou: '这是你自己哦',
+    otherDownloadAlreadyExist: '已经存在其他下载任务',
+    fileDoneNotExist: '文件不存在',
+    youHaveDownloadedTheFile: '该文件你已下载',
+    theSave: '已保存'
   },
   chat: {
     voice: '语音',
