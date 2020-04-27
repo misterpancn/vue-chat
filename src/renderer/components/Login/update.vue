@@ -60,9 +60,11 @@
         ipcRenderer.send('check-for-update')
       },
       destroyed () {
-        ipcRenderer.removeAllListeners([
-          'update-error', 'update-available', 'update-not-available', 'update-download-progress', 'update-downloaded'
-        ])
+        ipcRenderer.removeAllListeners('update-error')
+        ipcRenderer.removeAllListeners('update-available')
+        ipcRenderer.removeAllListeners('update-not-available')
+        ipcRenderer.removeAllListeners('update-download-progress')
+        ipcRenderer.removeAllListeners('update-downloaded')
       }
     }
 </script>

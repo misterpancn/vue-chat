@@ -28,6 +28,7 @@ export default {
     originalPassword: 'Original Password',
     newPassword: 'New Password',
     modifyAvatar: 'Modify the Avatar',
+    forgotPassword: 'Forgot password',
     rules: {
       passwordRequire: 'Please fill in the password.',
       emailRequire: 'Mailbox cannot be empty',
@@ -90,7 +91,11 @@ export default {
     imgFileFormatIsIncorrectMes: 'File format of {fileName} is incorrect, please select jpg or png.',
     exceedingImageFileSizeLimitMes: 'File {fileName} is too large, no more than {size}.',
     functionNotOnlineYet: 'The function is not online yet, please stay tuned',
-    thisIsYou: 'This is you'
+    thisIsYou: 'This is you',
+    otherDownloadAlreadyExist: 'Other download tasks already exist',
+    fileDoneNotExist: 'File does not exist',
+    youHaveDownloadedTheFile: 'You have downloaded the file',
+    theSave: 'The saved'
   },
   chat: {
     voice: 'Voice',

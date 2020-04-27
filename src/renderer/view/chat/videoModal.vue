@@ -177,6 +177,10 @@
           this.autoExit = true
         }
       })
+    },
+    destroyed () {
+      ipcRenderer.removeAllListeners('forwarded-message-to-video')
+      ipcRenderer.removeAllListeners('video-modal-data')
     }
   }
 </script>

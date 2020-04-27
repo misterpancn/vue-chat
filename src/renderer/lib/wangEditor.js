@@ -12,11 +12,11 @@ var wangEdit = {
     this.editor.customConfig.pasteFilterStyle = true
     this.editor.customConfig.uploadImgMaxSize = 2 * 1024 * 1024
     this.editor.customConfig.uploadImgMaxLength = 1
-    this.editor.customConfig.uploadImgHeaders = this.headers
-    this.editor.customConfig.uploadFileName = conf.filename || 'img'
-    this.editor.customConfig.uploadImgParams = {is_save: 0}
+    // this.editor.customConfig.uploadImgHeaders = this.headers
+    // this.editor.customConfig.uploadFileName = conf.filename || 'img'
+    // this.editor.customConfig.uploadImgParams = {is_save: 0}
     // this.editor.customConfig.pasteUrl = 'http://reconsitutionfs.com/api/media/upload/recorder/chat/1'
-    this.editor.customConfig.uploadImgServer = this.uploadLink
+    // this.editor.customConfig.uploadImgServer = this.uploadLink
   }
 };
 export default wangEdit

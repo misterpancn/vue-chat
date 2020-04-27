@@ -27,7 +27,8 @@
           this.$store.dispatch('setGroupUserShow', true)
         } else if (this.selectId && !this.isGroup) {
           this.$store.dispatch('upUserInfoShow', true)
-          this.$store.dispatch('setUserInfo', this.selectId).catch((e) => {
+          let info = this.$store.getters.getSelectUser(this.selectId, this.isGroup)
+          this.$store.dispatch('setUserInfo', info.id).catch((e) => {
             this.$Message.warning({
               content: this.$t('notifyTitle.errorOccurred'),
               duration: 3

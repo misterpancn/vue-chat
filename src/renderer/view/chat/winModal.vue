@@ -32,6 +32,9 @@
       ipcRenderer.on('send-win-modal-img', (e, src) => {
         this.imgSrc = src
       })
+    },
+    destroyed () {
+      ipcRenderer.removeAllListeners('send-win-modal-img')
     }
   }
 </script>

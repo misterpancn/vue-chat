@@ -49,7 +49,7 @@
       handleMaxSize (file) {
         this.$Notice.warning({
           title: this.$t('notifyTitle.exceedingFileSizeLimit'),
-          desc: this.$t('notify.imgFileFormatIsIncorrectMes', {fileName: file.name, size: '2M'})
+          desc: this.$t('notify.exceedingImageFileSizeLimitMes', {fileName: file.name, size: '2M'})
         });
       },
       cancel () {
