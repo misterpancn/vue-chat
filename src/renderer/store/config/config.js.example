@@ -1,3 +1,4 @@
+import crypto from 'crypto-js'
 const config = {
   /**
    *  域名地址
@@ -19,13 +20,22 @@ const config = {
    * dingo api版本信息
    */
   apiVersion: 'prs.dingo.v1',
-  /**
-   * 客户端请求授权码
-   */
-  appId: 10001,
-  secretId: '71c1d9683afa4b5dafb398dc2f49d580',
-  secretKey: 'd578ac32dd044fb3b3c80ead326e0806',
-  encrypt: () => {},
+
+  signalingPort: 8877,
+
+  encrypt: function () {
+    let t = (new Date().getTime()) / 1000
+    t = parseInt(t);
+    let r = Math.floor(Math.random() * 10000000);
+    let appId = 123123
+    let secretId = '5cd00ac596a44d56ac5151c5bb74e1a0'
+    let secretKey = '1d6c35353e4649858a3814f18b8b63c5'
+    var sr = 'u=' + appId + '&k=' + secretId + '&t=' + t + '&r=' + r + '&f=';
+    let key = crypto.HmacSHA1(sr, secretKey);
+    return {
+      'key': window.btoa(key + sr)
+    }
+  },
   /**
    * 程序自动更新地址
    */

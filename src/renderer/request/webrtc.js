@@ -99,7 +99,7 @@ const webrtc = {
     var bool = true;
     this.rtcCallback = callback
     var transport = conf.openssl === false ? 'ws://' : 'wss://'
-    this.signaling = new WebSocket(transport + conf.serviceAddress + ':8877')
+    this.signaling = new WebSocket(transport + conf.serviceAddress + ':' + conf.signalingPort)
     this.signaling.onopen = () => {
       webrtc.socketPing()
       webrtc.rtcCallback({
