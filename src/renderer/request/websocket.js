@@ -35,10 +35,10 @@ chat.connectWS = function () {
     chat.overflow = true
     chat.clearTimer()
     chat.callBack({
-      type: 'error',
-      mess: '连接服务器失败，请重新登录',
-      code: 500
+      type: chat.messageType.error,
+      content: 'WebSocket is already in closed state.'
     })
+    chat.connectTotal = 0
     return false
   }
   socket = new WebSocket(transport + config.serviceAddress + ':' + config.websocketPort)
@@ -75,7 +75,7 @@ function onmessage (mes) {
 function socketError () {
   store.dispatch('chatConnectClose')
   if (store.getters.getIsOnline) {
-    console.log('服务器连接错误，定时重连......')
+    console.log('服务器连接错误，尝试重连......')
   }
   chat.timerFn()
 }
@@ -85,6 +85,13 @@ function socketClose () {
 chat.timerFn = () => {
   if (chat.overflow === false && chat.timer === null && store.getters.getIsOnline) {
     chat.timer = setInterval(chat.connectWS, 3000)
+  } else if (!chat.timer) {
+    setTimeout(() => {
+      chat.callBack({
+        type: chat.messageType.error,
+        content: 'WebSocket is already in closed state.'
+      })
+    }, 3000)
   }
 }
 chat.ping = () => {

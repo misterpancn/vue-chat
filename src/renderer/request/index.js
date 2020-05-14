@@ -134,10 +134,14 @@ export default {
   },
   // 聊天文件下载通知
   chatFileDownload (chatId, mesId, data) {
-    return axios.post('chat/' + chatId + '/file/' + mesId + '/download', data)
+    return axios.post('chat/' + chatId + '/file/' + mesId + '/download', Qs.stringify(data))
   },
   // 群聊天文件下载通知
   groupFileDownload (groupId, mesId, data) {
-    return axios.post('chat/group/' + groupId + '/file/' + mesId + '/download', data)
+    return axios.post('chat/group/' + groupId + '/file/' + mesId + '/download', Qs.stringify(data))
+  },
+  // 群聊天文件下载通知
+  inputNotice (data) {
+    return axios.post('chat/input/notice', Qs.stringify(data))
   }
 }

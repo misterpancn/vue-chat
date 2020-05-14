@@ -133,7 +133,7 @@
           let img = new Image()
           img.src = src
           img.onload = () => {
-            ipcRenderer.send('show-win-model', {
+            ipcRenderer.send('show-win-modal', {
               width: img.width,
               height: img.height,
               src: src,

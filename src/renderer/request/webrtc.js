@@ -10,8 +10,10 @@ const webrtc = {
   status: 1,
   pingTimer: null,
   sender: null,
+  streamType: null,
+  remoteVoiceDom: null,
   rtcCallback: () => {},
-  init: async function (subject) {
+  init: async function (subject, type) {
     if (this.peer !== null) {
       webrtc.rtcCallback({
         status: 'error',
@@ -28,16 +30,22 @@ const webrtc = {
       })
       throw new Error('配置参数错误')
     }
-    let localVideo = document.querySelector('#local-video');
-    let remoteVideo = document.querySelector('#remote-video');
     this.subject = subject
-    this.localVideoDom = localVideo
-    this.remoteVideoDom = remoteVideo
-    localVideo.onloadedmetadata = () => {
-      localVideo.play();
-    }
-    remoteVideo.onloadedmetadata = () => {
-      remoteVideo.play();
+    this.streamType = type
+    if (type === 'video') {
+      let localVideo = document.querySelector('#local-video');
+      let remoteVideo = document.querySelector('#remote-video');
+      this.localVideoDom = localVideo
+      this.remoteVideoDom = remoteVideo
+      localVideo.onloadedmetadata = () => {
+        localVideo.play();
+      }
+      remoteVideo.onloadedmetadata = () => {
+        remoteVideo.play();
+      }
+    } else if (type === 'voice') {
+      let voiceDom = document.querySelector('#remote-voice');
+      this.remoteVoiceDom = voiceDom
     }
     let PeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
     if (!PeerConnection) {
@@ -77,7 +85,12 @@ const webrtc = {
     }
     this.peer.ontrack = e => {
       if (e && e.streams) {
-        this.remoteVideoDom.srcObject = e.streams[0];
+        if (this.streamType === 'video') {
+          this.remoteVideoDom.srcObject = e.streams[0];
+        }
+        if (this.streamType === 'voice') {
+          this.remoteVoiceDom.srcObject = e.streams[0];
+        }
       }
     };
     this.peer.oniceconnectionstatechange = (e) => {
@@ -181,8 +194,11 @@ const webrtc = {
   startLive: async function () {
     let stream;
     try {
-      stream = await (navigator.mediaDevices.getUserMedia({ video: true, audio: true }));
-      this.localVideoDom.srcObject = stream;
+      let mediaConfig = this.streamType === 'video' ? { video: true, audio: true } : { audio: true };
+      stream = await (navigator.mediaDevices.getUserMedia(mediaConfig));
+      if (this.streamType === 'video') {
+        this.localVideoDom.srcObject = stream;
+      }
       stream.getTracks().forEach(track => {
         webrtc.sender = webrtc.peer.addTrack(track, stream);
       });

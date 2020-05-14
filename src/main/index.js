@@ -36,7 +36,7 @@ app.on('activate', () => {
 })
 
 // 显示窗口
-ipcMain.on('show-win-model', (e, args) => {
+ipcMain.on('show-win-modal', (e, args) => {
   if (args.type === 'video') {
     chatVideoWin(mainWindow, args)
   }

@@ -133,7 +133,9 @@ export default {
     quitTheGroup: '退出该群',
     unfriending: '解除好友关系',
     videoCall: '视频通话',
+    voiceCall: '语音通话',
     allRight: '好吧',
+    isTheInput: '正在输入',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',

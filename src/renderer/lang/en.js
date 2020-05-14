@@ -133,7 +133,9 @@ export default {
     quitTheGroup: 'Quit the group',
     unfriending: 'Unfriending',
     videoCall: 'Video call',
+    voiceCall: 'Voice calls',
     allRight: 'All Right',
+    isTheInput: 'Is the input',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',

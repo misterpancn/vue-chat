@@ -125,7 +125,7 @@
               this.messageFn(e.message)
               break;
             case 'init':
-              webrtc.init('chat:' + this.selectId).then(() => {
+              webrtc.init('chat:' + this.selectId, 'video').then(() => {
                 if (this.videoInfo.role === 'offer') {
                   this.call()
                 }

@@ -7,11 +7,12 @@
   import ws from '@/request/websocket'
   import systemNotify from '@/components/Chat/systemNotify'
   import messageHistory from '@/components/Chat/Modal/messageHistory'
-  import videoCall from '@/components/Chat/Modal/videoCall'
+  import voiceCall from '@/components/Chat/Modal/voiceCall'
   import {ipcRenderer} from 'electron'
   import config from '@/store/config/config'
   import rec from '@/media/recorder'
   import appMenu from '@/components/AppMenu'
+  import mesProcessing from '@/lib/mesProcessing'
 
   export default {
     data () {
@@ -38,90 +39,7 @@
     },
     methods: {
       callbackWs (res) {
-        switch (res.type) {
-          case ws.messageType.notify:
-            this.notifyHandle(res)
-            break;
-          case ws.messageType.error:
-            this.logout()
-            break;
-          case ws.messageType.refresh_token:
-            // token 过期自动刷新
-            this.$store.dispatch('setToken', {
-              type: res.token_type,
-              token: res.data
-            })
-            this.$Modal.remove()
-            break;
-          // 消息类通知  包括文本 语音 图片 文件
-          case ws.messageType.message:
-          case ws.messageType.audio:
-          case ws.messageType.img:
-          case ws.messageType.file:
-            this.$store.dispatch('pushMessage', {
-              response: res,
-              thisUser: this.$store.getters.getUser
-            })
-            // 设置未读图标数字
-            let selectId = this.$store.getters.selectId;
-            let isGroup = this.$store.getters.isGroup;
-            if (res.chat_id > 0 && (isGroup || (!isGroup && res.chat_id !== selectId))) {
-              this.$store.dispatch('setBadge', {id: res.chat_id, is_group: false})
-            } else if (res.group_id > 0 && (!isGroup || (isGroup && res.group_id !== selectId))) {
-              this.$store.dispatch('setBadge', {id: res.group_id, is_group: true})
-            }
-            ipcRenderer.send('show-win-notify', {show: true})
-            break;
-          // 好友申请通知
-          case ws.messageType.apply_notify:
-            // 如何没有系统消息或者是选中了系统消息  则请求更新
-            if (!this.$store.getters.getHaveNotify || this.$store.getters.getSelectNotify) {
-              this.$store.dispatch('setNotifyList')
-            }
-            // 如何没有系统消息或者是未选中系统消息  添加提醒数
-            if (!this.$store.getters.getHaveNotify || !this.$store.getters.getSelectNotify) {
-              this.$store.dispatch('upNotifyBadge')
-            }
-            break;
-          // 对方审核通过通知修改好友列表
-          case ws.messageType.release_friend_list:
-            this.$store.dispatch('getFriendsList', res.data)
-            break;
-          // 视频聊天发起
-          case ws.messageType.video_call:
-            this.$store.dispatch('setIsGroup', res.group_id > 0)
-            this.$store.dispatch('setSelectId', res.chat_id ? res.chat_id : res.group_id)
-            this.$store.dispatch('videoInfo', {mes: res, role: 'answer'}).then(() => {
-              ipcRenderer.send('show-win-modal', {
-                video_info: {mes: res, role: 'answer'},
-                select_id: (res.chat_id ? res.chat_id : res.group_id),
-                is_group: res.group_id > 0,
-                type: 'video'
-              })
-            })
-            break;
-          // 视频聊天应答
-          case ws.messageType.video_answer:
-            let videoInfo = this.$store.getters.getVideoInfo
-            this.$store.dispatch('videoInfo', {mes: res, role: videoInfo.status, answer: res.data})
-              .then(() => {
-                ipcRenderer.send('forwarded-message-to-video', {
-                  video_info: {mes: res, role: videoInfo.status, answer: res.data},
-                  select_id: (res.chat_id ? res.chat_id : res.group_id),
-                  is_group: res.group_id > 0,
-                  type: 'init'
-                })
-              })
-            break;
-          // 视频聊天关闭通知
-          case ws.messageType.video_close:
-            ipcRenderer.send('forwarded-message-to-video', {
-              status: 'close',
-              type: 'notify'
-            })
-            break;
-          default: break;
-        }
+        mesProcessing.processing(this, res)
       },
       logoutHttpStatus (response) {
         if (response.data.status_code === 200 || response.data.status_code === 401) {
@@ -150,6 +68,9 @@
         if (res.data === 'close') {
           this.$store.dispatch('setUserStatus', {uid: res.uid, online: 0})
         }
+        if (res.data === 'inputting' || res.data === 'inputDone') {
+          this.$store.dispatch('setInputNoticeList', res)
+        }
       },
       httpCallback (response) {
         let res = response.status !== 200 ? response.response.data : response.data;
@@ -176,7 +97,7 @@
       },
       logout () {
         this.$Spin.hide();
-        this.$Modal.confirm({
+        this.$Modal.error({
           title: this.$t('chat.notify.serverErrorLogout'), // 服务器出现异常，正在帮您退出登录
           loading: true,
           onOk: () => {
@@ -248,7 +169,7 @@
       })
     },
     components: {
-      card, list, msgTextarea, message, menus, systemNotify, messageHistory, videoCall, appMenu
+      card, list, msgTextarea, message, menus, systemNotify, messageHistory, voiceCall, appMenu
     },
     destroyed () {
       ipcRenderer.removeAllListeners('main-app-listen')
@@ -275,6 +196,7 @@
             </Split>
         </div>
         <message-history></message-history>
+        <voice-call></voice-call>
     </div>
 </template>
 

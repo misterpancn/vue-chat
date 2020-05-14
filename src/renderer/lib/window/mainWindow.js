@@ -17,6 +17,7 @@ export default function main (callbacks) {
     frame: false
   })
 
+  // mainWindow.webContents.openDevTools()
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {

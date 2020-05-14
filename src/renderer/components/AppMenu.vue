@@ -25,7 +25,10 @@
         <div style="float: left" v-if="showLogo">
             <img src="./../../../static/img/favicon.png" style="-webkit-app-region: no-drag;margin: 5px 0 0 10px;" width="20" height="20" />
         </div>
-        <span v-if="selectUser" style="-webkit-app-region: no-drag;">{{ selectUser }}</span>
+        <span v-if="selectUser" style="-webkit-app-region: no-drag;">
+            {{ selectUser }}
+            <span style="font-size: 10px;" v-if="inputStatus">（{{ $t('chat.isTheInput') }}）</span>
+        </span>
         <div style="float: right;-webkit-app-region: no-drag;">
             <span class="app-menu-button default-menu-bg" v-if="selectId" @click="show"><Icon type="md-menu" size="18" /></span>
             <span class="app-menu-button default-menu-bg" @click="minimize"><Icon type="md-remove" size="18" /></span>
@@ -59,11 +62,12 @@
       },
       isGroup () {
         return this.$store.getters.isGroup
-      }
-    },
-    filters: {
-      selection (list, sear) {
-        return list.filter(item => item.name.indexOf(sear) > -1)
+      },
+      inputStatus () {
+        if (this.isGroup) {
+          return false;
+        }
+        return this.$store.getters.getInputNoticeStatusByCID(this.selectId)
       }
     },
     methods: {

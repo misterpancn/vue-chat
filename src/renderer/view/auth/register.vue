@@ -7,6 +7,7 @@
 </style>
 <template>
     <div class="row justify-content-center c-center">
+        <app-menu v-bind:showLogo="true"></app-menu>
         <Card :bordered="false" :xs="8" :sm="4" :md="6" :lg="8" style="height: 100%">
             <p slot="title">{{ $t('account.register') }}</p>
             <a slot="extra" @click="toLogin"><router-link to="/login">{{ $t('account.login') }}</router-link></a>
@@ -57,7 +58,11 @@
 <script>
   import config from '@/store/config/config'
   import {ipcRenderer} from 'electron'
+  import appMenu from '@/components/AppMenu'
   export default {
+    components: {
+      appMenu
+    },
     data () {
       return {
         formInline: {

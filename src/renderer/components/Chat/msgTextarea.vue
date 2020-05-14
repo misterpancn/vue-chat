@@ -252,7 +252,7 @@
       setSendMethod (name) {
         this.sendMethod = name
       },
-      videoCall () {
+      videoCall (type) {
         if (this.selectId === 0) {
           this.$Message.warning({
             content: this.$t('chat.selectSendObject'),
@@ -262,16 +262,22 @@
         }
         if (rec.isSupport) {
           // this.recorderTime = new Date()
-          let user = this.$store.getters.getSelectUser(this.selectId, this.isGroup)
-          this.$store.dispatch('videoInfo', {mes: null, role: 'offer'}).then(() => {
-            // this.$store.dispatch('videoCallShow', true)
-            ipcRenderer.send('show-win-modal', {
-              video_info: {mes: {user_name: user.name}, role: 'offer'},
-              select_id: this.selectId,
-              is_group: this.isGroup,
-              type: 'video'
+          if (type === 'video') {
+            let user = this.$store.getters.getSelectUser(this.selectId, this.isGroup)
+            this.$store.dispatch('videoInfo', {mes: null, role: 'offer'}).then(() => {
+              // this.$store.dispatch('videoCallShow', true)
+              ipcRenderer.send('show-win-modal', {
+                video_info: {mes: {user_name: user.name}, role: 'offer'},
+                select_id: this.selectId,
+                is_group: this.isGroup,
+                type: 'video'
+              })
             })
-          })
+          } else {
+            this.$store.dispatch('voiceInfo', {mes: null, role: 'offer'}).then(() => {
+              this.$store.dispatch('voiceCallShow', true)
+            })
+          }
         } else {
           this.$Message.warning({
             content: this.$t('chat.deviceNotSupport'),
@@ -361,6 +367,7 @@
         // insert(imgUrl)
       }
       this.editor.create()
+      // 开启音频通道
       rec.init((e) => {
         if (process.env.NODE_ENV === 'development') {
           this.$Message.warning({
@@ -372,6 +379,18 @@
       this.timer = setInterval(() => {
         this.encrypt = config.encrypt()
       }, 120000)
+      if (document.getElementById('textarea').firstElementChild.className === 'w-e-text') {
+        document.getElementById('textarea').firstElementChild.onblur = () => {
+          if (!this.isGroup) {
+            request.inputNotice({chat_id: this.selectId, sign: 0})
+          }
+        }
+        document.getElementById('textarea').firstElementChild.onfocus = () => {
+          if (!this.isGroup) {
+            request.inputNotice({chat_id: this.selectId, sign: 1})
+          }
+        }
+      }
     },
     destroyed () {
       if (this.timer) {
@@ -405,11 +424,11 @@
             @mousemove="menu.mic = 'ios-mic'" @mouseout="menu.mic = 'ios-mic-outline'">
                 <Icon size="24" :type="menu.mic" />
             </span>
-            <span @click="functionNotOnline"
+            <span @click="videoCall('voice')"
             @mousemove="menu.call = 'ios-call'" @mouseout="menu.call = 'ios-call-outline'">
                 <Icon size="24" :type="menu.call" />
             </span>
-            <span @click="videoCall" v-if="!isGroup"
+            <span @click="videoCall('video')" v-if="!isGroup"
             @mousemove="menu.video = 'ios-videocam'" @mouseout="menu.video = 'ios-videocam-outline'">
                 <Icon size="24" :type="menu.video" />
             </span>
@@ -431,7 +450,7 @@
         </div>
         <div class="m-input-box">
             <div class="menus" id="menus"></div>
-            <div class="textarea" id="textarea" @keyup="inputing" :title="$t('chat.notify.sendByCtrlEnter', {key: (sendMethod === 'ctrl_enter' ? 'Ctrl+Enter' : 'Enter')})"></div>
+            <div class="div-textarea" id="textarea" @keyup="inputing" :title="$t('chat.notify.sendByCtrlEnter', {key: (sendMethod === 'ctrl_enter' ? 'Ctrl+Enter' : 'Enter')})"></div>
             <!--<textarea placeholder="按 Ctrl + Enter 发送" v-model="text" @keyup="inputing" title="按 Ctrl + Enter 发送"></textarea>-->
             <div class="send-button" v-if="selectId">
                 <Dropdown trigger="hover" placement="top-end" transfer @on-click="setSendMethod">
@@ -456,7 +475,7 @@
             width:100%;
             height:calc(100% - 42px);
             border: none;
-            .textarea {
+            .div-textarea {
                 height: 100%;
                 width: 100%;
                 border: none;
