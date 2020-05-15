@@ -38,7 +38,7 @@
                     </FormItem>
                     <FormItem>
                         <Button type="primary" :loading="loading" @click="handleSubmit('formInline')">
-                            <span v-if="!loading">{{ $t('account.signIn') }}</span>
+                            <span v-if="!loading">{{ $t('account.register') }}</span>
                             <span v-else>{{ $t('notify.loading') }}</span>
                         </Button>
                     </FormItem>

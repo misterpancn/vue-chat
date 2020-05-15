@@ -54,6 +54,7 @@ export default {
     exitSuccess: 'Exit successfully'
   },
   chat: {
+    voice: 'Voice',
     notify: {
       serverErrorLogout: 'The server has an exception and is logging you out.',
       exitFailed: 'Exit failed, please try again later',
