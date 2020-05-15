@@ -1,17 +1,34 @@
 <script>
   export default {
-    props: ['search', 'selectId', 'isGroup'],
     methods: {
       select (value) {
-        this.$emit('listenToChildEvent', {
-          selectId: value.chat_id > 0 ? value.chat_id : value.group_id,
-          isGroup: value.group_id > 0
+        this.$store.dispatch('setSelectId', value.chat_id > 0 ? value.chat_id : value.group_id)
+        this.$store.dispatch('setIsGroup', value.group_id > 0)
+        this.$store.dispatch('resetBadge', {
+          id: value.chat_id > 0 ? value.chat_id : value.group_id,
+          is_group: value.group_id > 0
         })
+      },
+      badgeCount (item) {
+        if (item.group_id) {
+          return this.$store.getters.getBadgeCount(item.group_id, true)
+        } else if (item.chat_id) {
+          return this.$store.getters.getBadgeCount(item.chat_id, false)
+        }
       }
     },
     computed: {
       users () {
         return this.$store.getters.searchUser(this.search)
+      },
+      selectId () {
+        return this.$store.getters.selectId
+      },
+      isGroup () {
+        return this.$store.getters.isGroup
+      },
+      search () {
+        return this.$store.getters.search
       }
     },
     filters: {
@@ -30,7 +47,7 @@
             <li class="m-user-list" v-for="item in users"
                 :class="{ active: ((selectId === item.chat_id && !isGroup) || (selectId === item.group_id && isGroup)) }" @click="select(item)">
                 <img class="avatar" width="30" height="30" :alt="item.name" :src="item.photo" :class="item | img">
-                <p class="name">{{item.group_id > 0 ? item.group_name : item.name}}</p>
+                <Badge :count="badgeCount(item)" style="width: calc(100% - 50px)"><p class="name">{{item.group_id > 0 ? item.group_name : item.name}}</p></Badge>
             </li>
         </ul>
     </div>

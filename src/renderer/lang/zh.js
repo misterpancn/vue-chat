@@ -17,6 +17,8 @@ export default {
     logout: '退出',
     username: '昵称',
     information: '资料',
+    personalInformation: '个人信息',
+    registerTime: '注册时间',
     rules: {
       passwordRequire: '请填写密码',
       emailRequire: '请填写邮箱',
@@ -65,6 +67,7 @@ export default {
     loadingHistory: '加载历史',
     rightClickMenu: '右键菜单',
     chatId: 'Chat ID',
+    messageSendFailed: '消息发送失败',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',

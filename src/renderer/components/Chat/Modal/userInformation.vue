@@ -1,12 +1,25 @@
 <script>
     export default {
-      props: ['userInfoShow'],
       data () {
         return {
-          split1: 0.5,
-          show: this.userInfoShow,
           photo: this.$store.getters.getUser.photo,
           value2: '1'
+        }
+      },
+      computed: {
+        show: {
+          get: function () {
+            if (this.$store.getters.getModalStatus) {
+              this.$Spin.hide();
+            }
+            return this.$store.getters.getModalStatus
+          },
+          set: function (val) {
+            this.$store.dispatch('setModalStatus', val)
+          }
+        },
+        userInfo () {
+          return this.$store.getters.getUserInfo.user_info
         }
       }
     }
@@ -15,25 +28,38 @@
     <Modal v-model="show" :mask-closable="false" footer-hide>
         <p slot="header" style="text-align: center;">{{ $t('account.information') }}</p>
         <div class="m-ui-content">
-            <Layout style="background: none">
+            <Layout style="background: none" v-if="userInfo">
                 <Sider class="left-content">
                     <img height="120" width="120" :src="photo" style="margin: 10px 30px" />
                     <Divider orientation="left">{{$t('chat.chatId')}}：</Divider>
-                    <Divider orientation="right" size="small">1231</Divider>
+                    <Divider orientation="right" size="small">{{userInfo.chat_number}}</Divider>
                 </Sider>
                 <Layout style="background: none; margin-left: 10px">
-                    <Collapse v-model="value2" accordion>
+                    <Collapse v-model="value2" simple>
                         <Panel name="1">
-                            {{$t('account.username')}}
-                            <p slot="content">史蒂夫·乔布斯（Steve Jobs），1955年2月24日生于美国加利福尼亚州旧金山，美国发明家、企业家、美国苹果公司联合创办人。</p>
-                        </Panel>
-                        <Panel name="2">
-                            斯蒂夫·盖瑞·沃兹尼亚克
-                            <p slot="content">斯蒂夫·盖瑞·沃兹尼亚克（Stephen Gary Wozniak），美国电脑工程师，曾与史蒂夫·乔布斯合伙创立苹果电脑（今之苹果公司）。斯蒂夫·盖瑞·沃兹尼亚克曾就读于美国科罗拉多大学，后转学入美国著名高等学府加州大学伯克利分校（UC Berkeley）并获得电机工程及计算机（EECS）本科学位（1987年）。</p>
-                        </Panel>
-                        <Panel name="3">
-                            乔纳森·伊夫
-                            <p slot="content">乔纳森·伊夫是一位工业设计师，现任Apple公司设计师兼资深副总裁，英国爵士。他曾参与设计了iPod，iMac，iPhone，iPad等众多苹果产品。除了乔布斯，他是对苹果那些著名的产品最有影响力的人。</p>
+                            {{$t('account.personalInformation')}}
+                            <div slot="content">
+                                <Row>
+                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">{{$t('account.username')}}</Col>
+                                    <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.name }}</Col>
+                                </Row>
+                                <Row>
+                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">{{$t('account.email')}}</Col>
+                                    <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.email }}</Col>
+                                </Row>
+                                <Row>
+                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">{{$t('account.mobileNumber')}}</Col>
+                                    <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.mb_prefix + userInfo.phone }}</Col>
+                                </Row>
+                                <Row>
+                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">{{$t('account.mobileNumber')}}</Col>
+                                    <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.mb_prefix + userInfo.phone }}</Col>
+                                </Row>
+                                <Row>
+                                    <Col :xs="10" :sm="10" :md="6" :lg="8" class="m-col">{{$t('account.registerTime')}}</Col>
+                                    <Col :xs="12" :sm="10" :md="12" :lg="8" class="m-col">{{ userInfo.created_at }}</Col>
+                                </Row>
+                            </div>
                         </Panel>
                     </Collapse>
                 </Layout>
@@ -47,9 +73,9 @@
         .left-content {
             height: 100%;
             background: none;
-            p {
+            .m-col {
                 font-size: 21px;
-                padding: 8px;
+                margin: 10px 0;
             }
         }
     }

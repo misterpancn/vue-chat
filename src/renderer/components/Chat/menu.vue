@@ -10,6 +10,8 @@
               .then((response) => {
                 if (response.data.status_code === 200) {
                   this.$store.dispatch('deleteMessage')
+                  this.$store.dispatch('chatDataDestroy')
+                  this.$store.dispatch('initBadge', {})
                   this.$Message.success(this.$t('notify.exitSuccess'))
                   this.$Modal.remove()
                   this.$router.push('/login')

@@ -27,21 +27,6 @@ rec.init = function (call) {
     call(e)
   })
 }
-rec.getUserMedia = function (constrains, success, error) {
-  if (navigator.mediaDevices.getUserMedia) {
-    // 最新标准API
-    navigator.mediaDevices.getUserMedia(constrains).then(success).catch(error)
-  } else if (navigator.webkitGetUserMedia) {
-    // webkit内核浏览器
-    navigator.webkitGetUserMedia(constrains).then(success).catch(error)
-  } else if (navigator.mozGetUserMedia) {
-    // Firefox浏览器
-    navigator.mozGetUserMedia(constrains).then(success).catch(error)
-  } else if (navigator.getUserMedia) {
-    // 旧版API
-    navigator.getUserMedia(constrains).then(success).catch(error)
-  }
-}
 rec.startUserMedia = function (stream) {
   if (rec.audioContent !== undefined) {
     var input = rec.audioContent.createMediaStreamSource(stream);
@@ -95,7 +80,7 @@ rec.blobToBase64 = function (blob, cb) {
   reader.readAsDataURL(blob);
 };
 rec.closeAudio = function () {
-  if (rec.audioContent) {
+  if (rec.audioContent && rec.audioContent.state !== 'closed') {
     rec.audioContent.close()
   }
 }

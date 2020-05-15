@@ -10,75 +10,98 @@
 
   export default {
     data () {
-      return {
-        // 搜索key
-        search: '',
-        // 选中的会话userID
-        selectId: 0,
-        isGroup: false,
-        isLoad: false,
-        show: true
-      }
-    },
-    computed: {
-      session () {
-        var res = this.$store.getters.getMessageLocation(this.selectId, this.isGroup);
-        return res
-      }
+      return {}
     },
     created () {
-      ws.init(this.callbackWs)
+      ws.connectWS()
+      ws.init(this.callbackWs, this.httpCallback)
     },
     methods: {
-      callbackFromCard (res) {
-        this.search = res
-      },
-      callbackFromList (res) {
-        this.selectId = res.selectId
-        this.isGroup = res.isGroup
-      },
       callbackWs (res) {
         console.log(res)
-        if (res.type === ws.messageType.notify) {
-          return false;
-        }
-        if (res.type === ws.messageType.error) {
-          this.$Modal.confirm({
-            title: this.$t('chat.notify.serverErrorLogout'), // 服务器出现异常，正在帮您退出登录
-            loading: true,
-            onOk: () => {
-              this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
-                .then((response) => {
-                  if (response.data.status_code === 200 || response.data.status_code === 401) {
-                    this.$Message.success(this.$t('notify.exitSuccess'))
-                    this.$Modal.remove()
-                    this.$router.push('/login')
-                  } else {
-                    this.$Notice.warning({
+        switch (res.type) {
+          case ws.messageType.notify:
+            this.notifyHandle(res)
+            break;
+          case ws.messageType.error:
+            this.$Modal.confirm({
+              title: this.$t('chat.notify.serverErrorLogout'), // 服务器出现异常，正在帮您退出登录
+              loading: true,
+              onOk: () => {
+                this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
+                  .then((response) => {
+                    this.logoutHttpStatus(response)
+                  }).catch((error) => {
+                    console.log(error)
+                    this.$Notice.error({
                       title: this.$t('notifyTitle.reminding'),
-                      desc: this.$t('chat.notify.exitFailed') // 退出失败
+                      desc: error
                     })
                     this.$Modal.remove()
-                  }
-                }).catch((error) => {
-                  console.log(error)
-                  this.$Notice.error({
-                    title: this.$t('notifyTitle.reminding'),
-                    desc: error
                   })
-                  this.$Modal.remove()
-                })
+              }
+            })
+            break;
+          case ws.messageType.refresh_token:
+            // token 过期自动刷新
+            this.$store.dispatch('setToken', {
+              type: res.token_type,
+              token: res.data
+            })
+            this.$Modal.remove()
+            break;
+          case ws.messageType.message:
+            this.$store.dispatch('pushMessage', {
+              response: res,
+              thisUser: this.$store.getters.getUser
+            })
+            // 设置未读图标数字
+            let selectId = this.$store.getters.selectId;
+            let isGroup = this.$store.getters.isGroup;
+            if (res.chat_id > 0 && (isGroup || (!isGroup && res.chat_id !== selectId))) {
+              this.$store.dispatch('setBadge', {id: res.chat_id, is_group: false})
+            } else if (res.group_id > 0 && (!isGroup || (isGroup && res.group_id !== selectId))) {
+              this.$store.dispatch('setBadge', {id: res.group_id, is_group: true})
             }
-          })
-        } else if (res.type === ws.messageType.refresh_token) {
-          // token 过期自动刷新
-          this.$store.dispatch('setToken', {
-            type: res.token_type,
-            token: res.data
+            break;
+          default: break;
+        }
+      },
+      logoutHttpStatus (response) {
+        if (response.data.status_code === 200 || response.data.status_code === 401) {
+          this.$Message.success(this.$t('notify.exitSuccess'))
+          this.$Modal.remove()
+          this.$router.push('/login')
+        } else {
+          this.$Notice.warning({
+            title: this.$t('notifyTitle.reminding'),
+            desc: this.$t('chat.notify.exitFailed') // 退出失败
           })
           this.$Modal.remove()
         }
-        // this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
+      },
+      notifyHandle (res) {
+        // 好友在线状态切换时调整  res 来自websocket
+        if (res.data === 'login') {
+          this.$store.dispatch('setUserStatus', {uid: res.uid, online: 1})
+        }
+        if (res.data === 'close') {
+          this.$store.dispatch('setUserStatus', {uid: res.uid, online: 0})
+        }
+      },
+      httpCallback (response) {
+        let res = response.status !== 200 ? response.response.data : response.data;
+        if (res.status_code === 200) {
+          switch (res.data.type) {
+            case 'init':
+              // 初始化请求中返回 未读消息数
+              if (res.data.badge_list) {
+                this.$store.dispatch('initBadge', res.data.badge_list)
+              }
+              break;
+            default: break;
+          }
+        }
       }
     },
     components: {
@@ -90,16 +113,16 @@
 <template>
     <div style="height: 600px;">
         <div class="sidebar">
-            <card :search.sync="search" v-on:listenToChildEvent="callbackFromCard"></card>
-            <list :search="search" v-on:listenToChildEvent="callbackFromList" :select-id.sync="selectId" :is-group.sync="isGroup"></list>
+            <card></card>
+            <list></list>
             <menus></menus>
         </div>
         <div class="main">
-            <name :select-id.sync="selectId" :is-group.sync="isGroup"></name>
-            <message :session="session" :select-id.sync="selectId" :is-group.sync="isGroup"></message>
-            <msgTextarea :session="session" :select-id.sync="selectId" :is-group.sync="isGroup"></msgTextarea>
+            <name></name>
+            <message></message>
+            <msgTextarea></msgTextarea>
         </div>
-        <userInfoModal :userInfoShow="show"></userInfoModal>
+        <userInfoModal></userInfoModal>
     </div>
 </template>
 

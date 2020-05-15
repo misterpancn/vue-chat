@@ -167,7 +167,7 @@ const actions = {
             resolve(response)
           }).catch((e) => { reject(e) })
         } else {
-          request.getUserChatMessage({chat_id: obj.selectId}).then((response) => {
+          request.getChatMessage(obj.selectId, 50).then((response) => {
             if (response.data.data && response.data.data.length > 0) {
               commit('SET_MESSAGE', {response: response.data.data, obj: obj})
             }
@@ -175,6 +175,20 @@ const actions = {
           }).catch((e) => { reject(e) })
         }
       }
+    })
+  },
+  sendChatMes ({commit}, data) {
+    return new Promise((resolve, reject) => {
+      request.sendChatMessage(data).then((res) => {
+        resolve(res)
+      }).catch((e) => { reject(e) })
+    })
+  },
+  sendGroupMes ({commit}, data) {
+    return new Promise((resolve, reject) => {
+      request.sendGroupMessage(data).then((res) => {
+        resolve(res)
+      }).catch((e) => { reject(e) })
     })
   }
 }

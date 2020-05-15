@@ -13,7 +13,6 @@ const mutations = {
 const actions = {
   expression ({commit}) {
     axios.getExpression().then((response) => {
-      console.log(response)
       let data = []
       if (response.status === 200) {
         for (let i = 0; i < response.data.length; i++) {
