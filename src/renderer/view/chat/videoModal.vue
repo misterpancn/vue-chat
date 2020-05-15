@@ -137,6 +137,10 @@
               break;
           }
         }
+      },
+      fullScreen () {
+        console.log(222)
+        ipcRenderer.send('video-modal-full-screen')
       }
     },
     watch: {
@@ -177,6 +181,9 @@
 </script>
 <template>
     <div style="width: 100%; height: 100%">
+        <div class="video-title-drag">
+            <span>{{ $t('chat.videoCall') }}</span>
+        </div>
         <div class="video-title" v-if="videoInfo.mes && videoInfo.mes.user_name" @mouseover="showExit = true" @mouseout="showExit = false">
             <span :style="{display: showExit ? 'none' : 'block'}">{{$t('chat.video.talkingOnVideo', {name: videoInfo.mes.user_name})}}</span>
             <Button :style="{display: showExit ? 'block' : 'none'}" :loading="exitLoading" @click="close" type="error" long>{{$t('chat.video.hangUpAndExit')}}</Button>
@@ -195,7 +202,7 @@
                 </div>
             </div>
         </Modal>
-        <div class="video-content">
+        <div class="video-content"  @dblclick="fullScreen" :title="$t('chat.video.dlClickOpenOrCloseFullScreen')">
             <div class="remote-live">
                 <video id="remote-video" style="width: 100%;height: 100%;position: absolute"></video>
             </div>
@@ -207,6 +214,12 @@
 </template>
 <style lang="less">
     .video-title {
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        background: antiquewhite;
+    }
+    .video-title-drag {
         height: 30px;
         text-align: center;
         line-height: 30px;

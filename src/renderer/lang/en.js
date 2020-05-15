@@ -145,7 +145,8 @@ export default {
       theOtherPartyHasAgreed: 'The other party has agreed and is trying to establish a connection channel...',
       theCallIsOff: 'The call is off',
       talkingOnVideo: 'Talking to {name} on video',
-      hangUpAndExit: 'Hang up and exit'
+      hangUpAndExit: 'Hang up and exit',
+      dlClickOpenOrCloseFullScreen: 'Double click to open or close full screen'
     }
   }
 }
