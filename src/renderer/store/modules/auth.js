@@ -93,6 +93,9 @@ const actions = {
         reject(error)
       })
     })
+  },
+  setToken ({ commit }, data) {
+    commit('SET_TOKEN', data)
   }
 }
 

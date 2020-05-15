@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "author": "misterpancn@gmail.com",
   "description": "An electron-vue project",
-  "license": null,
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
@@ -62,7 +62,8 @@
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1",
-    "vuex-electron": "^1.0.0"
+    "vuex-electron": "^1.0.0",
+    "wangeditor": "^3.1.1"
   },
   "devDependencies": {
     "ajv": "^6.5.0",
