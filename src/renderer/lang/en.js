@@ -136,6 +136,16 @@ export default {
       sendByCtrlEnter: 'Send by {key}',
       clickOrDragFile: 'Click or drag files here to upload',
       confirmRemoveGroupUser: 'Are you sure you want to remove the user from the group'
+    },
+    video: {
+      tryingToConnect: 'Trying to connect...',
+      ICEFailed: 'ICE exchange failed, video chat terminated',
+      inviteToVideo: 'Invite you to chat on video',
+      theOtherPartyHasRefused: 'The other party has refused',
+      theOtherPartyHasAgreed: 'The other party has agreed and is trying to establish a connection channel...',
+      theCallIsOff: 'The call is off',
+      talkingOnVideo: 'Talking to {name} on video',
+      hangUpAndExit: 'Hang up and exit'
     }
   }
 }

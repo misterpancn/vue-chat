@@ -23,7 +23,8 @@ var chat = {
     apply_notify: 8,
     release_friend_list: 9,
     video_call: 10,
-    video_answer: 11
+    video_answer: 11,
+    video_close: 12
   }
 }
 var socket

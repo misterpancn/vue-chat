@@ -26,6 +26,11 @@ export default new Router({
       component: require('@/view/chat/winModal').default
     },
     {
+      path: '/videoModal',
+      name: 'videoModal',
+      component: require('@/view/chat/videoModal').default
+    },
+    {
       path: '*',
       redirect: '/'
     }
