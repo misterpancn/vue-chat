@@ -67,7 +67,6 @@ const mutations = {
 
 const actions = {
   pushMessage ({ commit }, message) {
-    console.log(message)
     commit('PUSH_MESSAGE', message)
   }
 }
