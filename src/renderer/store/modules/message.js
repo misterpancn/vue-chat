@@ -6,6 +6,7 @@ const state = {
 }
 
 const mutations = {
+  // 消息推送
   PUSH_MESSAGE (state, message) {
     let sessionList = state.allMessage;
     let res = message.response
@@ -27,6 +28,8 @@ const mutations = {
             text: res.data,
             date: res.time,
             self: parseInt(res.uid) === thisUser.userId,
+            uid: res.uid,
+            user_name: res.user_name,
             showTime: show
           })
           isSave = true
@@ -45,6 +48,8 @@ const mutations = {
             text: res.data,
             date: res.time,
             self: parseInt(res.uid) === thisUser.userId,
+            uid: res.uid,
+            user_name: res.user_name,
             showTime: show
           })
           isSave = true
@@ -60,6 +65,8 @@ const mutations = {
               text: res.data,
               date: res.time,
               self: parseInt(res.uid) === thisUser.userId,
+              uid: res.uid,
+              user_name: res.user_name,
               showTime: true
             }
           ]
@@ -76,6 +83,8 @@ const mutations = {
               text: res.data,
               date: res.time,
               self: parseInt(res.uid) === thisUser.userId,
+              uid: res.uid,
+              user_name: res.user_name,
               showTime: true
             }
           ]
@@ -88,6 +97,7 @@ const mutations = {
   RESET_MESSAGE (state) {
     state.allMessage = [];
   },
+  // 将线上历史数据写入到本地
   SET_MESSAGE (state, message) {
     let mes = message.response;
     let users = message.obj.users;
@@ -104,6 +114,8 @@ const mutations = {
           text: v.data,
           date: v.time,
           self: parseInt(v.uid) === users.userId,
+          uid: v.uid,
+          user_name: v.user_name,
           showTime: true
         })
         lastTime = v.time;
@@ -144,12 +156,16 @@ const actions = {
       if (obj.selectId > 0 && typeof obj.users === 'object') {
         if (obj.isGroup) {
           request.getGroupMessage({group_id: obj.selectId}).then((response) => {
-            // commit('SET_MESSAGE', {response: response.data.data, obj: obj})
+            if (response.data.data && response.data.data.length > 0) {
+              commit('SET_MESSAGE', {response: response.data.data, obj: obj})
+            }
             resolve(response)
           }).catch((e) => { reject(e) })
         } else {
           request.getChatMessage({chat_id: obj.selectId}).then((response) => {
-            // commit('SET_MESSAGE', {response: response.data.data, obj: obj})
+            if (response.data.data && response.data.data.length > 0) {
+              commit('SET_MESSAGE', {response: response.data.data, obj: obj})
+            }
             resolve(response)
           }).catch((e) => { reject(e) })
         }
@@ -167,7 +183,6 @@ const getters = {
     if (selectId === 0) {
       return res;
     }
-    console.log(state.allMessage)
     if (state.allMessage.length > 0) {
       state.allMessage.map(function (v) {
         if (v.sendTo === selectId && v.isGroup === isGroup) {

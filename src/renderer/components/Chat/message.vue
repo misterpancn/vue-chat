@@ -45,7 +45,7 @@
       time (date) {
         date = new Date(parseInt(date) * 1000)
         if (date.getDay() !== new Date().getDay()) {
-          return date.toLocaleDateString()
+          return date.toLocaleDateString() + ' ' + date.toLocaleTimeString('en-US', {hour12: false})
         }
         return date.getHours() + ':' + date.getMinutes()
       }
@@ -62,11 +62,12 @@
 </script>
 
 <template>
-    <div v-if="session.length" class="m-message" v-scroll-bottom="session.messages">
+    <div v-if="session && session.messages !== undefined" class="m-message" v-scroll-bottom="session.messages">
         <ul>
             <li v-for="item in session.messages">
                 <p v-if="item.showTime" class="time"><span>{{item.date | time}}</span></p>
                 <div class="main" :class="{ self: item.self }">
+                    <p class="name"><span>{{item.user_name}}</span></p>
                     <img class="avatar" width="30" height="30" :src="avatar(item)"/>
                     <div class="text" v-html="html(item.text)"></div>
                 </div>
@@ -80,7 +81,7 @@
             </li>
         </ul>
     </div>
-    <div v-else class="m-message"><span>{{ session.length }}</span></div>
+    <div v-else class="m-message"></div>
 </template>
 
 <style lang="less">
@@ -152,6 +153,10 @@
                     border-left-color: #b2e281;
                 }
             }
+        }
+        .name {
+            padding: 1px 0;
+            font-size: 12px;
         }
     }
 </style>

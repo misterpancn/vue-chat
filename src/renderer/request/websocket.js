@@ -121,7 +121,8 @@ chat.sendMessage = function (mes, chatId, groupId) {
       group_id: groupId,
       chat_id: chatId,
       send_to_uid: chatData.id,
-      uid: store.getters.getUser.userId
+      uid: store.getters.getUser.userId,
+      user_name: store.getters.getUser.name
     }
     if (socket === undefined) {
       chat.callBack({
@@ -136,7 +137,7 @@ chat.sendMessage = function (mes, chatId, groupId) {
 chat.messagesTimeShow = function (now, lastTime) {
   let bool = false
   // 每隔3分钟显示消息的时间
-  if (now - lastTime > 1000 * 60 * 3) {
+  if (now - lastTime > 60 * 3) {
     bool = true
   }
   return bool
