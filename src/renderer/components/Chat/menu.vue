@@ -3,25 +3,25 @@
     methods: {
       logout () {
         this.$Modal.confirm({
-          title: '您真的要退出登录吗？',
+          title: this.$t('chat.notify.confirmLogout'),
           loading: true,
           onOk: () => {
             this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
               .then((response) => {
                 if (response.data.status_code === 200) {
-                  this.$Message.success('退出成功')
+                  this.$Message.success(this.$t('notify.exitSuccess'))
                   this.$Modal.remove()
                   this.$router.push('/login')
                 } else {
                   this.$Notice.warning({
-                    title: '提醒',
-                    desc: '退出失败，请稍后重试'
+                    title: this.$t('notifyTitle.reminding'),
+                    desc: this.$t('chat.notify.exitFailed')
                   })
                   this.$Modal.remove()
                 }
               }).catch((error) => {
                 this.$Notice.error({
-                  title: '提醒',
+                  title: this.$t('notifyTitle.reminding'),
                   desc: error
                 })
                 this.$Modal.remove()

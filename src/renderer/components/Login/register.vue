@@ -7,39 +7,39 @@
 <template>
     <div class="row justify-content-center c-center">
         <Card :bordered="false" :xs="8" :sm="4" :md="6" :lg="8">
-            <p slot="title">Register</p>
-            <a slot="extra"><router-link to="/login">Login</router-link></a>
+            <p slot="title">{{ $t('account.register') }}</p>
+            <a slot="extra"><router-link to="/login">{{ $t('account.login') }}</router-link></a>
             <div class="card-body">
                 <Form ref="formInline" :model="formInline" :rules="ruleInline" :label-width="80">
-                    <FormItem label="Username" prop="name">
-                        <Input v-model="formInline.name" placeholder="Enter your name"></Input>
+                    <FormItem :label="$t('account.name')" prop="name">
+                        <Input v-model="formInline.name" :placeholder="$t('account.rules.nameRequire')"></Input>
                     </FormItem>
-                    <FormItem prop="mail" label="E-mail">
-                        <Input v-model="formInline.mail" placeholder="Enter your e-mail"></Input>
+                    <FormItem prop="mail" :label="$t('account.email')">
+                        <Input v-model="formInline.mail" :placeholder="$t('account.enterEmail')"></Input>
                     </FormItem>
-                    <FormItem prop="phone" label="Mobile Number ">
-                        <Input v-model="formInline.phone" placeholder="Enter your mobile number ">
+                    <FormItem prop="phone" :label="$t('account.mobileNumber')">
+                        <Input v-model="formInline.phone" :placeholder="$t('account.rules.enterMobileNumber')">
                         <Select v-model="formInline.mbPrefix" slot="prepend" style="width: 70px">
-                            <Option v-for="mp in allMbPrefix" :value="mp">{{ mp }}</Option>
+                            <Option v-for="(mp, index) in allMbPrefix" :value="mp" :key="index">{{ mp }}</Option>
                         </Select>
                         </Input>
                     </FormItem>
-                    <FormItem prop="password" label="Password">
-                        <Input v-bind:type="passwordType" v-model="formInline.password" placeholder="Password">
+                    <FormItem prop="password" :label="$t('account.password')">
+                        <Input v-bind:type="passwordType" v-model="formInline.password" :placeholder="$t('account.rules.passwordRequire')">
                         <Icon v-if="!formInline.is_eye" type="ios-eye-off-outline" slot="suffix"
                               style="font-size: 16px;cursor: pointer;" @click="funcShow"></Icon>
                         <Icon v-else type="ios-eye-outline" slot="suffix" style="font-size: 16px;cursor: pointer;"
                               @click="funcShow"></Icon>
                         </Input>
                     </FormItem>
-                    <FormItem prop="confirmPass" label="Confirm Password">
-                        <Input v-bind:type="passwordType" v-model="formInline.confirmPass" placeholder="Confirm Password">
+                    <FormItem prop="confirmPass" :label="$t('account.confirmPassword')">
+                        <Input v-bind:type="passwordType" v-model="formInline.confirmPass" :placeholder="$t('account.rules.passwordRequire')">
                         </Input>
                     </FormItem>
                     <FormItem>
                         <Button type="primary" :loading="loading" @click="handleSubmit('formInline')">
-                            <span v-if="!loading">Sign up</span>
-                            <span v-else>Loading...</span>
+                            <span v-if="!loading">{{ $t('account.signIn') }}</span>
+                            <span v-else>{{ $t('notify.loading') }}</span>
                         </Button>
                     </FormItem>
                 </Form>
@@ -51,24 +51,6 @@
   import config from './../../store/config/config'
   export default {
     data () {
-      const validatePassCheck = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('Please enter your password again'))
-        } else if (value !== this.formInline.password) {
-          callback(new Error('The two input passwords do not match!'))
-        } else {
-          callback()
-        }
-      }
-      const validatePhoneNumber = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('Please enter your mobile number again'))
-        } else if (value.length !== 11 && this.formInline.mbPrefix === '+86') {
-          callback(new Error('Mobile phone number format error!'))
-        } else {
-          callback()
-        }
-      }
       return {
         formInline: {
           password: '',
@@ -79,33 +61,55 @@
           phone: '',
           is_eye: false
         },
-        ruleInline: {
-          password: [
-            {required: true, message: 'Please fill in the password.', trigger: 'blur'},
-            {type: 'string', min: 6, message: 'The password length cannot be less than 6 bits', trigger: 'blur'}
-          ],
-          mail: [
-            {required: true, message: 'Mailbox cannot be empty', trigger: 'blur'},
-            {type: 'email', message: 'Incorrect email format', trigger: 'blur'}
-          ],
-          name: [
-            {required: true, message: 'Please fill in the name', trigger: 'blur'},
-            {type: 'string', min: 2, message: 'The name name cannot be less than 2 bits', trigger: 'blur'}
-          ],
-          confirmPass: [
-            {required: true, message: 'Please fill in the password.', trigger: 'blur'},
-            {validator: validatePassCheck},
-            {type: 'string', min: 6, message: 'The password length cannot be less than 6 bits', trigger: 'blur'}
-          ],
-          phone: [
-            {required: true, message: 'Please fill in the mobile number.', trigger: 'blur'},
-            {validator: validatePhoneNumber, trigger: 'blur'},
-            {type: 'string', min: 8, message: 'The mobile number length cannot be less than 8 bits', trigger: 'blur'}
-          ]
-        },
         allMbPrefix: config.allMbPrefix,
         loading: false,
         passwordType: 'password'
+      }
+    },
+    computed: {
+      ruleInline () {
+        const validatePassCheck = (rule, value, callback) => {
+          if (value === '') {
+            callback(new Error(this.$t('account.rules.enterPassAgain')))
+          } else if (value !== this.formInline.password) {
+            callback(new Error(this.$t('account.rules.passwordConfirm')))
+          } else {
+            callback()
+          }
+        }
+        const validatePhoneNumber = (rule, value, callback) => {
+          if (value === '') {
+            callback(new Error(this.$t('account.rules.enterMobileNumber')))
+          } else if (value.length !== 11 && this.formInline.mbPrefix === '+86') {
+            callback(new Error(this.$t('account.rules.MobileNumberFormatError')))
+          } else {
+            callback()
+          }
+        }
+        return {
+          password: [
+            {required: true, message: this.$t('account.rules.passwordRequire'), trigger: 'blur'},
+            {type: 'string', min: 6, message: this.$t('account.rules.passwordMinLimit', {min: 6}), trigger: 'blur'}
+          ],
+          mail: [
+            {required: true, message: this.$t('account.rules.emailRequire'), trigger: 'blur'},
+            {type: 'email', message: this.$t('account.rules.emailCheck'), trigger: 'blur'}
+          ],
+          name: [
+            {required: true, message: this.$t('account.rules.nameRequire'), trigger: 'blur'},
+            {type: 'string', min: 2, message: this.$t('account.rules.nameMinLimit', {min: 2}), trigger: 'blur'}
+          ],
+          confirmPass: [
+            {required: true, message: this.$t('account.rules.passwordRequire'), trigger: 'blur'},
+            {validator: validatePassCheck},
+            {type: 'string', min: 6, message: this.$t('account.rules.passwordMinLimit', {min: 6}), trigger: 'blur'}
+          ],
+          phone: [
+            {required: true, message: this.$t('account.rules.enterMobileNumber'), trigger: 'blur'},
+            {validator: validatePhoneNumber, trigger: 'blur'},
+            {type: 'string', min: 8, message: this.$t('account.rules.mobileNumberMinLimit', {min: 8}), trigger: 'blur'}
+          ]
+        }
       }
     },
     methods: {
@@ -124,13 +128,13 @@
               console.log(response)
               if (response.data.status_code === 200) {
                 this.$Notice.success({
-                  title: '注册成功',
+                  title: this.$t('account.notify.registeredSuccessfully'),
                   desc: ''
                 })
                 this.$router.push('/login')
               } else {
                 this.$Notice.error({
-                  title: '验证失败',
+                  title: this.$t('notifyTitle.validationFailed'),
                   desc: response.data.message
                 })
                 this.loading = false;
@@ -139,14 +143,14 @@
               console.log(error)
               this.loading = false;
               this.$Notice.error({
-                title: '发生错误',
-                desc: error.response.data.message
+                title: this.$t('notifyTitle.errorOccurred'),
+                desc: this.$t('account.notify.requestFailed')
               })
             })
           } else {
             this.$Notice.error({
-              title: '错误提醒',
-              desc: '填写有误！'
+              title: this.$t('notifyTitle.errorReminding'),
+              desc: this.$t('account.notify.fillInIncorrect')
             })
           }
         })

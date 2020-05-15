@@ -14,6 +14,9 @@
         // 如果是自己发的消息显示登录用户的头像
         let user = item.self ? this.$store.getters.getUser : this.sessionUser
         return user && user.img
+      },
+      html (str) {
+        return str.replace(/\\/g, '')
       }
     },
     filters: {
@@ -47,7 +50,7 @@
                 <p v-if="item.showTime" class="time"><span>{{item.date | time}}</span></p>
                 <div class="main" :class="{ self: item.self }">
                     <img class="avatar" width="30" height="30" :src="avatar(item)"/>
-                    <div class="text" v-html="item.text"></div>
+                    <div class="text" v-html="html(item.text)"></div>
                 </div>
             </li>
         </ul>
@@ -101,6 +104,9 @@
                 right: 100%;
                 border: 6px solid transparent;
                 border-right-color: #fafafa;
+            }
+            img {
+                vertical-align: middle
             }
         }
 

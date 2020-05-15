@@ -40,26 +40,26 @@
         }
         if (res.type === 'error') {
           this.$Modal.confirm({
-            title: '服务器出现异常，正在帮您退出登录',
+            title: this.$t('chat.notify.serverErrorLogout'), // 服务器出现异常，正在帮您退出登录
             loading: true,
             onOk: () => {
               this.$store.dispatch('logout', {uid: this.$store.getters.getUser.userId})
                 .then((response) => {
                   if (response.data.status_code === 200) {
-                    this.$Message.success('退出成功')
+                    this.$Message.success(this.$t('notify.exitSuccess'))
                     this.$Modal.remove()
                     this.$router.push('/login')
                   } else {
                     this.$Notice.warning({
-                      title: '提醒',
-                      desc: '退出失败，请稍后重试'
+                      title: this.$t('notifyTitle.reminding'),
+                      desc: this.$t('chat.notify.exitFailed') // 退出失败
                     })
                     this.$Modal.remove()
                   }
                 }).catch((error) => {
                   console.log(error)
                   this.$Notice.error({
-                    title: '提醒',
+                    title: this.$t('notifyTitle.reminding'),
                     desc: error
                   })
                   this.$Modal.remove()
@@ -79,7 +79,7 @@
       exception (response) {
         if (response.code >= 500) {
           this.$Notice.error({
-            title: '服务异常',
+            title: this.$t('notifyTitle.serverException'),
             desc: response.mess
           })
         }
