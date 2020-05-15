@@ -1,7 +1,8 @@
 import ws from '@/request/websocket'
+import request from '@/request'
 
 const state = {
-  allMessage: localStorage.getItem('allMessage') !== null ? JSON.parse(localStorage.getItem('allMessage')) : {}
+  allMessage: localStorage.getItem('allMessage') !== null ? JSON.parse(localStorage.getItem('allMessage')) : []
 }
 
 const mutations = {
@@ -12,19 +13,38 @@ const mutations = {
     if (sessionList && sessionList.length > 0) {
       var isSave = false;
       sessionList.map(function (item) {
-        if (parseInt(res.send_to_uid) === item.sendTo || parseInt(res.from_uid) === item.sendTo || res.send_to_group === item.sendTo) {
+        // 一对一
+        if (parseInt(res.chat_id) === item.sendTo && !item.isGroup) {
           // 保存到localStorage中消息记录设置不超过 n 条
-          if (item.messages.length > 80) {
+          if (item.messages.length > 50) {
             item.messages.splice(0, 1)
           }
           let show = ws.messagesTimeShow(res.time, item.lastTime)
           if (show) {
-            item.lastTime = new Date(res.time).getTime()
+            item.lastTime = res.time
           }
           item.messages.push({
-            text: res.content,
+            text: res.data,
             date: res.time,
-            self: parseInt(res.from_uid) === thisUser.userId,
+            self: parseInt(res.uid) === thisUser.userId,
+            showTime: show
+          })
+          isSave = true
+        }
+        // 群消息
+        if (item.isGroup && parseInt(res.group_id) === item.sendTo) {
+          // 保存到localStorage中消息记录设置不超过 n 条
+          if (item.messages.length > 50) {
+            item.messages.splice(0, 1)
+          }
+          let show = ws.messagesTimeShow(res.time, item.lastTime)
+          if (show) {
+            item.lastTime = res.time
+          }
+          item.messages.push({
+            text: res.data,
+            date: res.time,
+            self: parseInt(res.uid) === thisUser.userId,
             showTime: show
           })
           isSave = true
@@ -32,13 +52,14 @@ const mutations = {
       })
       if (isSave === false) {
         sessionList.push({
-          sendTo: parseInt(res.send_to_uid) > 0 ? parseInt(res.send_to_uid) : res.send_to_group,
-          lastTime: new Date(res.time).getTime(),
+          sendTo: parseInt(res.chat_id) > 0 ? parseInt(res.chat_id) : parseInt(res.group_id),
+          isGroup: res.group_id > 0,
+          lastTime: res.time,
           messages: [
             {
-              text: res.content,
+              text: res.data,
               date: res.time,
-              self: parseInt(res.from_uid) === thisUser.userId,
+              self: parseInt(res.uid) === thisUser.userId,
               showTime: true
             }
           ]
@@ -47,18 +68,64 @@ const mutations = {
     } else {
       sessionList = [
         {
-          sendTo: parseInt(res.send_to_uid) > 0 ? parseInt(res.send_to_uid) : res.send_to_group,
-          lastTime: new Date(res.time).getTime(),
+          sendTo: parseInt(res.chat_id) > 0 ? parseInt(res.chat_id) : parseInt(res.group_id),
+          isGroup: res.group_id > 0,
+          lastTime: res.time,
           messages: [
             {
-              text: res.content,
+              text: res.data,
               date: res.time,
-              self: parseInt(res.from_uid) === thisUser.userId,
+              self: parseInt(res.uid) === thisUser.userId,
               showTime: true
             }
           ]
         }
       ];
+    }
+    state.allMessage = sessionList;
+    localStorage.setItem('allMessage', JSON.stringify(state.allMessage))
+  },
+  RESET_MESSAGE (state) {
+    state.allMessage = [];
+  },
+  SET_MESSAGE (state, message) {
+    let mes = message.response;
+    let users = message.obj.users;
+    let sessionList = state.allMessage
+    let list = [];
+    let lastTime = 0;
+    let masterList = {
+      sendTo: parseInt(message.obj.selectId),
+      isGroup: message.obj.isGroup
+    };
+    if (mes.length > 0) {
+      mes.map((v) => {
+        list.push({
+          text: v.data,
+          date: v.time,
+          self: parseInt(v.uid) === users.userId,
+          showTime: true
+        })
+        lastTime = v.time;
+      })
+      masterList.messages = list;
+      masterList.lastTime = lastTime
+    }
+    let isSave = false;
+    if (sessionList && sessionList.length > 0) {
+      sessionList.map((item) => {
+        if (item.sendTo === message.obj.selectId && item.isGroup === message.obj.isGroup) {
+          item.messages = list;
+          item.lastTime = lastTime
+          isSave = true;
+        }
+      })
+      if (!isSave) {
+        sessionList.push(masterList)
+      }
+    } else {
+      sessionList = []
+      sessionList.push(masterList)
     }
     state.allMessage = sessionList;
     localStorage.setItem('allMessage', JSON.stringify(state.allMessage))
@@ -68,6 +135,26 @@ const mutations = {
 const actions = {
   pushMessage ({ commit }, message) {
     commit('PUSH_MESSAGE', message)
+  },
+  deleteMessage ({commit}) {
+    commit('RESET_MESSAGE')
+  },
+  getMessage ({commit}, obj) {
+    return new Promise((resolve, reject) => {
+      if (obj.selectId > 0 && typeof obj.users === 'object') {
+        if (obj.isGroup) {
+          request.getGroupMessage({group_id: obj.selectId}).then((response) => {
+            // commit('SET_MESSAGE', {response: response.data.data, obj: obj})
+            resolve(response)
+          }).catch((e) => { reject(e) })
+        } else {
+          request.getChatMessage({chat_id: obj.selectId}).then((response) => {
+            // commit('SET_MESSAGE', {response: response.data.data, obj: obj})
+            resolve(response)
+          }).catch((e) => { reject(e) })
+        }
+      }
+    })
   }
 }
 
@@ -75,11 +162,15 @@ const getters = {
   getAllMessage: state => {
     return state.allMessage
   },
-  getMessageLocation: (state) => (selectUserId) => {
+  getMessageLocation: (state) => (selectId, isGroup) => {
     var res = []
+    if (selectId === 0) {
+      return res;
+    }
+    console.log(state.allMessage)
     if (state.allMessage.length > 0) {
       state.allMessage.map(function (v) {
-        if (v.sendTo === selectUserId) {
+        if (v.sendTo === selectId && v.isGroup === isGroup) {
           res = v
         }
       })

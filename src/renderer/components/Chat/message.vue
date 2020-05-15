@@ -1,10 +1,15 @@
 <script>
   import Vue from 'vue'
   export default {
-    props: ['session'],
+    props: ['session', 'selectId', 'isGroup'],
+    data () {
+      return {
+        loading: true
+      }
+    },
     computed: {
       sessionUser () {
-        let users = this.$store.getters.getUserList.filter(item => item.userId === this.session.userId)
+        let users = this.$store.getters.getUserList.filter(item => item.chat_id === this.session.sendTo)
         return users[0]
       }
     },
@@ -16,18 +21,31 @@
         return user && user.img
       },
       html (str) {
-        return str.replace(/\\/g, '')
+        if (str !== undefined) {
+          return str.replace(/\\/g, '')
+        }
+      },
+      loadingData () {
+        this.loading = false
+        this.$store.dispatch('getMessage', {
+          selectId: this.selectId,
+          isGroup: this.isGroup,
+          users: this.$store.getters.getUser
+        }).then((res) => {
+          console.log(res)
+          this.loading = true;
+        }).catch((e) => {
+          console.log(e);
+          this.loading = true;
+        })
       }
     },
     filters: {
       // 将日期过滤为 hour:minutes
       time (date) {
-        let d = date
-        if (typeof date === 'string') {
-          date = new Date(date)
-        }
+        date = new Date(parseInt(date) * 1000)
         if (date.getDay() !== new Date().getDay()) {
-          return d
+          return date.toLocaleDateString()
         }
         return date.getHours() + ':' + date.getMinutes()
       }
@@ -44,7 +62,7 @@
 </script>
 
 <template>
-    <div v-if="session" class="m-message" v-scroll-bottom="session.messages">
+    <div v-if="session.length" class="m-message" v-scroll-bottom="session.messages">
         <ul>
             <li v-for="item in session.messages">
                 <p v-if="item.showTime" class="time"><span>{{item.date | time}}</span></p>
@@ -55,7 +73,14 @@
             </li>
         </ul>
     </div>
-    <div v-else class="m-message"></div>
+    <div v-else-if="session.length === 0 && selectId > 0" class="m-message">
+        <ul>
+            <li>
+                <p class="time"><a v-if="loading" @click="loadingData">加载历史</a><span v-else>加载中</span></p>
+            </li>
+        </ul>
+    </div>
+    <div v-else class="m-message"><span>{{ session.length }}</span></div>
 </template>
 
 <style lang="less">

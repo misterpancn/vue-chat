@@ -12,5 +12,11 @@ export default {
   },
   getExpression () {
     return axios.get('lib/getExpression')
+  },
+  getChatMessage (data) {
+    return axios.get('chat/getChatMessage', {params: data})
+  },
+  getGroupMessage (data) {
+    return axios.get('chat/getGroupMes', {params: data})
   }
 }
