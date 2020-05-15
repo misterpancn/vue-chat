@@ -35,7 +35,6 @@
   }
   #app {
     margin: 20px auto;
-    width: 800px;
-    height: 600px;
+    max-width: 800px;
   }
 </style>

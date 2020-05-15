@@ -1,10 +1,10 @@
 <script>
   import Vue from 'vue'
   export default {
-    props: ['session', 'user', 'userList'],
+    props: ['session'],
     computed: {
       sessionUser () {
-        let users = this.userList.filter(item => item.userId === this.session.userId)
+        let users = this.$store.getters.getUserList.filter(item => item.userId === this.session.userId)
         return users[0]
       }
     },
@@ -12,7 +12,7 @@
       // 筛选出用户头像
       avatar (item) {
         // 如果是自己发的消息显示登录用户的头像
-        let user = item.self ? this.user : this.sessionUser
+        let user = item.self ? this.$store.getters.getUser : this.sessionUser
         return user && user.img
       }
     },
@@ -40,7 +40,7 @@
     <div v-if="session" class="m-message" v-scroll-bottom="session.messages">
         <ul>
             <li v-for="item in session.messages">
-                <p class="time"><span>{{item.date | time}}</span></p>
+                <p v-if="item.showTime" class="time"><span>{{item.date | time}}</span></p>
                 <div class="main" :class="{ self: item.self }">
                     <img class="avatar" width="30" height="30" :src="avatar(item)"/>
                     <div class="text">{{item.text}}</div>

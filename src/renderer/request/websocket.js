@@ -1,33 +1,29 @@
-import store from './store'
-import config from './../config/config'
-let saveData = store.fetch()
+import config from '@/store/config/config'
+import store from '@/store'
 var chat = {
   Server: config.serviceAddress,
   url: 'https://' + config.serviceAddress,
-  // 登录用户信息
-  user: saveData.user,
-  token: '12321321',
+  token: config.token,
   // 限制socket链接次数
   overflow: false,
   connectTotal: 0
 }
 var socket
-chat.connectWS = function (callback, exception) {
-  socket = new WebSocket('wss://' + chat.Server + ':' + config.websocketPort)
+var transport = config.transport === null ? 'ws://' : 'wss://'
+chat.connectWS = function (exception) {
+  socket = new WebSocket(transport + config.serviceAddress + ':' + config.websocketPort)
   socket.onopen = onopensocket
   socket.onmessage = onmessage
   socket.onerror = socketError
   socket.onclose = socketClose
   chat.exception = exception
-  chat.func = callback
   chat.connectTotal += 1
   if (chat.connectTotal > config.connectLimit) {
     chat.overflow = true
   }
 }
 function onopensocket () {
-  console.log(chat.user)
-  var send = '{"type":"login","uid":"' + chat.user.userId + '","token":"' + chat.token + '"}'
+  var send = '{"type":"login","uid":"' + store.getters.getUser.userId + '","token":"' + chat.token + '"}'
   console.log('连接服务器成功')
   socket.send(send)
 }
@@ -35,8 +31,29 @@ function onmessage (mes) {
   if (mes.data.length === 0 || mes.data === '') {
     return false
   }
-  var data = chat.evil(mes.data)
-  chat.func(data) // 回调给组件
+  var res = chat.evil(mes.data)
+  if (typeof res.all_user === 'object' && res.all_user.length > 0) {
+    let user = [];
+    let groupList = [];
+    for (var i = 0; i < res.all_user.length; i++) {
+      let c = {
+        userId: parseInt(res.all_user[i].id),
+        name: res.all_user[i].user_name,
+        img: './../../../../static/img/2.png'
+      }
+      user.push(c)
+    }
+    if (typeof res.all_group === 'object' && res.all_group.length > 0) {
+      groupList = res.all_group;
+    }
+    store.dispatch('pushMessage', {
+      response: res,
+      thisUser: store.getters.getUser
+    })
+    store.dispatch('setUserList', user)
+    store.dispatch('setGroupList', groupList)
+    console.log(res)
+  }
 }
 function socketError () {
   console.log('服务器连接出错，定时重连......')
@@ -67,32 +84,23 @@ chat.evil = function (fn) {
   let Fn = Function
   return new Fn('return ' + fn)()
 }
-chat.getUserInfo = function (id, userList, groupList) {
-  var res = {}
-  if (!isNaN(id)) {
-    for (let i = 0; i < userList.length; i++) {
-      if (userList[i].userId === id) {
-        res = userList[i]
-        break
-      }
-    }
-  } else {
-    for (let i = 0; i < groupList.length; i++) {
-      if (groupList[i].group_name === id) {
-        res = groupList[i]
-        break
-      }
-    }
-  }
-  return res
-}
 chat.sendMessage = function (mes, uid, group) {
   if (mes) {
     mes = mes.replace(/[\r\n]/i, '<br>')
     mes = mes.replace(/"/g, '\\"')
-    var data = '{"type":"message","content":"' + mes + '","group":"' + group + '","send_to_uid":"' + uid + '","uid":"' + chat.user.userId + '"}'
+    var data = '{"type":"message","content":"' + mes + '","group":"' + group + '","send_to_uid":"' + uid + '","uid":"' + store.getters.getUser.userId + '"}'
     socket.send(data)
   }
 }
+chat.messagesTimeShow = function (now, lastTime) {
+  let time = new Date(now).getTime()
+  let bool = false
+  // 每隔3分钟显示消息的时间
+  if (time - lastTime > 1000 * 60 * 3) {
+    bool = true
+  }
+  return bool
+}
 chat.socket = socket
 export default chat
+

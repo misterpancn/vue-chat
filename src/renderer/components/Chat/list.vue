@@ -1,38 +1,16 @@
 <script>
-  import chat from './../../store/modules/chat'
   export default {
-    props: ['userList', 'sessionIndex', 'search', 'groupList', 'selectUserId'],
+    props: ['search', 'selectUserId'],
     methods: {
       select (value) {
         this.$emit('listenToChildEvent', {
-          item: this.userList.indexOf(value),
           selectUserId: value.userId > 0 ? value.userId : value.name
         })
       }
     },
     computed: {
       users () {
-        return this.$options.filters.selection(this.userList, this.groupList, this.search)
-      }
-    },
-    filters: {
-      selection (list, group, sear) {
-        let res = list.filter(item => item.name.indexOf(sear) > -1)
-        res = res.concat(group.filter(item => item.group_name.indexOf(sear) > -1))
-        let allUser = []
-        res.map(function (v) {
-          if (v.group_name) {
-            allUser.push({
-              userId: 0,
-              name: v.group_name,
-              img: chat.url + v.img,
-              isGroup: true
-            })
-          } else {
-            allUser.push(v)
-          }
-        })
-        return allUser
+        return this.$store.getters.searchUser(this.search)
       }
     }
   }
