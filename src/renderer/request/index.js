@@ -15,11 +15,11 @@ export default {
     return axios.get('lib/getExpression')
   },
   // 获取好友聊天记录
-  getChatMessage (data) {
-    return axios.get('chat/getChatMessage', {params: data})
+  getUserChatMessage (data) {
+    return axios.get('chat/getUserChatMessage', {params: data})
   },
   // 获取群历史聊天记录
-  getGroupMessage (data) {
-    return axios.get('chat/getGroupMes', {params: data})
+  getGroupMessage (groupId, limit) {
+    return axios.get('chat/getGroupMessage/' + groupId + '/' + limit)
   }
 }

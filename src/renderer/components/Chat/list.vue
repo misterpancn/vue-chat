@@ -13,6 +13,13 @@
       users () {
         return this.$store.getters.searchUser(this.search)
       }
+    },
+    filters: {
+      img (item) {
+        if (!item.is_online && !item.group_id) {
+          return 'm-img-gray'
+        }
+      }
     }
   }
 </script>
@@ -20,8 +27,9 @@
 <template>
     <div v-if="users" class="m-list">
         <ul>
-            <li v-for="item in users" :class="{ active: ((selectId === item.chat_id && !isGroup) || (selectId === item.group_id && isGroup)) }" @click="select(item)">
-                <img class="avatar" width="30" height="30" :alt="item.name" :src="item.img">
+            <li class="m-user-list" v-for="item in users"
+                :class="{ active: ((selectId === item.chat_id && !isGroup) || (selectId === item.group_id && isGroup)) }" @click="select(item)">
+                <img class="avatar" width="30" height="30" :alt="item.name" :src="item.photo" :class="item | img">
                 <p class="name">{{item.group_id > 0 ? item.group_name : item.name}}</p>
             </li>
         </ul>
@@ -30,9 +38,8 @@
 
 <style lang="less">
     .m-list {
-        li {
+        .m-user-list {
             padding: 12px 15px;
-            border-bottom: 1px solid #292C33;
             cursor: pointer;
             transition: background-color .1s;
 
@@ -41,6 +48,14 @@
             }
             &.active {
                 background-color: rgba(255, 255, 255, 0.1);
+            }
+            .m-img-gray {
+                -webkit-filter: grayscale(100%);
+                -moz-filter: grayscale(100%);
+                -ms-filter: grayscale(100%);
+                -o-filter: grayscale(100%);
+                filter: grayscale(100%);
+                filter: gray;
             }
         }
         .avatar, .name {

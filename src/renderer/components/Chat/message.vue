@@ -4,8 +4,7 @@
     props: ['session', 'selectId', 'isGroup'],
     data () {
       return {
-        loading: true,
-        haveData: true
+        loading: true
       }
     },
     computed: {
@@ -19,7 +18,7 @@
       avatar (item) {
         // 如果是自己发的消息显示登录用户的头像
         let user = item.self ? this.$store.getters.getUser : this.sessionUser
-        return user && user.img
+        return user && user.photo
       },
       html (str) {
         if (str !== undefined) {
@@ -35,7 +34,6 @@
         }).then((res) => {
           console.log(res)
           if (res.data.data && res.data.data.length === 0) {
-            this.haveData = false;
             this.$Message.warning({
               content: this.$t('notify.noDataQueried'),
               duration: 3
@@ -75,14 +73,14 @@
             <li v-for="item in session.messages">
                 <p v-if="item.showTime" class="time"><span>{{item.date | time}}</span></p>
                 <div class="main" :class="{ self: item.self }">
-                    <p class="name"><span>{{item.user_name}}</span></p>
-                    <img class="avatar" width="30" height="30" :src="avatar(item)"/>
+                    <p v-if="isGroup" class="name"><span>{{item.user_name}}</span></p>
+                    <img class="avatar" width="30" height="30" :src="item.photo" style="cursor: pointer"/>
                     <div class="text" v-html="html(item.text)"></div>
                 </div>
             </li>
         </ul>
     </div>
-    <div v-else-if="session.length === 0 && selectId > 0 && haveData" class="m-message">
+    <div v-else-if="session.length === 0 && selectId > 0" class="m-message">
         <ul>
             <li>
                 <p class="time">

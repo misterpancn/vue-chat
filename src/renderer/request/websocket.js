@@ -1,5 +1,7 @@
 import config from '@/store/config/config'
 import store from '@/store'
+import rec from '@/media/recorder'
+import fs from 'fs'
 var chat = {
   Server: config.serviceAddress,
   url: (config.openssl === false ? 'http://' : 'https://') + config.serviceAddress,
@@ -115,22 +117,54 @@ chat.sendMessage = function (mes, chatId, groupId) {
     mes = mes.replace(/[\r\n]/i, '<br>')
     mes = mes.replace(/"/g, '\\"')
     let chatData = store.getters.getSelectUser(chatId, false)
+    var blob = null;
+    var buf = fs.readFileSync(`${__dirname}/../../../static/audio/1.jpg`);
+    let base64 = Buffer.from(buf, 'binary').toString('base64');
+    console.log(typeof base64)
     let data = {
       type: 'message',
       content: mes,
       group_id: groupId,
       chat_id: chatId,
       send_to_uid: chatData.id,
-      uid: store.getters.getUser.userId,
-      user_name: store.getters.getUser.name
+      user_name: store.getters.getUser.name,
+      photo: store.getters.getUser.photo
     }
-    if (socket === undefined) {
-      chat.callBack({
-        type: 'error',
-        content: 'WebSocket is already in closed state.'
+    if (chatId > 0) {
+      store.dispatch('pushMessage', {
+        thisUser: store.getters.getUser,
+        response: {
+          type: chat.messageType.message,
+          data: mes,
+          time: parseInt((new Date()) / 1000),
+          chat_id: chatId,
+          uid: store.getters.getUser.userId,
+          user_name: store.getters.getUser.name,
+          photo: store.getters.getUser.photo
+        }
+      })
+    }
+    if (blob) {
+      rec.blobToBase64(blob, (base64) => {
+        data.base64 = base64
+        if (socket === undefined) {
+          chat.callBack({
+            type: chat.messageType.error,
+            content: 'WebSocket is already in closed state.'
+          })
+        } else {
+          socket.send(JSON.stringify(data))
+        }
       })
     } else {
-      socket.send(JSON.stringify(data))
+      if (socket === undefined) {
+        chat.callBack({
+          type: chat.messageType.error,
+          content: 'WebSocket is already in closed state.'
+        })
+      } else {
+        socket.send(JSON.stringify(data))
+      }
     }
   }
 }

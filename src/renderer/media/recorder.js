@@ -15,7 +15,9 @@ rec.init = function (call) {
   this.getUserMedia({audio: true}, this.startUserMedia, function (e) {
     rec.isSupport = false
     rec.audioContent.close();
-    rec.recorder.clear()
+    if (rec.recorder !== null) {
+      rec.recorder.clear()
+    }
     call(e)
   })
 }
@@ -62,7 +64,7 @@ rec.stopRecording = function () {
 rec.createDownloadLink = function () {
   rec.recorder && rec.recorder.exportWAV(function (blob) {
     console.log(blob)
-    blobToBase64(blob, function (base64) {
+    rec.blobToBase64(blob, function (base64) {
       var buf = Buffer.from(base64, 'base64'); // decode
       fs.writeFile(`${__dirname}/` + '../../../static/audio/aaa.wav', buf, 'binary', (err) => {
         console.log(err)
@@ -80,7 +82,7 @@ rec.createDownloadLink = function () {
     URL.revokeObjectURL(url)
   });
 }
-var blobToBase64 = function (blob, cb) {
+rec.blobToBase64 = function (blob, cb) {
   var reader = new FileReader();
   reader.onload = function () {
     var dataUrl = reader.result;
