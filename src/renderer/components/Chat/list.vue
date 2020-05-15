@@ -11,6 +11,9 @@
           id: value.chat_id > 0 ? value.chat_id : value.group_id,
           is_group: value.group_id > 0
         })
+        if (value.group_id > 0) {
+          this.$store.dispatch('currentGroupUser', this.$store.getters.getUser.userId)
+        }
       },
       badgeCount (item) {
         if (item.group_id) {
@@ -82,6 +85,8 @@
 
 <style lang="less">
     .m-list {
+        max-height: calc(100% - 145px);
+        overflow-y: auto;
         .m-user-list {
             padding: 12px 15px;
             cursor: pointer;

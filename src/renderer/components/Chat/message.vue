@@ -30,7 +30,8 @@
           users: this.$store.getters.getUser,
           limit: 50,
           saveLocal: true,
-          page: 1
+          page: 1,
+          getLast: 1
         }).then((res) => {
           if (res.data.data.data && res.data.data.data.length === 0) {
             this.$Message.warning({
@@ -49,18 +50,13 @@
       },
       getUserInfo (item) {
         if (!item.self) {
-          this.$Spin.show();
-          this.$store.dispatch('setUserInfo', item.uid).then((r) => {
-            if (r.status === 200) {
-              this.$store.dispatch('upUserInfoShow', true)
-            }
-            this.$Spin.hide();
-          }).catch((e) => {
+          this.$store.dispatch('upUserInfoShow', true)
+          this.$store.dispatch('setUserInfo', item.uid).catch((e) => {
             this.$Message.warning({
               content: this.$t('notifyTitle.errorOccurred'),
               duration: 3
             });
-            this.$Spin.hide();
+            this.$store.dispatch('upUserInfoShow', false)
           })
         }
       }
@@ -77,10 +73,10 @@
       // 将日期过滤为 hour:minutes
       time (date) {
         date = new Date(parseInt(date) * 1000)
-        if (date.getDay() !== new Date().getDay()) {
+        if (date.getDate() !== new Date().getDate() || (date.getTime() - new Date().getTime() > 3600 * 24 * 1000)) {
           return date.toLocaleDateString() + ' ' + date.toLocaleTimeString('en-US', {hour12: false})
         }
-        return date.getHours() + ':' + date.getMinutes()
+        return date.getHours() + ':' + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())
       }
     },
     watch: {

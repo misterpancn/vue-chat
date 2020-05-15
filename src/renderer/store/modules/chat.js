@@ -8,7 +8,9 @@ const state = {
   selectId: 0,
   isGroup: false,
   connectId: '',
-  badge: []
+  badge: [],
+  currentGroupUser: {},
+  videoInfo: null
 }
 
 const mutations = {
@@ -34,7 +36,9 @@ const mutations = {
     state.selectId = 0;
     state.isGroup = false;
     state.connectId = '';
-    state.badge = []
+    state.badge = [];
+    state.currentGroupUser = {};
+    state.videoInfo = null;
   },
   SET_BADGE (state, data) {
     if (state.badge.length === 0) {
@@ -71,6 +75,12 @@ const mutations = {
   },
   INIT_BADGE (state, data) {
     state.badge = data
+  },
+  CURRENT_GROUP_USER (state, data) {
+    state.currentGroupUser = data
+  },
+  VIDEO_INFO (state, data) {
+    state.videoInfo = data
   }
 }
 
@@ -84,6 +94,9 @@ const actions = {
         resolve(response)
       }).catch((e) => { reject(e) })
     })
+  },
+  resetUserInfo ({commit}) {
+    commit('SET_USER_INFO', {})
   },
   setSearch ({commit}, search) {
     commit('SET_SEARCH', search)
@@ -127,6 +140,19 @@ const actions = {
   },
   initBadge ({commit}, data) {
     commit('INIT_BADGE', data)
+  },
+  currentGroupUser ({state, commit}, uid) {
+    return new Promise((resolve, reject) => {
+      axios.getGroupUserInfo(state.selectId, uid).then((res) => {
+        if (res.status === 200) {
+          commit('CURRENT_GROUP_USER', res.data.data)
+        }
+        resolve(res)
+      }).catch((e) => { reject(e) });
+    })
+  },
+  videoInfo ({commit}, data) {
+    commit('VIDEO_INFO', data)
   }
 }
 
@@ -163,7 +189,9 @@ const getters = {
     }
     return count
   },
-  getBadgeList: state => state.badge
+  getBadgeList: state => state.badge,
+  getGroupUserInfo: state => state.currentGroupUser,
+  getVideoInfo: state => state.videoInfo
 }
 
 export default {

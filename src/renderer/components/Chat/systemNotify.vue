@@ -21,6 +21,10 @@
             this.$store.dispatch('setUserList', r.data.data.friend_list)
           }
           this.$Modal.remove()
+          this.$Message.success({
+            content: this.$t('notify.successOperation'),
+            duration: 3
+          });
         }).catch((error) => {
           this.$Message.warning({
             content: error.response.data.data,
@@ -75,11 +79,11 @@
                         <Layout style="background: none; margin-left: 10px; margin-top: 10px">
                             <Row>
                                 <Col :xs="10" :sm="8" :md="6" :lg="8" class="m-col">{{$t('account.username')}}</Col>
-                                <Col :xs="12" :sm="12" :md="12" :lg="8" class="m-col">{{ item.user_name }}</Col>
+                                <Col :xs="12" :sm="12" :md="12" :lg="8" class="m-col">{{ (item.inviter ? item.inviter : item.user_name) }}</Col>
                             </Row>
                             <Row>
                                 <Col :xs="10" :sm="8" :md="6" :lg="8" class="m-col">{{$t('chat.chatId')}}</Col>
-                                <Col :xs="12" :sm="12" :md="12" :lg="8" class="m-col">{{ item.chat_number }}</Col>
+                                <Col :xs="12" :sm="12" :md="12" :lg="8" class="m-col">{{ (item.inviter ? item.group_number : item.chat_number) }}</Col>
                             </Row>
                             <Row>
                                 <Col :xs="10" :sm="8" :md="6" :lg="8" class="m-col">{{$t('chat.remarks')}}</Col>

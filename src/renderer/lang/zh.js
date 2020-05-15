@@ -16,9 +16,11 @@ export default {
     name: '用户名',
     logout: '退出',
     username: '昵称',
+    groupUsername: '群昵称',
     information: '资料',
     personalInformation: '个人信息',
     registerTime: '注册时间',
+    joinTime: '加入时间',
     joinDefaultGroup: '加入默认群',
     modifyPersonalData: '修改个人资料',
     editMaterials: '编辑资料',
@@ -119,12 +121,20 @@ export default {
     createTime: '创建时间',
     groupMembers: '群成员',
     groupInformation: '群信息',
+    inviteToGroup: '邀请加入群',
+    theFriendsList: '好友列表',
+    theSelected: '选中的',
+    quitTheGroup: '退出该群',
+    unfriending: '解除好友关系',
+    videoCall: '视频通话',
+    allRight: '好吧',
     notify: {
       serverErrorLogout: '服务器出现异常，正在帮您退出登录',
       exitFailed: '退出失败，请稍后重试',
       confirmLogout: '您真的要退出登录吗？',
-      sendByCtrlEnter: '按Ctrl+Enter发送',
-      clickOrDragFile: '单击或拖动文件到此处上载'
+      sendByCtrlEnter: '按{key}发送',
+      clickOrDragFile: '单击或拖动文件到此处上载',
+      confirmRemoveGroupUser: '你确定要将该用户移出群吗'
     }
   }
 }

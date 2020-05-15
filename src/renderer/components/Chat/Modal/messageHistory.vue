@@ -65,7 +65,7 @@
             <Row v-for="item in message.data" :key="item.id">
                 <p>
                     <span style="margin-right: 10px;"><b>{{item.user_name}}</b></span>
-                    <span style="color: darkturquoise"><Time :time="item.time * 1000" type="datetime" /></span>
+                    <span style="color: darkturquoise"><Time :time="item.time * 1000" type="datetime" :interval="2" /></span>
                 </p>
                 <message-item v-bind:item="item"></message-item>
             </Row>
