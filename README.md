@@ -1,6 +1,13 @@
 # vue-chat
 
-> An electron-vue project
+> 基于electron-vue开发的桌面简易聊天工具
+
+### 功能
+
+- 群聊与单聊，加群加好友
+- 支持语音发送
+- 支持视频聊天
+- 支持文件发送
 
 #### Operating environment
 package|version
